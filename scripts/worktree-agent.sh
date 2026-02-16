@@ -15,7 +15,6 @@ usage() {
   echo ""
   echo "Options:"
   echo "  --max-turns N    Max agentic turns (default: 50)"
-  echo "  --max-budget N   Max budget in USD (default: 5.00)"
   echo ""
   echo "Example:"
   echo "  $0 feat/add-wolf \"Add a Wolf species with pack tactics targeting\""
@@ -23,7 +22,6 @@ usage() {
 }
 
 MAX_TURNS=50
-MAX_BUDGET="5.00"
 BRANCH_NAME=""
 PROMPT=""
 
@@ -31,10 +29,6 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     --max-turns)
       MAX_TURNS="$2"
-      shift 2
-      ;;
-    --max-budget)
-      MAX_BUDGET="$2"
       shift 2
       ;;
     --help|-h)
@@ -64,7 +58,6 @@ echo "=== Worktree Agent ==="
 echo "Branch: $BRANCH_NAME"
 echo "Worktree: $WORKTREE_DIR"
 echo "Max turns: $MAX_TURNS"
-echo "Max budget: \$$MAX_BUDGET"
 echo ""
 
 mkdir -p "$(dirname "$WORKTREE_DIR")"
@@ -85,7 +78,6 @@ cd "$WORKTREE_DIR"
 
 claude -p "$PROMPT" \
   --max-turns "$MAX_TURNS" \
-  --max-budget-usd "$MAX_BUDGET" \
   --allowedTools "Read,Edit,Write,Glob,Grep,Bash(bun *),Bash(bun run *),Bash(bunx *),Bash(git add *),Bash(git commit *),Bash(git status *),Bash(git diff *),Bash(git log *)" \
   --output-format text
 
@@ -109,7 +101,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 Automated by worktree-agent.sh
 
 **Task**: $PROMPT
-**Budget**: \$$MAX_BUDGET max, $MAX_TURNS turns max
+**Max turns**: $MAX_TURNS
 EOF
 )"
   echo "PR created."

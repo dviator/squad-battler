@@ -28,9 +28,9 @@
       {
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "Review the changes made in this session. Check if Claude:\n1. Introduced unnecessary complexity (deep nesting, premature abstractions, over-engineering)\n2. Violated the three-layer architecture (pure core functions, data config layer, shell/sim layer)\n3. Added comments that merely restate what the code does\n4. Used string literals where existing enums (Position, TargetType, BattleEventType) should be used\n\nIf any violations found, respond {\"ok\": false, \"reason\": \"description\"}. Otherwise {\"ok\": true}.",
-            "timeout": 30
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-review.sh",
+            "timeout": 10
           }
         ]
       }

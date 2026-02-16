@@ -125,6 +125,15 @@ squad-battler/
 │   ├── battle.test.ts
 │   ├── genetics.test.ts
 │   └── targeting.test.ts
+├── scripts/
+│   ├── worktree-agent.sh  # Parallel agent launcher
+│   └── overnight.sh       # Long-horizon batch agent
+├── .claude/
+│   ├── settings.json      # Project hooks (committable)
+│   └── hooks/
+│       ├── lint-on-edit.sh      # Auto-format on file edit
+│       └── pre-commit-check.sh  # Tests + typecheck before commit
+├── biome.json
 └── package.json
 ```
 
@@ -175,9 +184,10 @@ squad-battler/
 All core systems have comprehensive test coverage:
 
 ```bash
-bun test              # Run all tests
-bun test:watch        # Watch mode
-bun lint              # Type checking
+bun run test          # Run all tests
+bun run test:watch    # Watch mode
+bun run lint          # Biome lint + format check
+bun run typecheck     # TypeScript type checking
 ```
 
 Current test suites:
@@ -191,8 +201,20 @@ Current test suites:
 **Tech Stack**:
 - Runtime: Bun
 - Language: TypeScript (strict mode)
-- Testing: Bun test
+- Testing: Vitest + fast-check (property-based)
+- Linting/Formatting: Biome
 - Validation: Zod schemas
+
+**Scripts**:
+```bash
+bun run test        # Run all tests
+bun run test:watch  # Watch mode
+bun run lint        # Biome check (lint + format)
+bun run lint:fix    # Biome check with auto-fix
+bun run typecheck   # TypeScript type checking
+bun run dev         # Run main entry point
+bun run test:sim    # Run battle simulations
+```
 
 **Workflow**:
 1. Design mechanic (as test scenario)
@@ -200,6 +222,46 @@ Current test suites:
 3. Run simulation to validate
 4. Iterate based on data
 5. Add to game when verified
+
+## Agentic Development
+
+This project is set up for agentic coding with Claude Code.
+
+### Quality Hooks (`.claude/settings.json`)
+
+Three hooks run automatically during Claude Code sessions:
+
+- **PostToolUse (Edit|Write)**: Runs `biome check --write` on every file Claude edits, enforcing consistent formatting without manual intervention.
+- **PreToolUse (Bash → git commit)**: Blocks commits unless both `bun run typecheck` and `bun run test` pass. Only triggers on `git commit` commands, passes through all other Bash usage.
+- **Stop**: Prompt-based review that checks for unnecessary complexity, architecture violations, trivial comments, and missing enum usage before Claude finishes responding.
+
+### Parallel Agents (`scripts/worktree-agent.sh`)
+
+Run multiple Claude agents on independent features simultaneously using git worktrees for file isolation:
+
+```bash
+# Terminal 1
+./scripts/worktree-agent.sh feat/add-wolf "Add a Wolf species with pack tactics"
+
+# Terminal 2
+./scripts/worktree-agent.sh feat/poison-mutation "Add a poison status effect mutation"
+```
+
+Each agent gets its own worktree, branch, and scoped tool permissions. Defaults to 50 turns and $5 budget. Run `./scripts/worktree-agent.sh --help` for options.
+
+### Overnight Batch (`scripts/overnight.sh`)
+
+Run long-horizon tasks unattended with logging and auto-PR creation:
+
+```bash
+./scripts/overnight.sh "Add 5 new species with unique attack patterns and full test coverage"
+
+# With custom limits
+./scripts/overnight.sh --max-turns 300 --max-budget 30 \
+  "Implement status effects system (poison, stun, buffs) with breeding interactions"
+```
+
+Creates a timestamped branch, logs all output, pushes and opens a draft PR when done, and sends a macOS notification on completion. Defaults to 200 turns and $20 budget. Run `./scripts/overnight.sh --help` for options.
 
 ## License
 

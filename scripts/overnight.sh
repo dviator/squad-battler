@@ -13,7 +13,6 @@ usage() {
   echo "Options:"
   echo "  --branch NAME      Branch name (default: overnight/YYYYMMDD-HHMMSS)"
   echo "  --max-turns N      Max agentic turns (default: 200)"
-  echo "  --max-budget N     Max budget in USD (default: 20.00)"
   echo ""
   echo "Example:"
   echo "  $0 'Add 5 new species with unique mechanics and full test coverage'"
@@ -23,7 +22,6 @@ usage() {
 TASK=""
 BRANCH_NAME=""
 MAX_TURNS=200
-MAX_BUDGET="20.00"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -33,10 +31,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --max-turns)
       MAX_TURNS="$2"
-      shift 2
-      ;;
-    --max-budget)
-      MAX_BUDGET="$2"
       shift 2
       ;;
     --help|-h)
@@ -70,7 +64,6 @@ echo "=== Overnight Agent ==="
 echo "Branch: $BRANCH_NAME"
 echo "Task: $TASK"
 echo "Max turns: $MAX_TURNS"
-echo "Max budget: \$$MAX_BUDGET"
 echo "Log: $LOG_FILE"
 echo ""
 
@@ -98,7 +91,6 @@ echo "---" | tee -a "$LOG_FILE"
 
 claude -p "$FULL_PROMPT" \
   --max-turns "$MAX_TURNS" \
-  --max-budget-usd "$MAX_BUDGET" \
   --allowedTools "Read,Edit,Write,Glob,Grep,Bash(bun *),Bash(bun run *),Bash(bunx *),Bash(git add *),Bash(git commit *),Bash(git status *),Bash(git diff *),Bash(git log *),Bash(ls *),Bash(wc *)" \
   --output-format text \
   2>&1 | tee -a "$LOG_FILE"
@@ -123,7 +115,7 @@ if command -v gh &>/dev/null; then
 ## Overnight Agent Run
 
 **Task**: $TASK
-**Budget**: \$$MAX_BUDGET max, $MAX_TURNS turns max
+**Max turns**: $MAX_TURNS
 **Log**: \`$LOG_FILE\`
 EOF
 )" 2>/dev/null || echo "PR creation skipped (no remote configured)"
