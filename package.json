@@ -1,0 +1,25 @@
+{
+  "name": "squad-battler",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:sim": "bun run src/sim/runner.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "@types/bun": "latest",
+    "@vitest/ui": "^4.0.18",
+    "fast-check": "^3.15.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
