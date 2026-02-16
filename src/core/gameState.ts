@@ -11,6 +11,10 @@ export interface GameState {
   unlockedSpecies: string[];
   unlockedStations: string[];
   completedWorlds: number;
+  progress: {
+    worldsCompleted: number;
+    encountersCompleted: number;
+  };
 }
 
 // Time progression constants
@@ -39,6 +43,10 @@ export function createGameState(
     unlockedSpecies: startingSpecies,
     unlockedStations: ["healing", "recruiting"],
     completedWorlds: 0,
+    progress: {
+      worldsCompleted: 0,
+      encountersCompleted: 0,
+    },
   };
 }
 

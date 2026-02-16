@@ -278,10 +278,13 @@ function executeAttack(
   const resetTimer = (unit: Unit): Unit => {
     if (unit.id !== attackerId) return unit;
 
+    // Apply run-scoped cooldown reduction
+    const effectiveCooldown = Math.max(1, attack.baseCooldown - unit.cooldownReduction);
+
     return {
       ...unit,
       attackTimers: unit.attackTimers.map((timer) =>
-        timer.attackId === attackId ? { ...timer, currentCooldown: attack.baseCooldown } : timer,
+        timer.attackId === attackId ? { ...timer, currentCooldown: effectiveCooldown } : timer,
       ),
     };
   };

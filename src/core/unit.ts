@@ -137,6 +137,7 @@ export function createUnit(species: Species, position: Position, genome?: Partia
     lifeStage,
     geneticPotential,
     equipment: [],
+    cooldownReduction: 0,
   };
 }
 

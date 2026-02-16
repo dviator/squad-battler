@@ -45,6 +45,34 @@ export function resolveTargets(
       return rightAlly ? [rightAlly] : [];
     }
 
+    case TargetType.RightEnemy: {
+      // Attack enemy to the right of your position
+      if (attacker.position === Position.Right) {
+        // Already at rightmost, attack opposite or fallback
+        const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
+        return oppositeEnemy ? [oppositeEnemy] : [livingEnemies[0]!];
+      }
+      const rightEnemy = livingEnemies.find((e) => e.position === attacker.position + 1);
+      if (rightEnemy) return [rightEnemy];
+      // Fallback to opposite position
+      const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
+      return oppositeEnemy ? [oppositeEnemy] : [livingEnemies[0]!];
+    }
+
+    case TargetType.LeftEnemy: {
+      // Attack enemy to the left of your position
+      if (attacker.position === Position.Left) {
+        // Already at leftmost, attack opposite or fallback
+        const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
+        return oppositeEnemy ? [oppositeEnemy] : [livingEnemies[0]!];
+      }
+      const leftEnemy = livingEnemies.find((e) => e.position === attacker.position - 1);
+      if (leftEnemy) return [leftEnemy];
+      // Fallback to opposite position
+      const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
+      return oppositeEnemy ? [oppositeEnemy] : [livingEnemies[0]!];
+    }
+
     default:
       return [];
   }

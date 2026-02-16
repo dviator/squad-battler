@@ -13,6 +13,8 @@ export enum TargetType {
   RandomEnemy = "random_enemy",
   LeftAlly = "left_ally",
   RightAlly = "right_ally",
+  RightEnemy = "right_enemy", // Attack enemy to the right
+  LeftEnemy = "left_enemy", // Attack enemy to the left
 }
 
 export const StatsSchema = z.object({
@@ -82,6 +84,7 @@ export const UnitSchema = z.object({
   lifeStage: z.nativeEnum(LifeStage).default(LifeStage.Young),
   geneticPotential: GeneticPotentialSchema,
   equipment: z.array(z.string()).default([]), // Equipment item IDs for this run
+  cooldownReduction: z.number().nonnegative().default(0), // Temporary run-scoped cooldown reduction
 });
 
 export type Unit = z.infer<typeof UnitSchema>;

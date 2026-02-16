@@ -29,9 +29,11 @@ describe("Unit Creation", () => {
   test("initializes attack timers to cooldown values", () => {
     const unit = createUnit(EAGLE, Position.Right);
 
-    expect(unit.attackTimers).toHaveLength(1);
-    expect(unit.attackTimers[0]?.attackId).toBe("eagle_snipe");
-    expect(unit.attackTimers[0]?.currentCooldown).toBe(3);
+    expect(unit.attackTimers).toHaveLength(EAGLE.attacks.length);
+    for (let i = 0; i < EAGLE.attacks.length; i++) {
+      expect(unit.attackTimers[i]?.attackId).toBe(EAGLE.attacks[i]?.id);
+      expect(unit.attackTimers[i]?.currentCooldown).toBe(EAGLE.attacks[i]?.baseCooldown);
+    }
   });
 
   test("applies berserker mutation correctly", () => {

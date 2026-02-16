@@ -51,7 +51,7 @@ export const SHOP_ITEMS: ShopItemDefinition[] = [
   {
     id: "haste_serum",
     name: "Haste Serum",
-    description: "Reduces all attack cooldowns by 1 for the rest of this world",
+    description: "RUN ONLY: Reduces one unit's attack cooldowns by 1 for this run",
     category: ItemCategory.Consumable,
     cost: 8,
     rarity: ItemRarity.Uncommon,
@@ -60,11 +60,11 @@ export const SHOP_ITEMS: ShopItemDefinition[] = [
   {
     id: "adrenaline_shot",
     name: "Adrenaline Shot",
-    description: "Reduces all attack cooldowns by 2 for the next battle only",
+    description: "RUN ONLY: Reduces one unit's attack cooldowns by 2 for this run",
     category: ItemCategory.Consumable,
-    cost: 5,
+    cost: 12,
     rarity: ItemRarity.Uncommon,
-    effect: { type: ConsumableEffect.ReduceCooldowns, amount: 2, duration: "next_battle" },
+    effect: { type: ConsumableEffect.ReduceCooldowns, amount: 2, duration: "permanent" },
   },
 
   // === MUTATION ENHANCEMENTS (Uncommon) ===
@@ -371,7 +371,16 @@ export function applyConsumableToUnit(
     return { unit: finalUnit };
   }
 
-  // Other consumable effects (cooldown reduction) will be applied during battle
+  // Cooldown reduction consumables (run-scoped)
+  if (effect.type === ConsumableEffect.ReduceCooldowns) {
+    return {
+      unit: {
+        ...unit,
+        cooldownReduction: unit.cooldownReduction + effect.amount,
+      },
+    };
+  }
+
   return { unit };
 }
 
