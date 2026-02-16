@@ -28,26 +28,22 @@ describe("Genetics System", () => {
     const parent1 = createGenome("tiger", ["thick_hide"], 0);
     const parent2 = createGenome("tiger", ["powerful_muscles"], 0);
 
-    const offspring = breed(parent1, parent2, 0);
+    const offspring = breed(parent1, parent2);
 
     expect(offspring.speciesId).toBe("tiger");
     expect(offspring.generation).toBe(1);
   });
 
-  test("breeding can produce random mutations", () => {
+  test("breeding does not produce random new mutations", () => {
     const parent1 = createGenome("bear", [], 0);
     const parent2 = createGenome("bear", [], 0);
 
-    let foundMutation = false;
-    for (let i = 0; i < 100; i++) {
-      const offspring = breed(parent1, parent2, 1.0);
-      if (offspring.mutations.length > 0) {
-        foundMutation = true;
-        break;
-      }
+    // Without mutations in parents, offspring should have no mutations
+    // (new mutations only come from shop items now)
+    for (let i = 0; i < 20; i++) {
+      const offspring = breed(parent1, parent2);
+      expect(offspring.mutations.length).toBe(0);
     }
-
-    expect(foundMutation).toBe(true);
   });
 
   test("offspring inherits mutations probabilistically", () => {
@@ -56,7 +52,7 @@ describe("Genetics System", () => {
 
     const offspring = [];
     for (let i = 0; i < 20; i++) {
-      offspring.push(breed(parent1, parent2, 0));
+      offspring.push(breed(parent1, parent2));
     }
 
     const withThickHide = offspring.filter((o) => o.mutations.includes("thick_hide"));
@@ -70,7 +66,7 @@ describe("Genetics System", () => {
     const parent1 = createGenome("eagle", [], 0);
     const parent2 = createGenome("eagle", [], 0);
 
-    const gen1 = breed(parent1, parent2, 0);
+    const gen1 = breed(parent1, parent2);
     expect(gen1.generation).toBe(1);
 
     const gen2 = breed(gen1, gen1, 0);
@@ -86,17 +82,27 @@ describe("Genetics System", () => {
 });
 
 describe("Mutation Inheritance", () => {
-  test("offspring can have more mutations than either parent", () => {
+  test("offspring inherits mutations from both parents", () => {
     const parent1 = createGenome("tiger", ["thick_hide"], 5);
     const parent2 = createGenome("tiger", ["powerful_muscles"], 5);
 
-    let maxMutations = 0;
+    // With 50% chance per parent per mutation, offspring can inherit 0, 1, or 2 mutations
+    let found0 = false;
+    let found1 = false;
+    let found2 = false;
+
     for (let i = 0; i < 100; i++) {
-      const offspring = breed(parent1, parent2, 0.5);
-      maxMutations = Math.max(maxMutations, offspring.mutations.length);
+      const offspring = breed(parent1, parent2);
+      const count = offspring.mutations.length;
+      if (count === 0) found0 = true;
+      if (count === 1) found1 = true;
+      if (count === 2) found2 = true;
     }
 
-    expect(maxMutations).toBeGreaterThan(2);
+    // Should see all three outcomes (0, 1, or 2 mutations)
+    expect(found0).toBe(true);
+    expect(found1).toBe(true);
+    expect(found2).toBe(true);
   });
 
   test("mutations affect offspring stats correctly", () => {

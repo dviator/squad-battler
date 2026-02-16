@@ -1,15 +1,36 @@
+import {
+  applyDamageReduction,
+  applySpeedBoosts,
+  calculateRetaliationDamage,
+  initializeCombatEffectStates,
+  markAttackBlocked,
+  markAttackDodged,
+  shouldBlockAttack,
+  shouldDodgeAttack,
+  shouldRedirectAttack,
+} from "./combatEffects";
+import { SHOP_ITEMS } from "./shop";
 import { resolveTargets } from "./targeting";
 import { type BattleEvent, BattleEventType, type BattleState, type Unit } from "./types";
 import { getAttackById, isAlive, takeDamage } from "./unit";
 
 export function createBattleState(playerUnits: Unit[], enemyUnits: Unit[]): BattleState {
+  // Apply speed boosts from equipment before combat starts
+  const boostedPlayerUnits = playerUnits.map((unit) => applySpeedBoosts(unit, SHOP_ITEMS));
+  const boostedEnemyUnits = enemyUnits.map((unit) => applySpeedBoosts(unit, SHOP_ITEMS));
+
+  // Initialize combat effect states for tracking per-combat effects
+  const allUnits = [...boostedPlayerUnits, ...boostedEnemyUnits];
+  const combatEffectStates = initializeCombatEffectStates(allUnits);
+
   return {
     tick: 0,
-    playerUnits,
-    enemyUnits,
+    playerUnits: boostedPlayerUnits,
+    enemyUnits: boostedEnemyUnits,
     events: [{ type: BattleEventType.BattleStart, tick: 0 }],
     isComplete: false,
     winner: null,
+    combatEffectStates,
   };
 }
 
@@ -130,7 +151,16 @@ function executeAttack(
 
   const allies = attackerUnits;
   const enemies = defenderUnits;
-  const targets = resolveTargets(attacker, allies, enemies, attack.targetType);
+  let targets = resolveTargets(attacker, allies, enemies, attack.targetType);
+
+  // Check for attack redirection (Enemy Confuser)
+  if (shouldRedirectAttack(attacker, SHOP_ITEMS) && enemies.filter(isAlive).length > 1) {
+    const aliveEnemies = enemies.filter(isAlive);
+    const randomTarget = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+    if (randomTarget) {
+      targets = [randomTarget];
+    }
+  }
 
   if (targets.length === 0) return state;
 
@@ -147,32 +177,100 @@ function executeAttack(
 
   const newPlayerUnits = [...state.playerUnits];
   const newEnemyUnits = [...state.enemyUnits];
+  let effectStates = state.combatEffectStates || [];
 
   targets.forEach((target) => {
-    const baseDamage = attacker.stats.attackPower * attack.damageMultiplier;
-    const damage = Math.max(1, Math.floor(baseDamage));
-
     const targetList = isPlayerAttacker ? newEnemyUnits : newPlayerUnits;
     const targetIndex = targetList.findIndex((u) => u.id === target.id);
 
-    if (targetIndex !== -1) {
-      const damagedUnit = takeDamage(targetList[targetIndex]!, damage);
-      targetList[targetIndex] = damagedUnit;
+    if (targetIndex === -1) return;
 
+    const defender = targetList[targetIndex]!;
+    const defenderEffectState = effectStates.find((s) => s.unitId === defender.id);
+
+    if (!defenderEffectState) return;
+
+    // Check for block (Bubble Shield)
+    if (shouldBlockAttack(defender, SHOP_ITEMS, defenderEffectState)) {
+      effectStates = markAttackBlocked(effectStates, defender.id);
       events.push({
         type: BattleEventType.Damage,
         tick: state.tick,
         targetId: target.id,
-        damage,
-        remainingHp: damagedUnit.stats.currentHp,
+        damage: 0,
+        remainingHp: defender.stats.currentHp,
       });
+      return;
+    }
 
-      if (!isAlive(damagedUnit)) {
+    // Check for dodge (Mind Reader)
+    if (shouldDodgeAttack(defender, SHOP_ITEMS, defenderEffectState)) {
+      effectStates = markAttackDodged(effectStates, defender.id);
+      events.push({
+        type: BattleEventType.Damage,
+        tick: state.tick,
+        targetId: target.id,
+        damage: 0,
+        remainingHp: defender.stats.currentHp,
+      });
+      return;
+    }
+
+    // Calculate damage with reduction (Team Shield Generator)
+    const baseDamage = attacker.stats.attackPower * attack.damageMultiplier;
+    const defenderSquad = isPlayerAttacker ? newEnemyUnits : newPlayerUnits;
+    const reducedDamage = applyDamageReduction(
+      Math.floor(baseDamage),
+      defender,
+      defenderSquad,
+      SHOP_ITEMS,
+    );
+    const finalDamage = Math.max(1, reducedDamage);
+
+    const damagedUnit = takeDamage(defender, finalDamage);
+    targetList[targetIndex] = damagedUnit;
+
+    events.push({
+      type: BattleEventType.Damage,
+      tick: state.tick,
+      targetId: target.id,
+      damage: finalDamage,
+      remainingHp: damagedUnit.stats.currentHp,
+    });
+
+    if (!isAlive(damagedUnit)) {
+      events.push({
+        type: BattleEventType.UnitDied,
+        tick: state.tick,
+        unitId: damagedUnit.id,
+      });
+    }
+
+    // Apply retaliation damage (Spike Armor)
+    const retaliationDamage = calculateRetaliationDamage(defender, SHOP_ITEMS);
+    if (retaliationDamage > 0 && isAlive(attacker)) {
+      const attackerList = isPlayerAttacker ? newPlayerUnits : newEnemyUnits;
+      const attackerIndex = attackerList.findIndex((u) => u.id === attacker.id);
+
+      if (attackerIndex !== -1) {
+        const retaliatedAttacker = takeDamage(attackerList[attackerIndex]!, retaliationDamage);
+        attackerList[attackerIndex] = retaliatedAttacker;
+
         events.push({
-          type: BattleEventType.UnitDied,
+          type: BattleEventType.Damage,
           tick: state.tick,
-          unitId: damagedUnit.id,
+          targetId: attacker.id,
+          damage: retaliationDamage,
+          remainingHp: retaliatedAttacker.stats.currentHp,
         });
+
+        if (!isAlive(retaliatedAttacker)) {
+          events.push({
+            type: BattleEventType.UnitDied,
+            tick: state.tick,
+            unitId: retaliatedAttacker.id,
+          });
+        }
       }
     }
   });
@@ -193,6 +291,7 @@ function executeAttack(
     playerUnits: newPlayerUnits.map(resetTimer),
     enemyUnits: newEnemyUnits.map(resetTimer),
     events,
+    combatEffectStates: effectStates,
   };
 }
 

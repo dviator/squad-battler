@@ -42,6 +42,32 @@ export const AttackTimerSchema = z.object({
 
 export type AttackTimer = z.infer<typeof AttackTimerSchema>;
 
+// Genetic Potential grades (S > A > B > C > D > F)
+export enum GeneticGrade {
+  S = "S",
+  A = "A",
+  B = "B",
+  C = "C",
+  D = "D",
+  F = "F",
+}
+
+export const GeneticPotentialSchema = z.object({
+  maxHp: z.nativeEnum(GeneticGrade),
+  speed: z.nativeEnum(GeneticGrade),
+  attackPower: z.nativeEnum(GeneticGrade),
+});
+
+export type GeneticPotential = z.infer<typeof GeneticPotentialSchema>;
+
+// Life stages based on age
+export enum LifeStage {
+  Young = "young",
+  Adult = "adult",
+  Elderly = "elderly",
+  Dead = "dead",
+}
+
 export const UnitSchema = z.object({
   id: z.string(),
   speciesId: z.string(),
@@ -50,6 +76,12 @@ export const UnitSchema = z.object({
   attackTimers: z.array(AttackTimerSchema),
   position: z.nativeEnum(Position),
   mutations: z.array(z.string()).default([]),
+  level: z.number().positive().int().default(1),
+  xp: z.number().nonnegative().int().default(0),
+  age: z.number().nonnegative().default(0), // in days
+  lifeStage: z.nativeEnum(LifeStage).default(LifeStage.Young),
+  geneticPotential: GeneticPotentialSchema,
+  equipment: z.array(z.string()).default([]), // Equipment item IDs for this run
 });
 
 export type Unit = z.infer<typeof UnitSchema>;
@@ -105,6 +137,7 @@ export const BattleStateSchema = z.object({
   events: z.array(z.any()),
   isComplete: z.boolean(),
   winner: z.enum(["player", "enemy"]).nullable(),
+  combatEffectStates: z.array(z.any()).optional(),
 });
 
 export type BattleState = z.infer<typeof BattleStateSchema>;
@@ -138,6 +171,81 @@ export const GenomeSchema = z.object({
   mutations: z.array(z.string()),
   generation: z.number().nonnegative().int(),
   parentIds: z.array(z.string()).optional(),
+  potential: GeneticPotentialSchema,
 });
 
 export type Genome = z.infer<typeof GenomeSchema>;
+
+// Currencies
+export const CurrencySchema = z.object({
+  gold: z.number().nonnegative().int(),
+  materials: z.number().nonnegative().int(),
+});
+
+export type Currency = z.infer<typeof CurrencySchema>;
+
+// Shop Items
+export enum ItemCategory {
+  Consumable = "consumable",
+  GeneticMod = "genetic_mod",
+  Equipment = "equipment", // Lasts for the run, expires after
+}
+
+export enum ConsumableEffect {
+  HealHealth = "heal_health",
+  BoostStats = "boost_stats",
+  ReduceCooldowns = "reduce_cooldowns",
+}
+
+export enum EquipmentEffect {
+  BlockFirstAttack = "block_first_attack", // Bubble Shield
+  InitiativeBoost = "initiative_boost", // Speed boost for all combats
+  TeamDamageReduction = "team_damage_reduction", // Reduce damage for whole squad
+  AttackRedirect = "attack_redirect", // Laser Pointer - confuse targeting
+  PerfectDodge = "perfect_dodge", // Avoid one attack per combat
+  RetaliationSpikes = "retaliation_spikes", // Deal damage when hit
+}
+
+export const ShopItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  category: z.nativeEnum(ItemCategory),
+  cost: z.number().positive().int(),
+  effect: z.any(), // Will be typed based on category
+});
+
+export type ShopItem = z.infer<typeof ShopItemSchema>;
+
+// Consumable items (run-scoped effects)
+export type ConsumableItem = ShopItem & {
+  category: ItemCategory.Consumable;
+  effect:
+    | { type: ConsumableEffect.HealHealth; amount: number }
+    | {
+        type: ConsumableEffect.BoostStats;
+        stats: Partial<Omit<Stats, "currentHp">>;
+        duration: "next_battle" | "permanent";
+      }
+    | { type: ConsumableEffect.ReduceCooldowns; amount: number; duration: "next_battle" };
+};
+
+// Genetic mod items (permanent genome changes)
+export type GeneticModItem = ShopItem & {
+  category: ItemCategory.GeneticMod;
+  effect:
+    | { type: "add_mutation"; mutationId: string }
+    | { type: "boost_potential"; stat: keyof GeneticPotential; amount: number };
+};
+
+// Equipment items (lasts for the run, expires after)
+export type EquipmentItem = ShopItem & {
+  category: ItemCategory.Equipment;
+  effect:
+    | { type: EquipmentEffect.BlockFirstAttack } // Blocks first attack each combat
+    | { type: EquipmentEffect.InitiativeBoost; amount: number } // +Speed for all combats
+    | { type: EquipmentEffect.TeamDamageReduction; percent: number } // % damage reduction
+    | { type: EquipmentEffect.AttackRedirect; chance: number } // % chance to confuse enemies
+    | { type: EquipmentEffect.PerfectDodge } // Dodge one attack per combat
+    | { type: EquipmentEffect.RetaliationSpikes; damage: number }; // Damage when hit
+};

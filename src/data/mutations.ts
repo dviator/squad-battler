@@ -49,12 +49,43 @@ export const BERSERKER: Mutation = {
   },
 };
 
+// Permanent enhancement mutations (from mutation enhancements)
+export const ENHANCED_FEROCITY: Mutation = {
+  id: "enhanced_ferocity",
+  name: "Enhanced Ferocity",
+  description: "Permanent attack boost from Ferocity Enhancement",
+  statModifiers: {
+    attackPower: 15,
+  },
+};
+
+export const ENHANCED_RESILIENCE: Mutation = {
+  id: "enhanced_resilience",
+  name: "Enhanced Resilience",
+  description: "Permanent HP boost from Resilience Enhancement",
+  statModifiers: {
+    maxHp: 30,
+  },
+};
+
+export const ENHANCED_AGILITY: Mutation = {
+  id: "enhanced_agility",
+  name: "Enhanced Agility",
+  description: "Permanent speed boost from Agility Enhancement",
+  statModifiers: {
+    speed: 5,
+  },
+};
+
 export const ALL_MUTATIONS: Mutation[] = [
   THICK_HIDE,
   SWIFT_REFLEXES,
   POWERFUL_MUSCLES,
   ADRENALINE_RUSH,
   BERSERKER,
+  ENHANCED_FEROCITY,
+  ENHANCED_RESILIENCE,
+  ENHANCED_AGILITY,
 ];
 
 export const MUTATIONS_BY_ID: Record<string, Mutation> = {
@@ -63,4 +94,7 @@ export const MUTATIONS_BY_ID: Record<string, Mutation> = {
   powerful_muscles: POWERFUL_MUSCLES,
   adrenaline_rush: ADRENALINE_RUSH,
   berserker: BERSERKER,
+  enhanced_ferocity: ENHANCED_FEROCITY,
+  enhanced_resilience: ENHANCED_RESILIENCE,
+  enhanced_agility: ENHANCED_AGILITY,
 };

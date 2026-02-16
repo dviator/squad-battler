@@ -17,6 +17,6 @@ case "$FILE_PATH" in
 esac
 
 cd "$CLAUDE_PROJECT_DIR"
-bunx biome check --write "$FILE_PATH" 2>&1
+bunx biome check --write "$FILE_PATH" 2>&1 || true
 
 exit 0
