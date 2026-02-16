@@ -1,16 +1,13 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { resolveTargets } from "../src/core/targeting";
-import { createUnit } from "../src/core/unit";
-import { TIGER, BEAR, EAGLE } from "../src/data/species";
 import { Position, TargetType } from "../src/core/types";
+import { createUnit } from "../src/core/unit";
+import { BEAR, EAGLE, TIGER } from "../src/data/species";
 
 describe("Targeting System", () => {
   test("OppositeEnemy targets unit in same position", () => {
     const attacker = createUnit(TIGER, Position.Left);
-    const enemies = [
-      createUnit(BEAR, Position.Left),
-      createUnit(BEAR, Position.Center),
-    ];
+    const enemies = [createUnit(BEAR, Position.Left), createUnit(BEAR, Position.Center)];
 
     const targets = resolveTargets(attacker, [], enemies, TargetType.OppositeEnemy);
 
@@ -35,12 +32,7 @@ describe("Targeting System", () => {
     const strong = createUnit(BEAR, Position.Center);
     strong.stats.currentHp = 150;
 
-    const targets = resolveTargets(
-      attacker,
-      [],
-      [strong, weak],
-      TargetType.LowestHpEnemy
-    );
+    const targets = resolveTargets(attacker, [], [strong, weak], TargetType.LowestHpEnemy);
 
     expect(targets).toHaveLength(1);
     expect(targets[0]).toBe(weak);
@@ -66,12 +58,7 @@ describe("Targeting System", () => {
     dead.stats.currentHp = 0;
     const alive2 = createUnit(TIGER, Position.Right);
 
-    const targets = resolveTargets(
-      attacker,
-      [],
-      [alive1, dead, alive2],
-      TargetType.AllEnemies
-    );
+    const targets = resolveTargets(attacker, [], [alive1, dead, alive2], TargetType.AllEnemies);
 
     expect(targets).toHaveLength(2);
     expect(targets).toContain(alive1);
@@ -80,10 +67,7 @@ describe("Targeting System", () => {
 
   test("RandomEnemy returns single enemy", () => {
     const attacker = createUnit(TIGER, Position.Center);
-    const enemies = [
-      createUnit(BEAR, Position.Left),
-      createUnit(BEAR, Position.Right),
-    ];
+    const enemies = [createUnit(BEAR, Position.Left), createUnit(BEAR, Position.Right)];
 
     const targets = resolveTargets(attacker, [], enemies, TargetType.RandomEnemy);
 

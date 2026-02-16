@@ -1,11 +1,11 @@
-import { Genome, Unit } from "./types";
 import { ALL_MUTATIONS } from "../data/mutations";
+import type { Genome, Unit } from "./types";
 
 export function createGenome(
   speciesId: string,
   mutations: string[] = [],
   generation: number = 0,
-  parentIds?: string[]
+  parentIds?: string[],
 ): Genome {
   return {
     speciesId,
@@ -27,7 +27,7 @@ export function extractGenome(unit: Unit): Genome {
 export function breed(
   parent1Genome: Genome,
   parent2Genome: Genome,
-  mutationChance: number = 0.1
+  mutationChance: number = 0.1,
 ): Genome {
   if (parent1Genome.speciesId !== parent2Genome.speciesId) {
     throw new Error("Cross-species breeding not yet implemented");
@@ -48,14 +48,10 @@ export function breed(
   });
 
   if (Math.random() < mutationChance) {
-    const availableMutations = ALL_MUTATIONS.filter(
-      (m) => !inheritedMutations.has(m.id)
-    );
+    const availableMutations = ALL_MUTATIONS.filter((m) => !inheritedMutations.has(m.id));
     if (availableMutations.length > 0) {
       const randomMutation =
-        availableMutations[
-          Math.floor(Math.random() * availableMutations.length)
-        ]!;
+        availableMutations[Math.floor(Math.random() * availableMutations.length)]!;
       inheritedMutations.add(randomMutation.id);
     }
   }
@@ -64,9 +60,6 @@ export function breed(
     speciesId: parent1Genome.speciesId,
     mutations: Array.from(inheritedMutations),
     generation: Math.max(parent1Genome.generation, parent2Genome.generation) + 1,
-    parentIds: [
-      ...(parent1Genome.parentIds || []),
-      ...(parent2Genome.parentIds || []),
-    ],
+    parentIds: [...(parent1Genome.parentIds || []), ...(parent2Genome.parentIds || [])],
   };
 }

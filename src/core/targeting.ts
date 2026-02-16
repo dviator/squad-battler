@@ -1,11 +1,11 @@
-import { Unit, TargetType, Position } from "./types";
+import { Position, TargetType, type Unit } from "./types";
 import { isAlive } from "./unit";
 
 export function resolveTargets(
   attacker: Unit,
   allies: Unit[],
   enemies: Unit[],
-  targetType: TargetType
+  targetType: TargetType,
 ): Unit[] {
   const livingEnemies = enemies.filter(isAlive);
   const livingAllies = allies.filter(isAlive);
@@ -14,17 +14,13 @@ export function resolveTargets(
 
   switch (targetType) {
     case TargetType.OppositeEnemy: {
-      const oppositeEnemy = livingEnemies.find(
-        (e) => e.position === attacker.position
-      );
+      const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
       if (oppositeEnemy) return [oppositeEnemy];
       return [livingEnemies[0]!];
     }
 
     case TargetType.LowestHpEnemy: {
-      const sorted = [...livingEnemies].sort(
-        (a, b) => a.stats.currentHp - b.stats.currentHp
-      );
+      const sorted = [...livingEnemies].sort((a, b) => a.stats.currentHp - b.stats.currentHp);
       return [sorted[0]!];
     }
 
@@ -39,17 +35,13 @@ export function resolveTargets(
 
     case TargetType.LeftAlly: {
       if (attacker.position === Position.Left) return [];
-      const leftAlly = livingAllies.find(
-        (a) => a.position === attacker.position - 1
-      );
+      const leftAlly = livingAllies.find((a) => a.position === attacker.position - 1);
       return leftAlly ? [leftAlly] : [];
     }
 
     case TargetType.RightAlly: {
       if (attacker.position === Position.Right) return [];
-      const rightAlly = livingAllies.find(
-        (a) => a.position === attacker.position + 1
-      );
+      const rightAlly = livingAllies.find((a) => a.position === attacker.position + 1);
       return rightAlly ? [rightAlly] : [];
     }
 

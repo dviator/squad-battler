@@ -1,16 +1,8 @@
-import {
-  BattleState,
-  BattleEvent,
-  BattleEventType,
-  Unit,
-} from "./types";
-import { isAlive, takeDamage, getAttackById } from "./unit";
 import { resolveTargets } from "./targeting";
+import { type BattleEvent, BattleEventType, type BattleState, type Unit } from "./types";
+import { getAttackById, isAlive, takeDamage } from "./unit";
 
-export function createBattleState(
-  playerUnits: Unit[],
-  enemyUnits: Unit[]
-): BattleState {
+export function createBattleState(playerUnits: Unit[], enemyUnits: Unit[]): BattleState {
   return {
     tick: 0,
     playerUnits,
@@ -24,7 +16,7 @@ export function createBattleState(
 export function simulateBattle(
   playerUnits: Unit[],
   enemyUnits: Unit[],
-  maxTicks: number = 1000
+  maxTicks: number = 1000,
 ): BattleState {
   let state = createBattleState(playerUnits, enemyUnits);
 
@@ -37,8 +29,7 @@ export function simulateBattle(
       ...state,
       isComplete: true,
       winner:
-        state.playerUnits.filter(isAlive).length >
-        state.enemyUnits.filter(isAlive).length
+        state.playerUnits.filter(isAlive).length > state.enemyUnits.filter(isAlive).length
           ? "player"
           : "enemy",
     };
@@ -116,12 +107,7 @@ function processReadyAttacks(state: BattleState): BattleState {
 
   let newState = state;
   pendingAttacks.forEach((pending) => {
-    newState = executeAttack(
-      newState,
-      pending.unitId,
-      pending.isPlayer,
-      pending.attackId
-    );
+    newState = executeAttack(newState, pending.unitId, pending.isPlayer, pending.attackId);
   });
 
   return newState;
@@ -131,14 +117,10 @@ function executeAttack(
   state: BattleState,
   attackerId: string,
   isPlayerAttacker: boolean,
-  attackId: string
+  attackId: string,
 ): BattleState {
-  const attackerUnits = isPlayerAttacker
-    ? state.playerUnits
-    : state.enemyUnits;
-  const defenderUnits = isPlayerAttacker
-    ? state.enemyUnits
-    : state.playerUnits;
+  const attackerUnits = isPlayerAttacker ? state.playerUnits : state.enemyUnits;
+  const defenderUnits = isPlayerAttacker ? state.enemyUnits : state.playerUnits;
 
   const attacker = attackerUnits.find((u) => u.id === attackerId);
   if (!attacker || !isAlive(attacker)) return state;
@@ -163,8 +145,8 @@ function executeAttack(
     },
   ];
 
-  let newPlayerUnits = [...state.playerUnits];
-  let newEnemyUnits = [...state.enemyUnits];
+  const newPlayerUnits = [...state.playerUnits];
+  const newEnemyUnits = [...state.enemyUnits];
 
   targets.forEach((target) => {
     const baseDamage = attacker.stats.attackPower * attack.damageMultiplier;
@@ -201,9 +183,7 @@ function executeAttack(
     return {
       ...unit,
       attackTimers: unit.attackTimers.map((timer) =>
-        timer.attackId === attackId
-          ? { ...timer, currentCooldown: attack.baseCooldown }
-          : timer
+        timer.attackId === attackId ? { ...timer, currentCooldown: attack.baseCooldown } : timer,
       ),
     };
   };

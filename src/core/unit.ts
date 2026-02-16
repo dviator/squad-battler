@@ -1,13 +1,9 @@
-import { Unit, Species, Position, AttackTimer, Genome } from "./types";
 import { MUTATIONS_BY_ID } from "../data/mutations";
+import type { AttackTimer, Genome, Position, Species, Unit } from "./types";
 
 let unitIdCounter = 0;
 
-export function createUnit(
-  species: Species,
-  position: Position,
-  genome?: Partial<Genome>
-): Unit {
+export function createUnit(species: Species, position: Position, genome?: Partial<Genome>): Unit {
   const stats = { ...species.baseStats, currentHp: species.baseStats.maxHp };
   const mutations = genome?.mutations || [];
 
@@ -35,7 +31,7 @@ export function createUnit(
   stats.attackPower = Math.max(0, stats.attackPower);
 
   const attacks = species.attacks.map((attack) => {
-    let modifiedAttack = { ...attack };
+    const modifiedAttack = { ...attack };
 
     mutations.forEach((mutationId) => {
       const mutation = MUTATIONS_BY_ID[mutationId];
@@ -46,7 +42,7 @@ export function createUnit(
           if (modifier.cooldownModifier !== undefined) {
             modifiedAttack.baseCooldown = Math.max(
               1,
-              modifiedAttack.baseCooldown + modifier.cooldownModifier
+              modifiedAttack.baseCooldown + modifier.cooldownModifier,
             );
           }
           if (modifier.damageModifier !== undefined) {

@@ -126,7 +126,7 @@ export const MutationSchema = z.object({
         attackId: z.string(),
         cooldownModifier: z.number().optional(),
         damageModifier: z.number().optional(),
-      })
+      }),
     )
     .optional(),
 });

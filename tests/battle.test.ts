@@ -1,8 +1,8 @@
-import { describe, test, expect } from "vitest";
-import { simulateBattle, tickBattle, createBattleState } from "../src/core/battle";
+import { describe, expect, test } from "vitest";
+import { createBattleState, simulateBattle, tickBattle } from "../src/core/battle";
+import { BattleEventType, Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
 import { BEAR, EAGLE, TIGER } from "../src/data/species";
-import { Position, BattleEventType } from "../src/core/types";
 
 describe("Battle System", () => {
   test("battle completes when one side is eliminated", () => {
@@ -21,9 +21,7 @@ describe("Battle System", () => {
 
     const result = simulateBattle([fastUnit], [slowUnit]);
 
-    const attackEvents = result.events.filter(
-      (e) => e.type === BattleEventType.AttackExecuted
-    );
+    const attackEvents = result.events.filter((e) => e.type === BattleEventType.AttackExecuted);
 
     expect(attackEvents.length).toBeGreaterThan(0);
   });
@@ -39,8 +37,7 @@ describe("Battle System", () => {
     }
 
     const tigerAttacks = state.events.filter(
-      (e) =>
-        e.type === BattleEventType.AttackExecuted && e.attackerId === tiger.id
+      (e) => e.type === BattleEventType.AttackExecuted && e.attackerId === tiger.id,
     );
 
     expect(tigerAttacks.length).toBeGreaterThan(3);
@@ -57,8 +54,7 @@ describe("Battle System", () => {
     const result = simulateBattle([bear], enemies);
 
     const bearAttacks = result.events.filter(
-      (e) =>
-        e.type === BattleEventType.AttackExecuted && e.attackerId === bear.id
+      (e) => e.type === BattleEventType.AttackExecuted && e.attackerId === bear.id,
     );
 
     if (bearAttacks.length > 0) {
@@ -78,8 +74,7 @@ describe("Battle System", () => {
     const result = simulateBattle([eagle], [weakEnemy, strongEnemy]);
 
     const eagleAttacks = result.events.filter(
-      (e) =>
-        e.type === BattleEventType.AttackExecuted && e.attackerId === eagle.id
+      (e) => e.type === BattleEventType.AttackExecuted && e.attackerId === eagle.id,
     );
 
     if (eagleAttacks.length > 0) {
@@ -112,9 +107,7 @@ describe("Battle System", () => {
 
     const result = simulateBattle(squad, [weakEnemy]);
 
-    const endEvent = result.events.find(
-      (e) => e.type === BattleEventType.BattleEnd
-    );
+    const endEvent = result.events.find((e) => e.type === BattleEventType.BattleEnd);
     if (endEvent && endEvent.type === BattleEventType.BattleEnd) {
       expect(endEvent.survivors.length).toBeGreaterThan(0);
     }
@@ -129,7 +122,7 @@ describe("Battle Mechanics", () => {
     const result = simulateBattle([attacker], [defender]);
 
     const damageEvents = result.events.filter(
-      (e) => e.type === BattleEventType.Damage && e.targetId === defender.id
+      (e) => e.type === BattleEventType.Damage && e.targetId === defender.id,
     );
 
     expect(damageEvents.length).toBeGreaterThan(0);
@@ -145,9 +138,7 @@ describe("Battle Mechanics", () => {
 
     const result = simulateBattle([weak], [strong]);
 
-    const deathEvents = result.events.filter(
-      (e) => e.type === BattleEventType.UnitDied
-    );
+    const deathEvents = result.events.filter((e) => e.type === BattleEventType.UnitDied);
 
     expect(deathEvents.length).toBeGreaterThan(0);
   });

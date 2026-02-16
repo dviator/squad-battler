@@ -1,7 +1,7 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
+import { Position } from "../src/core/types";
 import { createUnit, isAlive, takeDamage } from "../src/core/unit";
 import { BEAR, EAGLE, TIGER } from "../src/data/species";
-import { Position } from "../src/core/types";
 
 describe("Unit Creation", () => {
   test("creates unit with base species stats", () => {

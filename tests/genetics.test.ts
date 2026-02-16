@@ -1,8 +1,8 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { breed, createGenome, extractGenome } from "../src/core/genetics";
+import { Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
 import { TIGER } from "../src/data/species";
-import { Position } from "../src/core/types";
 
 describe("Genetics System", () => {
   test("creates basic genome", () => {
@@ -59,12 +59,8 @@ describe("Genetics System", () => {
       offspring.push(breed(parent1, parent2, 0));
     }
 
-    const withThickHide = offspring.filter((o) =>
-      o.mutations.includes("thick_hide")
-    );
-    const withSwiftReflexes = offspring.filter((o) =>
-      o.mutations.includes("swift_reflexes")
-    );
+    const withThickHide = offspring.filter((o) => o.mutations.includes("thick_hide"));
+    const withSwiftReflexes = offspring.filter((o) => o.mutations.includes("swift_reflexes"));
 
     expect(withThickHide.length).toBeGreaterThan(0);
     expect(withSwiftReflexes.length).toBeGreaterThan(0);

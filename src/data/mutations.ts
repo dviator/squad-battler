@@ -1,4 +1,4 @@
-import { Mutation } from "../core/types";
+import type { Mutation } from "../core/types";
 
 export const THICK_HIDE: Mutation = {
   id: "thick_hide",

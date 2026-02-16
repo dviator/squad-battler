@@ -1,4 +1,4 @@
-import { Species, TargetType } from "../core/types";
+import { type Species, TargetType } from "../core/types";
 
 export const BEAR: Species = {
   id: "bear",

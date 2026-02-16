@@ -1,21 +1,18 @@
-export { simulateBattle, createBattleState, tickBattle } from "./core/battle";
-export { createUnit, isAlive, takeDamage } from "./core/unit";
+export { createBattleState, simulateBattle, tickBattle } from "./core/battle";
 export { breed, createGenome, extractGenome } from "./core/genetics";
-export { resolveTargets } from "./core/targeting";
 export { logBattle, logSquadStatus } from "./core/logger";
-
-export { ALL_SPECIES, SPECIES_BY_ID, BEAR, EAGLE, TIGER } from "./data/species";
-export { ALL_MUTATIONS, MUTATIONS_BY_ID } from "./data/mutations";
-
+export { resolveTargets } from "./core/targeting";
 export type {
-  Unit,
-  Species,
   Attack,
-  BattleState,
   BattleEvent,
-  Mutation,
+  BattleState,
   Genome,
+  Mutation,
+  Species,
   Stats,
+  Unit,
 } from "./core/types";
-
-export { Position, TargetType, BattleEventType } from "./core/types";
+export { BattleEventType, Position, TargetType } from "./core/types";
+export { createUnit, isAlive, takeDamage } from "./core/unit";
+export { ALL_MUTATIONS, MUTATIONS_BY_ID } from "./data/mutations";
+export { ALL_SPECIES, BEAR, EAGLE, SPECIES_BY_ID, TIGER } from "./data/species";

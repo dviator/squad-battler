@@ -1,9 +1,9 @@
 import { simulateBattle } from "../core/battle";
-import { createUnit } from "../core/unit";
-import { logBattle, logSquadStatus } from "../core/logger";
-import { BEAR, EAGLE, TIGER, SPECIES_BY_ID } from "../data/species";
-import { Position } from "../core/types";
 import { breed, createGenome } from "../core/genetics";
+import { logBattle, logSquadStatus } from "../core/logger";
+import { Position } from "../core/types";
+import { createUnit } from "../core/unit";
+import { BEAR, EAGLE, SPECIES_BY_ID, TIGER } from "../data/species";
 
 interface SimulationResult {
   totalBattles: number;
@@ -16,20 +16,18 @@ interface SimulationResult {
 export function runTournament(
   battles: number = 100,
   playerSpecies: string[] = ["tiger", "eagle", "bear"],
-  enemySpecies: string[] = ["tiger", "eagle", "bear"]
+  enemySpecies: string[] = ["tiger", "eagle", "bear"],
 ): SimulationResult {
   let playerWins = 0;
   let enemyWins = 0;
   let totalTicks = 0;
 
   for (let i = 0; i < battles; i++) {
-    const playerSquad = playerSpecies.map(
-      (speciesId, idx) =>
-        createUnit(SPECIES_BY_ID[speciesId]!, idx as Position)
+    const playerSquad = playerSpecies.map((speciesId, idx) =>
+      createUnit(SPECIES_BY_ID[speciesId]!, idx as Position),
     );
-    const enemySquad = enemySpecies.map(
-      (speciesId, idx) =>
-        createUnit(SPECIES_BY_ID[speciesId]!, idx as Position)
+    const enemySquad = enemySpecies.map((speciesId, idx) =>
+      createUnit(SPECIES_BY_ID[speciesId]!, idx as Position),
     );
 
     const result = simulateBattle(playerSquad, enemySquad);
