@@ -283,7 +283,7 @@ describe("Roster & Stable Management", () => {
     const updated = addToStable(roster, unit);
 
     expect(updated.stable.length).toBe(1);
-    expect(updated.stable[0].id).toBe(unit.id);
+    expect(updated.stable[0]!.id).toBe(unit.id);
   });
 
   test("removes unit from stable", () => {
@@ -302,7 +302,7 @@ describe("Roster & Stable Management", () => {
 
     const swapped = swapSquadUnit(roster, 0, stableUnit.id);
 
-    expect(swapped.squad[0].id).toBe(stableUnit.id);
+    expect(swapped.squad[0]!.id).toBe(stableUnit.id);
     expect(swapped.stable.find((u) => u.id === squadUnit.id)).toBeDefined();
     expect(swapped.stable.find((u) => u.id === stableUnit.id)).toBeUndefined();
   });

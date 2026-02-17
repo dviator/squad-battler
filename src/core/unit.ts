@@ -23,16 +23,16 @@ export function generateGeneticPotential(): GeneticPotential {
     const roll = Math.random() * totalWeight;
     let cumulative = 0;
     for (let i = 0; i < grades.length; i++) {
-      cumulative += weights[i];
-      if (roll < cumulative) return grades[i];
+      cumulative += weights[i]!;
+      if (roll < cumulative) return grades[i]!;
     }
-    return grades[0]; // fallback to F
+    return GeneticGrade.F;
   };
 
   return {
-    maxHp: randomGrade(),
-    speed: randomGrade(),
-    attackPower: randomGrade(),
+    maxHp: randomGrade()!,
+    speed: randomGrade()!,
+    attackPower: randomGrade()!,
   };
 }
 

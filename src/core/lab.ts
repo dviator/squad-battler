@@ -174,7 +174,7 @@ export function revealPotential(
   const toReveal = Math.min(revealCount, unrevealed.length);
 
   for (let i = 0; i < toReveal; i++) {
-    const stat = unrevealed[i];
+    const stat = unrevealed[i]!;
     revealed[stat] = unit.geneticPotential[stat];
   }
 

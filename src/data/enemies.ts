@@ -8,9 +8,14 @@ export const GOOB: Species = {
   name: "Goob",
   description: "A gray blob that mindlessly attacks whatever is in front of it",
   baseStats: {
-    maxHp: 600, // Massive HP pool to survive extended battles
-    speed: 8, // Matches player speed for fair initiative
-    attackPower: 50, // High damage to threaten player survival
+    // 275 HP keeps battles at ~6-7 ticks — long enough for 2 dedicated attacks per Goob
+    // but short enough that players survive with ~150 HP of total damage per encounter.
+    // Two Goobs at 275 HP sit well below the squad total of 330 HP.
+    maxHp: 275,
+    speed: 8,
+    // 45 attack: slap hits for ~36, tackle hits for 45 — threatening but rarely lethal
+    // in isolation. The danger comes from cumulative damage across 2 encounters.
+    attackPower: 45,
   },
   attacks: [
     {
@@ -37,9 +42,15 @@ export const MEGA_GOOB: Species = {
   name: "Mega Goob",
   description: "A massive blob with tremendous durability",
   baseStats: {
-    maxHp: 1500, // Extreme durability - nearly impossible without upgrades
-    speed: 7, // Slower than player but fast enough to act
-    attackPower: 100, // Devastating damage that can wipe unprepared squads
+    // 895 HP places the boss at a DPS cliff: fresh players kill it in ~9 ticks,
+    // just before its second Tidal Wave can fire at tick 12. RNG in targeting
+    // creates meaningful variance — ~14-21% fresh-squad win rate with no items.
+    maxHp: 895,
+    speed: 7,
+    // 38 attack: Mega Slam (57) threatens Eagle (80 HP), Crushing Weight (76)
+    // threatens Tiger (100 HP). Tidal Wave (38 to all) punishes low-HP squads.
+    // With items/haste, players burst boss before its waves stack up.
+    attackPower: 38,
   },
   attacks: [
     {

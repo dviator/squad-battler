@@ -69,7 +69,7 @@ describe("Genetics System", () => {
     const gen1 = breed(parent1, parent2);
     expect(gen1.generation).toBe(1);
 
-    const gen2 = breed(gen1, gen1, 0);
+    const gen2 = breed(gen1, gen1);
     expect(gen2.generation).toBe(2);
   });
 
@@ -77,7 +77,7 @@ describe("Genetics System", () => {
     const bear = createGenome("bear", [], 0);
     const tiger = createGenome("tiger", [], 0);
 
-    expect(() => breed(bear, tiger, 0)).toThrow();
+    expect(() => breed(bear, tiger)).toThrow();
   });
 });
 

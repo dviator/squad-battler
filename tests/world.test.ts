@@ -102,15 +102,15 @@ describe("Level Generation", () => {
   test("level has boss as final encounter", () => {
     const level = generateLevel("level_1", "Test Level", TEST_SPECIES, 1, 5);
 
-    const lastEncounter = level.encounters[level.encounters.length - 1];
-    expect(lastEncounter.type).toBe(EncounterType.Boss);
+    const lastEncounter = level.encounters[level.encounters.length - 1]!;
+    expect(lastEncounter!.type).toBe(EncounterType.Boss);
   });
 
   test("level has mini-boss in middle", () => {
     const level = generateLevel("level_1", "Test Level", TEST_SPECIES, 1, 5);
 
-    const middleEncounter = level.encounters[2]; // Middle of 5
-    expect(middleEncounter.type).toBe(EncounterType.MiniBoss);
+    const middleEncounter = level.encounters[2]!; // Middle of 5
+    expect(middleEncounter!.type).toBe(EncounterType.MiniBoss);
   });
 
   test("level can have completion reward", () => {
@@ -201,8 +201,8 @@ describe("Campaign", () => {
 
   test("completes level after all encounters", () => {
     let campaign = createCampaign(TEST_SPECIES);
-    const firstLevel = campaign.worlds[0].levels[0];
-    const encounterCount = firstLevel.encounters.length;
+    const firstLevel = campaign.worlds[0]!.levels[0]!;
+    const encounterCount = firstLevel!.encounters.length;
 
     let result;
     for (let i = 0; i < encounterCount; i++) {
@@ -218,7 +218,7 @@ describe("Campaign", () => {
 
   test("completes world after all levels", () => {
     let campaign = createCampaign(TEST_SPECIES);
-    const world = campaign.worlds[0];
+    const world = campaign.worlds[0]!;
 
     // Complete all encounters in all levels
     let result;
@@ -255,8 +255,8 @@ describe("Campaign", () => {
 
   test("awards level completion reward", () => {
     let campaign = createCampaign(TEST_SPECIES);
-    const firstLevel = campaign.worlds[0].levels[0];
-    const encounterCount = firstLevel.encounters.length;
+    const firstLevel = campaign.worlds[0]!.levels[0]!;
+    const encounterCount = firstLevel!.encounters.length;
 
     let result;
     for (let i = 0; i < encounterCount; i++) {

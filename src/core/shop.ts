@@ -402,7 +402,7 @@ export function applyGeneticModToUnit(unit: Unit, item: GeneticModItem, species:
   }
 
   if (effect.type === "boost_potential") {
-    const currentGrade = unit.geneticPotential[effect.stat];
+    const currentGrade = unit.geneticPotential[effect.stat as keyof typeof unit.geneticPotential];
     const newGrade = upgradeGeneticGrade(currentGrade);
 
     return {

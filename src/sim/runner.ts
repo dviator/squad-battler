@@ -84,7 +84,7 @@ export function demonstrateGeneticLineage() {
   console.log();
 
   for (let i = 0; i < 5; i++) {
-    const offspring = breed(parent1, parent2, 0.3);
+    const offspring = breed(parent1, parent2);
     console.log(`Offspring ${i + 1}:`, offspring);
   }
 }

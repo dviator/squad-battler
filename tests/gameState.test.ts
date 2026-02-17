@@ -47,7 +47,7 @@ describe("Game State", () => {
     const advanced = advanceTime(state, 1);
 
     expect(advanced.timeElapsed).toBe(1);
-    expect(advanced.roster.squad[0].age).toBe(1);
+    expect(advanced.roster.squad[0]!.age).toBe(1);
   });
 
   test("advances time after combat (1 hour)", () => {
@@ -68,7 +68,7 @@ describe("Game State", () => {
     }
 
     expect(state.timeElapsed).toBeCloseTo(1, 1);
-    expect(state.roster.squad[0].age).toBeCloseTo(1, 1);
+    expect(state.roster.squad[0]!.age).toBeCloseTo(1, 1);
   });
 
   test("aging progresses life stages", () => {
@@ -76,16 +76,16 @@ describe("Game State", () => {
     const state = createGameState(squad, []);
 
     const youngState = advanceTime(state, 6);
-    expect(youngState.roster.squad[0].lifeStage).toBe(LifeStage.Young);
+    expect(youngState.roster.squad[0]!.lifeStage).toBe(LifeStage.Young);
 
     const adultState = advanceTime(state, 10);
-    expect(adultState.roster.squad[0].lifeStage).toBe(LifeStage.Adult);
+    expect(adultState.roster.squad[0]!.lifeStage).toBe(LifeStage.Adult);
 
     const elderlyState = advanceTime(state, 22);
-    expect(elderlyState.roster.squad[0].lifeStage).toBe(LifeStage.Elderly);
+    expect(elderlyState.roster.squad[0]!.lifeStage).toBe(LifeStage.Elderly);
 
     const deadState = advanceTime(state, 31);
-    expect(deadState.roster.squad[0].lifeStage).toBe(LifeStage.Dead);
+    expect(deadState.roster.squad[0]!.lifeStage).toBe(LifeStage.Dead);
   });
 
   test("advances healing slots over time", () => {
@@ -104,7 +104,7 @@ describe("Game State", () => {
 
     const advanced = advanceTime(withHealing, 0.5);
 
-    expect(advanced.roster.healing[0].daysRemaining).toBeLessThan(healingSlot.daysRemaining);
+    expect(advanced.roster.healing[0]!.daysRemaining).toBeLessThan(healingSlot.daysRemaining);
   });
 
   test("advances breeding slots over time", () => {
@@ -123,7 +123,7 @@ describe("Game State", () => {
 
     const advanced = advanceTime(withBreeding, 1);
 
-    expect(advanced.roster.breeding[0].daysRemaining).toBe(2);
+    expect(advanced.roster.breeding[0]!.daysRemaining).toBe(2);
   });
 });
 

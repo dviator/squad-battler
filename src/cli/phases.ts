@@ -244,8 +244,13 @@ export async function labPhase(state: GameState): Promise<GameState> {
   // Complete any finished healing
   currentState.roster.healing.forEach((slot) => {
     if (isHealingComplete(slot)) {
-      const healedUnit = applyHealing(slot.unit);
-      currentState = updateUnitInRoster(currentState, slot.unit.id, healedUnit);
+      const unit = [...currentState.roster.squad, ...currentState.roster.stable].find(
+        (u) => u.id === slot.unitId,
+      );
+      if (unit) {
+        const healedUnit = applyHealing(unit);
+        currentState = updateUnitInRoster(currentState, unit.id, healedUnit);
+      }
     }
   });
 
@@ -298,7 +303,7 @@ async function healingStation(state: GameState): Promise<GameState> {
   const unit = wounded[choice];
   if (!unit) return state;
 
-  const healingSlot = startHealing(unit);
+  const healingSlot = startHealing(unit, 100);
 
   console.log(
     `\n✅ ${unit.speciesId} placed in healing station (${healingSlot.daysRemaining} days)`,

@@ -67,7 +67,11 @@ export function displayRoster(state: GameState): void {
   if (state.roster.healing.length > 0) {
     console.log("\n  🏥 Healing:");
     state.roster.healing.forEach((slot) => {
-      console.log(`    ${displayUnit(slot.unit)} - ${slot.daysRemaining} days remaining`);
+      const unit = [...state.roster.squad, ...state.roster.stable].find(
+        (u) => u.id === slot.unitId,
+      );
+      const label = unit ? displayUnit(unit) : slot.unitId;
+      console.log(`    ${label} - ${slot.daysRemaining} days remaining`);
     });
   }
 

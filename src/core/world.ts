@@ -65,8 +65,8 @@ export function generateEnemySquad(
   const positions: Position[] = [0, 1, 2]; // Left, Center, Right
 
   for (let i = 0; i < squadSize; i++) {
-    const species = availableSpecies[Math.floor(Math.random() * availableSpecies.length)];
-    const position = positions[i];
+    const species = availableSpecies[Math.floor(Math.random() * availableSpecies.length)]!;
+    const position = positions[i]!;
 
     const enemy = createUnit(species, position);
 

@@ -100,7 +100,7 @@ function inheritSinglePotential(grade1: GeneticGrade, grade2: GeneticGrade): Gen
   }
   // 50% midpoint
   const midIndex = Math.round((index1 + index2) / 2);
-  return gradeOrder[midIndex];
+  return gradeOrder[midIndex] ?? GeneticGrade.C;
 }
 
 // Upgrade genetic potential by one grade (for gene editing station)
@@ -119,5 +119,5 @@ export function upgradeGeneticGrade(current: GeneticGrade): GeneticGrade {
     return current; // Already at S, can't upgrade
   }
 
-  return gradeOrder[currentIndex + 1];
+  return gradeOrder[currentIndex + 1] ?? GeneticGrade.S;
 }
