@@ -111,10 +111,40 @@ export const TIGER: Species = {
   ],
 };
 
-export const ALL_SPECIES: Species[] = [BEAR, EAGLE, TIGER];
+export const WOLF: Species = {
+  id: "wolf",
+  name: "Wolf",
+  description: "Pack fighter that rewards coordinated focus-fire",
+  baseStats: {
+    maxHp: 140,
+    speed: 13,
+    attackPower: 22,
+  },
+  attacks: [
+    {
+      id: "wolf_swarm",
+      name: "Swarm",
+      baseCooldown: 2,
+      targetType: TargetType.LastPlayerTarget,
+      damageMultiplier: 1.2,
+      isAoe: false,
+    },
+    {
+      id: "wolf_bite",
+      name: "Pack Bite",
+      baseCooldown: 3,
+      targetType: TargetType.OppositeEnemy,
+      damageMultiplier: 1.6,
+      isAoe: false,
+    },
+  ],
+};
+
+export const ALL_SPECIES: Species[] = [BEAR, EAGLE, TIGER, WOLF];
 
 export const SPECIES_BY_ID: Record<string, Species> = {
   bear: BEAR,
   eagle: EAGLE,
   tiger: TIGER,
+  wolf: WOLF,
 };

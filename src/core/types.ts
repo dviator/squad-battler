@@ -15,6 +15,7 @@ export enum TargetType {
   RightAlly = "right_ally",
   RightEnemy = "right_enemy", // Attack enemy to the right
   LeftEnemy = "left_enemy", // Attack enemy to the left
+  LastPlayerTarget = "last_player_target", // Attack the last enemy targeted by a player unit
 }
 
 export const StatsSchema = z.object({
@@ -141,6 +142,7 @@ export const BattleStateSchema = z.object({
   isComplete: z.boolean(),
   winner: z.enum(["player", "enemy"]).nullable(),
   combatEffectStates: z.array(z.any()).optional(),
+  lastPlayerTargetId: z.string().nullable().optional(),
 });
 
 export type BattleState = z.infer<typeof BattleStateSchema>;

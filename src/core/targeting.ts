@@ -6,6 +6,7 @@ export function resolveTargets(
   allies: Unit[],
   enemies: Unit[],
   targetType: TargetType,
+  lastPlayerTargetId?: string | null,
 ): Unit[] {
   const livingEnemies = enemies.filter(isAlive);
   const livingAllies = allies.filter(isAlive);
@@ -71,6 +72,19 @@ export function resolveTargets(
       // Fallback to opposite position
       const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
       return oppositeEnemy ? [oppositeEnemy] : [livingEnemies[0]!];
+    }
+
+    case TargetType.LastPlayerTarget: {
+      // Attack the same enemy the last player unit attacked (for Swarm bonus)
+      // Falls back to opposite enemy if no previous target
+      if (lastPlayerTargetId) {
+        const lastTarget = livingEnemies.find((e) => e.id === lastPlayerTargetId);
+        if (lastTarget) return [lastTarget];
+      }
+      // Fallback: opposite enemy
+      const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
+      if (oppositeEnemy) return [oppositeEnemy];
+      return [livingEnemies[0]!];
     }
 
     default:

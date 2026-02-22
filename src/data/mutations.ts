@@ -77,6 +77,12 @@ export const ENHANCED_AGILITY: Mutation = {
   },
 };
 
+export const LONE_WOLF: Mutation = {
+  id: "lone_wolf",
+  name: "Lone Wolf",
+  description: "Massive stat bonuses when the last surviving unit (+50% attack, +50% speed)",
+};
+
 export const ALL_MUTATIONS: Mutation[] = [
   THICK_HIDE,
   SWIFT_REFLEXES,
@@ -86,6 +92,7 @@ export const ALL_MUTATIONS: Mutation[] = [
   ENHANCED_FEROCITY,
   ENHANCED_RESILIENCE,
   ENHANCED_AGILITY,
+  LONE_WOLF,
 ];
 
 export const MUTATIONS_BY_ID: Record<string, Mutation> = {
@@ -97,4 +104,5 @@ export const MUTATIONS_BY_ID: Record<string, Mutation> = {
   enhanced_ferocity: ENHANCED_FEROCITY,
   enhanced_resilience: ENHANCED_RESILIENCE,
   enhanced_agility: ENHANCED_AGILITY,
+  lone_wolf: LONE_WOLF,
 };
