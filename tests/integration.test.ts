@@ -5,7 +5,7 @@ import { generateShop } from "../src/core/shop";
 import { Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
 import { createGoobCampaign, getCurrentEncounter } from "../src/core/world";
-import { GOOB, MEGA_GOOB } from "../src/data/enemies";
+import { GOOB, HEAVY_GOOB, MEGA_GOOB } from "../src/data/enemies";
 import { BEAR, EAGLE, TIGER } from "../src/data/species";
 
 describe("Game Integration", () => {
@@ -25,7 +25,7 @@ describe("Game Integration", () => {
   });
 
   test("campaign creates valid first encounter", () => {
-    const campaign = createGoobCampaign(GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
     const encounter = getCurrentEncounter(campaign);
 
     expect(encounter).not.toBeNull();
@@ -36,7 +36,7 @@ describe("Game Integration", () => {
   });
 
   test("first encounter enemies are properly initialized", () => {
-    const campaign = createGoobCampaign(GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
     const encounter = getCurrentEncounter(campaign);
 
     expect(encounter).not.toBeNull();
@@ -72,7 +72,7 @@ describe("Game Integration", () => {
       createUnit(TIGER, Position.Right),
     ];
     const gameState = createGameState(squad, []);
-    const campaign = createGoobCampaign(GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
 
     // Get encounter
     const encounter = getCurrentEncounter(campaign);

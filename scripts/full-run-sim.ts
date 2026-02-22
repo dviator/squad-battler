@@ -1,16 +1,17 @@
 #!/usr/bin/env bun
 
 import { simulateBattle } from "../src/core/battle";
-import { applyConsumableToUnit, applyGeneticModToUnit } from "../src/core/shop";
-import type { ConsumableItem, GeneticModItem, Unit } from "../src/core/types";
+import { applyConsumableToUnit } from "../src/core/shop";
+import type { ConsumableItem, Unit } from "../src/core/types";
 import { ConsumableEffect, ItemCategory, Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
-import { GOOB, MEGA_GOOB } from "../src/data/enemies";
+import { GOOB, HEAVY_GOOB, MEGA_GOOB } from "../src/data/enemies";
 import { BEAR, EAGLE, TIGER } from "../src/data/species";
 
-const SIMULATIONS = 100;
+const SIMULATIONS = 500;
 
-// Shop items
+// ─── Shop items available during a run ───────────────────────────────────────
+
 const HEALTH_POTION_SMALL: ConsumableItem = {
   id: "health_potion_small",
   name: "Minor Healing Vial",
@@ -47,15 +48,6 @@ const HASTE_SERUM: ConsumableItem = {
   effect: { type: ConsumableEffect.ReduceCooldowns, amount: 1, duration: "permanent" },
 };
 
-const ADRENALINE_SHOT: ConsumableItem = {
-  id: "adrenaline_shot",
-  name: "Adrenaline Shot",
-  description: "Reduces cooldowns by 2",
-  category: ItemCategory.Consumable,
-  cost: 12,
-  effect: { type: ConsumableEffect.ReduceCooldowns, amount: 2, duration: "permanent" },
-};
-
 const FEROCITY_ENHANCEMENT: ConsumableItem = {
   id: "ferocity_enhancement",
   name: "Ferocity Enhancement",
@@ -78,233 +70,324 @@ const RESILIENCE_ENHANCEMENT: ConsumableItem = {
   effect: { type: ConsumableEffect.BoostStats, stats: { maxHp: 30 }, duration: "permanent" },
 };
 
-const MUTATION_THICK_HIDE: GeneticModItem = {
-  id: "mutation_thick_hide",
-  name: "Mutation Serum: Thick Hide",
-  description: "Adds Thick Hide mutation (+20 HP)",
-  category: ItemCategory.GeneticMod,
-  cost: 25,
-  effect: { type: "add_mutation", mutationId: "thick_hide" },
+// ─── Encounter definitions matching World 1 in world.ts ──────────────────────
+
+type EncounterDef = {
+  id: number;
+  type: "regular" | "elite" | "miniboss" | "boss";
+  enemies: () => Unit[];
+  goldReward: number;
 };
 
-// Simulate a full run with different strategies
+// Boss variant (Alpha Goob) — matches world.ts bossSpecies multipliers
+const ALPHA_GOOB_STATS = {
+  maxHp: Math.floor(MEGA_GOOB.baseStats.maxHp * 1.6),
+  speed: MEGA_GOOB.baseStats.speed,
+  attackPower: Math.floor(MEGA_GOOB.baseStats.attackPower * 1.4),
+};
+
+const ENCOUNTERS: EncounterDef[] = [
+  {
+    id: 1,
+    type: "regular",
+    enemies: () => [createUnit(GOOB, Position.Left), createUnit(GOOB, Position.Right)],
+    goldReward: 5,
+  },
+  {
+    id: 2,
+    type: "regular",
+    enemies: () => [createUnit(GOOB, Position.Left), createUnit(GOOB, Position.Right)],
+    goldReward: 5,
+  },
+  {
+    id: 3,
+    type: "regular",
+    enemies: () => [createUnit(GOOB, Position.Left), createUnit(GOOB, Position.Center)],
+    goldReward: 5,
+  },
+  {
+    id: 4,
+    type: "elite",
+    enemies: () => [
+      createUnit(GOOB, Position.Left),
+      createUnit(HEAVY_GOOB, Position.Center),
+      createUnit(GOOB, Position.Right),
+    ],
+    goldReward: 10,
+  },
+  {
+    id: 5,
+    type: "regular",
+    enemies: () => [createUnit(GOOB, Position.Left), createUnit(GOOB, Position.Right)],
+    goldReward: 5,
+  },
+  {
+    id: 6,
+    type: "miniboss",
+    enemies: () => [createUnit(MEGA_GOOB, Position.Center)],
+    goldReward: 15,
+  },
+  {
+    id: 7,
+    type: "regular",
+    enemies: () => [createUnit(HEAVY_GOOB, Position.Left), createUnit(HEAVY_GOOB, Position.Right)],
+    goldReward: 6,
+  },
+  {
+    id: 8,
+    type: "regular",
+    enemies: () => [
+      createUnit(GOOB, Position.Left),
+      createUnit(GOOB, Position.Center),
+      createUnit(GOOB, Position.Right),
+    ],
+    goldReward: 5,
+  },
+  {
+    id: 9,
+    type: "elite",
+    enemies: () => [
+      createUnit(GOOB, Position.Left),
+      createUnit(HEAVY_GOOB, Position.Center),
+      createUnit(GOOB, Position.Right),
+    ],
+    goldReward: 10,
+  },
+  {
+    id: 10,
+    type: "boss",
+    enemies: () => {
+      const boss = createUnit(MEGA_GOOB, Position.Center);
+      return [
+        {
+          ...boss,
+          speciesId: "mega_goob_boss",
+          stats: {
+            ...boss.stats,
+            maxHp: ALPHA_GOOB_STATS.maxHp,
+            currentHp: ALPHA_GOOB_STATS.maxHp,
+            speed: ALPHA_GOOB_STATS.speed,
+            attackPower: ALPHA_GOOB_STATS.attackPower,
+          },
+        },
+      ];
+    },
+    goldReward: 30,
+  },
+];
+
+// ─── Strategy helpers ─────────────────────────────────────────────────────────
+
+const SPECIES = [BEAR, EAGLE, TIGER] as const;
+
+function healSquad(
+  squad: Unit[],
+  gold: number,
+  threshold: number,
+): { squad: Unit[]; gold: number } {
+  for (let i = 0; i < squad.length; i++) {
+    const unit = squad[i]!;
+    const missing = unit.stats.maxHp - unit.stats.currentHp;
+    const hpPct = unit.stats.currentHp / unit.stats.maxHp;
+    if (hpPct >= threshold) continue;
+
+    if (missing > 90 && gold >= 10) {
+      squad[i] = applyConsumableToUnit(unit, HEALTH_POTION_LARGE, SPECIES[i]!).unit;
+      gold -= 10;
+    } else if (missing > 40 && gold >= 6) {
+      squad[i] = applyConsumableToUnit(unit, HEALTH_POTION_MEDIUM, SPECIES[i]!).unit;
+      gold -= 6;
+    } else if (missing > 15 && gold >= 3) {
+      squad[i] = applyConsumableToUnit(unit, HEALTH_POTION_SMALL, SPECIES[i]!).unit;
+      gold -= 3;
+    }
+  }
+  return { squad, gold };
+}
+
+function applyHaste(unit: Unit, speciesIdx: number, gold: number): { unit: Unit; gold: number } {
+  if (gold >= 8) {
+    return {
+      unit: applyConsumableToUnit(unit, HASTE_SERUM, SPECIES[speciesIdx]!).unit,
+      gold: gold - 8,
+    };
+  }
+  return { unit, gold };
+}
+
+// ─── Run simulation ───────────────────────────────────────────────────────────
+
 interface RunResult {
-  wins: number;
-  totalDamage: number;
-  totalGoldSpent: number;
-  survivedToBoss: number;
+  reachedElite: number; // Enc 4
+  reachedMiniBoss: number; // Enc 6
+  defeatedMiniBoss: number;
+  reachedBoss: number; // Enc 10
   defeatedBoss: number;
+  totalGoldSpent: number;
+  hpAtMiniBoss: number; // Total HP remaining when entering enc 6
+  hpAtMiniBossTotal: number; // Total max HP at that point
 }
 
 function simulateRun(
   strategy: "no_items" | "healing_only" | "haste_focus" | "balanced" | "whale",
 ): RunResult {
   const result: RunResult = {
-    wins: 0,
-    totalDamage: 0,
-    totalGoldSpent: 0,
-    survivedToBoss: 0,
+    reachedElite: 0,
+    reachedMiniBoss: 0,
+    defeatedMiniBoss: 0,
+    reachedBoss: 0,
     defeatedBoss: 0,
+    totalGoldSpent: 0,
+    hpAtMiniBoss: 0,
+    hpAtMiniBossTotal: 0,
   };
 
   for (let sim = 0; sim < SIMULATIONS; sim++) {
-    // Create fresh squad
     let squad = [
       createUnit(BEAR, Position.Left),
       createUnit(EAGLE, Position.Center),
       createUnit(TIGER, Position.Right),
     ];
 
-    let gold = 10; // Starting gold
-    let encountersWon = 0;
+    let gold = 10;
+    let miniBossDefeated = false;
 
-    // Encounter 1: 2 Goobs
-    const enemies1 = [createUnit(GOOB, Position.Left), createUnit(GOOB, Position.Right)];
-
-    // Pre-battle shop (Encounter 1)
+    // ── Upfront investments (before enc 1) ──
     switch (strategy) {
-      case "healing_only":
-        // Save gold for healing after battles
-        break;
       case "haste_focus":
-        // Buy Haste for all units if possible
-        if (gold >= 24) {
-          squad = squad.map(
-            (u, idx) => applyConsumableToUnit(u, HASTE_SERUM, [BEAR, EAGLE, TIGER][idx]!).unit,
-          );
-          gold -= 24;
-          result.totalGoldSpent += 24;
-        }
-        break;
-      case "balanced":
-        // Buy one Haste and save rest
+        // Haste one unit
         if (gold >= 8) {
-          squad[0] = applyConsumableToUnit(squad[0]!, HASTE_SERUM, BEAR).unit;
-          gold -= 8;
+          const r = applyHaste(squad[0]!, 0, gold);
+          squad[0] = r.unit;
+          gold = r.gold;
           result.totalGoldSpent += 8;
         }
         break;
       case "whale":
-        // Buy everything
-        if (gold >= 24) {
-          squad = squad.map(
-            (u, idx) => applyConsumableToUnit(u, HASTE_SERUM, [BEAR, EAGLE, TIGER][idx]!).unit,
-          );
-          gold -= 24;
-          result.totalGoldSpent += 24;
+        // Haste Tiger (fastest attacker) and one stat boost
+        if (gold >= 8) {
+          const r = applyHaste(squad[2]!, 2, gold);
+          squad[2] = r.unit;
+          gold = r.gold;
+          result.totalGoldSpent += 8;
         }
         break;
     }
 
-    const battle1 = simulateBattle(
-      squad.map((u) => ({ ...u, stats: { ...u.stats } })),
-      enemies1,
-      200,
-    );
+    let alive = true;
 
-    if (battle1.winner !== "player") {
-      continue; // Lost early
-    }
+    for (const enc of ENCOUNTERS) {
+      if (!alive) break;
 
-    encountersWon++;
-    squad = battle1.playerUnits;
-    gold += 5; // Gold reward
-
-    // Calculate damage taken
-    const damage1 = squad.reduce((sum, u, idx) => {
-      const maxHp = [BEAR, EAGLE, TIGER][idx]!.baseStats.maxHp;
-      return sum + (maxHp - u.stats.currentHp);
-    }, 0);
-    result.totalDamage += damage1;
-
-    // Post-battle healing
-    switch (strategy) {
-      case "healing_only": {
-        // Heal most damaged unit if needed
-        const mostDamaged = squad.reduce(
-          (worst, u, idx) => {
-            const hpPercent = u.stats.currentHp / u.stats.maxHp;
-            return hpPercent < worst.percent ? { idx, percent: hpPercent, unit: u } : worst;
-          },
-          { idx: -1, percent: 1, unit: squad[0]! },
-        );
-
-        if (mostDamaged.percent < 0.7 && gold >= 6) {
-          const healed = applyConsumableToUnit(
-            mostDamaged.unit,
-            HEALTH_POTION_MEDIUM,
-            [BEAR, EAGLE, TIGER][mostDamaged.idx]!,
-          );
-          squad[mostDamaged.idx] = healed.unit;
-          gold -= 6;
-          result.totalGoldSpent += 6;
+      // ── Pre-battle shop ──
+      const goldBefore = gold;
+      switch (strategy) {
+        case "healing_only": {
+          // Conservative: only heal when below 50% HP (reactive, not proactive)
+          const r = healSquad([...squad], gold, 0.5);
+          squad = r.squad;
+          gold = r.gold;
+          break;
         }
-        break;
-      }
-      case "balanced": {
-        // Heal if someone is low
-        const critical = squad.find((u) => u.stats.currentHp / u.stats.maxHp < 0.5);
-        if (critical && gold >= 6) {
-          const idx = squad.indexOf(critical);
-          squad[idx] = applyConsumableToUnit(
-            critical,
-            HEALTH_POTION_MEDIUM,
-            [BEAR, EAGLE, TIGER][idx]!,
-          ).unit;
-          gold -= 6;
-          result.totalGoldSpent += 6;
+        case "balanced": {
+          // Haste Tiger on enc 3 if we have gold
+          if (enc.id === 3 && gold >= 8) {
+            const r = applyHaste(squad[2]!, 2, gold);
+            squad[2] = r.unit;
+            gold = r.gold;
+          }
+          // Heal before elite/mini-boss/boss encounters when below 60%
+          if (enc.type === "elite" || enc.type === "miniboss" || enc.type === "boss") {
+            const r = healSquad([...squad], gold, 0.6);
+            squad = r.squad;
+            gold = r.gold;
+          }
+          break;
         }
-        break;
-      }
-      case "whale":
-        // Buy stat boosts
-        if (gold >= 12) {
-          squad[0] = applyConsumableToUnit(squad[0]!, FEROCITY_ENHANCEMENT, BEAR).unit;
-          gold -= 12;
-          result.totalGoldSpent += 12;
+        case "haste_focus": {
+          // Apply haste to more units when gold allows
+          if (enc.id === 4 && gold >= 8) {
+            const r = applyHaste(squad[1]!, 1, gold);
+            squad[1] = r.unit;
+            gold = r.gold;
+          }
+          if (enc.id === 7 && gold >= 8) {
+            const r = applyHaste(squad[2]!, 2, gold);
+            squad[2] = r.unit;
+            gold = r.gold;
+          }
+          break;
         }
-        break;
-    }
-
-    // Encounter 2: 2 Goobs
-    const enemies2 = [createUnit(GOOB, Position.Left), createUnit(GOOB, Position.Right)];
-
-    const battle2 = simulateBattle(
-      squad.map((u) => ({ ...u, stats: { ...u.stats } })),
-      enemies2,
-      200,
-    );
-
-    if (battle2.winner !== "player") {
-      continue;
-    }
-
-    encountersWon++;
-    squad = battle2.playerUnits;
-    gold += 5;
-
-    const damage2 = squad.reduce((sum, u, idx) => {
-      const maxHp = [BEAR, EAGLE, TIGER][idx]!.baseStats.maxHp;
-      return sum + (maxHp - u.stats.currentHp);
-    }, 0);
-    result.totalDamage += damage2;
-
-    // Pre-boss healing
-    if (strategy !== "no_items") {
-      for (let i = 0; i < squad.length; i++) {
-        const unit = squad[i]!;
-        const missing = unit.stats.maxHp - unit.stats.currentHp;
-        if (missing > 60 && gold >= 10) {
-          squad[i] = applyConsumableToUnit(
-            unit,
-            HEALTH_POTION_LARGE,
-            [BEAR, EAGLE, TIGER][i]!,
-          ).unit;
-          gold -= 10;
-          result.totalGoldSpent += 10;
-        } else if (missing > 20 && gold >= 6) {
-          squad[i] = applyConsumableToUnit(
-            unit,
-            HEALTH_POTION_MEDIUM,
-            [BEAR, EAGLE, TIGER][i]!,
-          ).unit;
-          gold -= 6;
-          result.totalGoldSpent += 6;
+        case "whale": {
+          // Heal aggressively before elite/boss encounters
+          if (enc.type === "elite" || enc.type === "miniboss" || enc.type === "boss") {
+            const r = healSquad([...squad], gold, 0.9);
+            squad = r.squad;
+            gold = r.gold;
+          }
+          // Buy stat boosts when flush with gold
+          if (enc.id === 7 && gold >= 12) {
+            squad[0] = applyConsumableToUnit(squad[0]!, FEROCITY_ENHANCEMENT, BEAR).unit;
+            gold -= 12;
+          }
+          if (enc.id === 8 && gold >= 12) {
+            squad[1] = applyConsumableToUnit(squad[1]!, RESILIENCE_ENHANCEMENT, EAGLE).unit;
+            gold -= 12;
+          }
+          break;
         }
       }
-    }
+      result.totalGoldSpent += goldBefore - gold;
 
-    result.survivedToBoss++;
+      // ── Checkpoint tracking ──
+      if (enc.id === 4) result.reachedElite++;
+      if (enc.id === 6) {
+        result.reachedMiniBoss++;
+        result.hpAtMiniBoss += squad.reduce((s, u) => s + u.stats.currentHp, 0);
+        result.hpAtMiniBossTotal += squad.reduce((s, u) => s + u.stats.maxHp, 0);
+      }
+      if (enc.id === 10) result.reachedBoss++;
 
-    // Boss Fight: Mega Goob
-    const boss = [createUnit(MEGA_GOOB, Position.Center)];
+      // ── Run battle ──
+      const battle = simulateBattle(
+        squad.map((u) => ({ ...u, stats: { ...u.stats } })),
+        enc.enemies(),
+        300,
+      );
 
-    const bossBattle = simulateBattle(
-      squad.map((u) => ({ ...u, stats: { ...u.stats } })),
-      boss,
-      200,
-    );
+      if (battle.winner !== "player") {
+        alive = false;
+        break;
+      }
 
-    if (bossBattle.winner === "player") {
-      result.wins++;
-      result.defeatedBoss++;
+      // ── Post-battle ──
+      squad = battle.playerUnits;
+      gold += enc.goldReward;
 
-      const damageBoss = bossBattle.playerUnits.reduce((sum, u, idx) => {
-        const maxHp = [BEAR, EAGLE, TIGER][idx]!.baseStats.maxHp;
-        return sum + (maxHp - u.stats.currentHp);
-      }, 0);
-      result.totalDamage += damageBoss;
+      if (enc.id === 6) miniBossDefeated = true;
+      if (enc.id === 6 && battle.winner === "player") result.defeatedMiniBoss++;
+      if (enc.id === 10 && battle.winner === "player") result.defeatedBoss++;
     }
   }
 
   return result;
 }
 
+// ─── Report ───────────────────────────────────────────────────────────────────
+
 console.log("=".repeat(70));
-console.log("                    FULL RUN SIMULATION");
+console.log("              FULL RUN SIMULATION — 10 ENCOUNTERS");
 console.log("=".repeat(70));
-console.log(`Running ${SIMULATIONS} full runs per strategy...`);
-console.log("Each run: 2 regular encounters + 1 boss fight\n");
+console.log(`Running ${SIMULATIONS} full runs per strategy...\n`);
+console.log("Encounter map:");
+console.log("  1-3: Regular (2× Goob)");
+console.log("  4:   Elite   (2× Goob + 1× Heavy Goob)");
+console.log("  5:   Regular (2× Goob)");
+console.log("  6:   MINI-BOSS (Mega Goob)");
+console.log("  7:   Regular (2× Heavy Goob)");
+console.log("  8:   Regular (3× Goob)");
+console.log("  9:   Elite   (2× Goob + 1× Heavy Goob)");
+console.log("  10:  BOSS    (Alpha Goob)\n");
 
 const strategies = [
   { name: "No Items", key: "no_items" as const },
@@ -319,50 +402,64 @@ const results = strategies.map((strat) => ({
   result: simulateRun(strat.key),
 }));
 
+// Targets from docs/systems/world-progression.md
+const TARGETS = {
+  reachMiniBoss: { min: 40, max: 70 },
+  defeatMiniBoss: { min: 20, max: 40 },
+  reachBoss: { min: 10, max: 30 },
+  defeatBoss: { min: 5, max: 15 },
+};
+
+function pct(n: number): string {
+  return ((n / SIMULATIONS) * 100).toFixed(1) + "%";
+}
+
+function inRange(n: number, min: number, max: number): string {
+  const p = (n / SIMULATIONS) * 100;
+  if (p < min) return `⬇ LOW`;
+  if (p > max) return `⬆ HIGH`;
+  return `✓`;
+}
+
 for (const { strategy, result } of results) {
-  const winRate = (result.wins / SIMULATIONS) * 100;
-  const avgDamage = result.totalDamage / SIMULATIONS;
-  const avgGoldSpent = result.totalGoldSpent / SIMULATIONS;
-  const bossReachRate = (result.survivedToBoss / SIMULATIONS) * 100;
-  const bossWinRate =
-    result.survivedToBoss > 0 ? (result.defeatedBoss / result.survivedToBoss) * 100 : 0;
+  const avgHpPct =
+    result.reachedMiniBoss > 0
+      ? ((result.hpAtMiniBoss / result.hpAtMiniBossTotal) * 100).toFixed(0)
+      : "N/A";
 
   console.log(`\n📊 ${strategy.toUpperCase()}`);
-  console.log(`  Boss Reach Rate: ${bossReachRate.toFixed(1)}%`);
-  console.log(`  Boss Win Rate: ${bossWinRate.toFixed(1)}%`);
-  console.log(`  Overall Win Rate: ${winRate.toFixed(1)}%`);
-  console.log(`  Avg Damage Taken: ${avgDamage.toFixed(1)} HP`);
-  console.log(`  Avg Gold Spent: ${avgGoldSpent.toFixed(1)}g`);
+  console.log(`  Reach Elite (enc 4):    ${pct(result.reachedElite)}`);
   console.log(
-    `  Gold Efficiency: ${(avgDamage / Math.max(1, avgGoldSpent)).toFixed(2)} damage per gold spent`,
+    `  Reach Mini-Boss (enc 6): ${pct(result.reachedMiniBoss)}  target: ${TARGETS.reachMiniBoss.min}-${TARGETS.reachMiniBoss.max}%  ${inRange(result.reachedMiniBoss, TARGETS.reachMiniBoss.min, TARGETS.reachMiniBoss.max)}`,
   );
+  console.log(
+    `  Defeat Mini-Boss:        ${pct(result.defeatedMiniBoss)}  target: ${TARGETS.defeatMiniBoss.min}-${TARGETS.defeatMiniBoss.max}%  ${inRange(result.defeatedMiniBoss, TARGETS.defeatMiniBoss.min, TARGETS.defeatMiniBoss.max)}`,
+  );
+  console.log(
+    `  Reach Boss (enc 10):     ${pct(result.reachedBoss)}   target: ${TARGETS.reachBoss.min}-${TARGETS.reachBoss.max}%  ${inRange(result.reachedBoss, TARGETS.reachBoss.min, TARGETS.reachBoss.max)}`,
+  );
+  console.log(
+    `  Defeat Boss:             ${pct(result.defeatedBoss)}   target: ${TARGETS.defeatBoss.min}-${TARGETS.defeatBoss.max}%  ${inRange(result.defeatedBoss, TARGETS.defeatBoss.min, TARGETS.defeatBoss.max)}`,
+  );
+  console.log(`  HP at Mini-Boss entry:   ${avgHpPct}% of max  (target: 30-50%)`);
+  console.log(`  Avg gold spent:          ${(result.totalGoldSpent / SIMULATIONS).toFixed(1)}g`);
 }
+
+// ─── Overall analysis ─────────────────────────────────────────────────────────
 
 console.log("\n" + "=".repeat(70));
-console.log("ANALYSIS:");
+console.log("ANALYSIS (no_items baseline):");
 
-// Find best strategy
-const best = results.reduce((best, curr) => {
-  return curr.result.wins > best.result.wins ? curr : best;
-});
+const noItems = results.find((r) => r.strategy === "No Items")!.result;
+console.log(
+  `\n  Mini-boss reach: ${pct(noItems.reachedMiniBoss)}  ${inRange(noItems.reachedMiniBoss, TARGETS.reachMiniBoss.min, TARGETS.reachMiniBoss.max)}`,
+);
+console.log(
+  `  Boss reach:      ${pct(noItems.reachedBoss)}  ${inRange(noItems.reachedBoss, TARGETS.reachBoss.min, TARGETS.reachBoss.max)}`,
+);
 
-const noItems = results.find((r) => r.strategy === "No Items")!;
-const bestImprovement =
-  ((best.result.wins - noItems.result.wins) / Math.max(1, noItems.result.wins)) * 100;
+const whale = results.find((r) => r.strategy === "Whale (All Items)")!.result;
+console.log(`\nWhale (best-case) boss defeat rate: ${pct(whale.defeatedBoss)}`);
+console.log(`  This represents the ceiling for experienced players with good items.`);
 
-console.log(`\n🏆 Best Strategy: ${best.strategy}`);
-console.log(`   Win Rate: ${((best.result.wins / SIMULATIONS) * 100).toFixed(1)}%`);
-console.log(`   Improvement: ${bestImprovement.toFixed(1)}% over no items`);
-
-// Check if game is too hard/easy
-const avgWinRate =
-  (results.reduce((sum, r) => sum + r.result.wins, 0) / results.length / SIMULATIONS) * 100;
-if (avgWinRate < 30) {
-  console.log("\n⚠️  TOO HARD - Average win rate below 30%");
-} else if (avgWinRate > 90) {
-  console.log("\n⚠️  TOO EASY - Average win rate above 90%");
-} else {
-  console.log("\n✅ GOOD DIFFICULTY - Average win rate in sweet spot (30-90%)");
-}
-
-console.log("=".repeat(70) + "\n");
+console.log("\n" + "=".repeat(70) + "\n");

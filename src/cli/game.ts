@@ -3,12 +3,12 @@ import { createGameState } from "../core/gameState";
 import { Position } from "../core/types";
 import { createUnit } from "../core/unit";
 import { advanceEncounter, createGoobCampaign } from "../core/world";
-import { GOOB, MEGA_GOOB } from "../data/enemies";
+import { GOOB, HEAVY_GOOB, MEGA_GOOB } from "../data/enemies";
 import { BEAR, EAGLE, TIGER } from "../data/species";
 import { clearScreen, displayHeader } from "./display";
 import { combatPhase, shopPhase } from "./phases";
 
-const ALL_SPECIES = [BEAR, EAGLE, TIGER, GOOB, MEGA_GOOB];
+const ALL_SPECIES = [BEAR, EAGLE, TIGER, GOOB, HEAVY_GOOB, MEGA_GOOB];
 
 // Main game loop
 export async function playGame(): Promise<void> {
@@ -47,7 +47,7 @@ export async function playGame(): Promise<void> {
   };
 
   // Create campaign
-  let campaign = createGoobCampaign(GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
+  let campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
 
   // Main game loop
   let playing = true;
@@ -101,7 +101,7 @@ export async function playGame(): Promise<void> {
             materials: 0,
           },
         };
-        campaign = createGoobCampaign(GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
+        campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
       } else {
         playing = false;
       }
@@ -167,7 +167,7 @@ export async function playGame(): Promise<void> {
             materials: 0,
           },
         };
-        campaign = createGoobCampaign(GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
+        campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
       } else {
         playing = false;
       }

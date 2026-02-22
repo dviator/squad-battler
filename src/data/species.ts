@@ -5,7 +5,7 @@ export const BEAR: Species = {
   name: "Bear",
   description: "Powerful AOE attacker with high HP",
   baseStats: {
-    maxHp: 150,
+    maxHp: 180,
     speed: 8,
     attackPower: 20,
   },
@@ -42,7 +42,7 @@ export const EAGLE: Species = {
   name: "Eagle",
   description: "Fast striker that targets weak enemies",
   baseStats: {
-    maxHp: 80,
+    maxHp: 130,
     speed: 15,
     attackPower: 25,
   },
@@ -79,7 +79,7 @@ export const TIGER: Species = {
   name: "Tiger",
   description: "Balanced fighter with consistent damage",
   baseStats: {
-    maxHp: 100,
+    maxHp: 160,
     speed: 12,
     attackPower: 30,
   },

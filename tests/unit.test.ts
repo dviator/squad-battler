@@ -8,8 +8,8 @@ describe("Unit Creation", () => {
     const unit = createUnit(BEAR, Position.Center);
 
     expect(unit.speciesId).toBe("bear");
-    expect(unit.stats.maxHp).toBe(150);
-    expect(unit.stats.currentHp).toBe(150);
+    expect(unit.stats.maxHp).toBe(180);
+    expect(unit.stats.currentHp).toBe(180);
     expect(unit.stats.speed).toBe(8);
     expect(unit.stats.attackPower).toBe(20);
     expect(unit.position).toBe(Position.Center);
@@ -20,8 +20,8 @@ describe("Unit Creation", () => {
       mutations: ["thick_hide", "powerful_muscles"],
     });
 
-    expect(unit.stats.maxHp).toBe(130);
-    expect(unit.stats.currentHp).toBe(130);
+    expect(unit.stats.maxHp).toBe(190);
+    expect(unit.stats.currentHp).toBe(190);
     expect(unit.stats.attackPower).toBe(38);
     expect(unit.mutations).toEqual(["thick_hide", "powerful_muscles"]);
   });
@@ -41,7 +41,7 @@ describe("Unit Creation", () => {
       mutations: ["berserker"],
     });
 
-    expect(unit.stats.maxHp).toBe(80);
+    expect(unit.stats.maxHp).toBe(140);
     expect(unit.stats.attackPower).toBe(45);
   });
 });
@@ -54,7 +54,7 @@ describe("Unit State", () => {
 
   test("unit is dead with zero HP", () => {
     const unit = createUnit(BEAR, Position.Center);
-    const deadUnit = takeDamage(unit, 150);
+    const deadUnit = takeDamage(unit, 181);
     expect(isAlive(deadUnit)).toBe(false);
   });
 
@@ -62,8 +62,8 @@ describe("Unit State", () => {
     const unit = createUnit(TIGER, Position.Left);
     const damaged = takeDamage(unit, 30);
 
-    expect(damaged.stats.currentHp).toBe(70);
-    expect(damaged.stats.maxHp).toBe(100);
+    expect(damaged.stats.currentHp).toBe(130);
+    expect(damaged.stats.maxHp).toBe(160);
   });
 
   test("takeDamage does not reduce HP below zero", () => {

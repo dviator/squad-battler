@@ -109,7 +109,7 @@ describe("Mutation Inheritance", () => {
     const genome = createGenome("tiger", ["thick_hide", "powerful_muscles"], 1);
     const unit = createUnit(TIGER, Position.Center, genome);
 
-    expect(unit.stats.maxHp).toBe(130);
+    expect(unit.stats.maxHp).toBe(190);
     expect(unit.stats.attackPower).toBe(38);
   });
 });

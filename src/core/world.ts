@@ -5,6 +5,7 @@ import { createUnit } from "./unit";
 // Combat encounter types
 export enum EncounterType {
   Normal = "normal",
+  Elite = "elite",
   MiniBoss = "mini_boss",
   Boss = "boss",
 }
@@ -276,59 +277,120 @@ export function generateWorld(
 // Predefined world templates
 
 // World 1: Basement Levels with custom Goob enemies
-export function createWorld1Goobs(goobSpecies: Species, megaGoobSpecies: Species): World {
+export function createWorld1Goobs(
+  goobSpecies: Species,
+  heavyGoobSpecies: Species,
+  megaGoobSpecies: Species,
+): World {
+  // Boss variant: buffed Mega Goob (unique mechanic TBD — see docs/systems/world-progression.md)
+  const bossSpecies: Species = {
+    ...megaGoobSpecies,
+    id: "mega_goob_boss",
+    name: "Alpha Goob",
+    baseStats: {
+      maxHp: Math.floor(megaGoobSpecies.baseStats.maxHp * 1.6), // ~1120 HP
+      speed: megaGoobSpecies.baseStats.speed,
+      attackPower: Math.floor(megaGoobSpecies.baseStats.attackPower * 1.4), // ~53 attack
+    },
+  };
+
   const level1: Level = {
     id: "world_1_level_1",
     name: "Floor B1 - The Specimen Chambers",
     encounters: [
-      // 2 Goobs
+      // Enc 1: Tutorial — 2 Goobs
       createCustomEncounter(
         "w1_l1_e1",
         EncounterType.Normal,
         [goobSpecies, goobSpecies],
         [Position.Left, Position.Right],
-        3,
+        5,
         0,
       ),
-      // 3 Goobs
+      // Enc 2: 2 Goobs
       createCustomEncounter(
         "w1_l1_e2",
         EncounterType.Normal,
-        [goobSpecies, goobSpecies, goobSpecies],
-        [Position.Left, Position.Center, Position.Right],
-        3,
+        [goobSpecies, goobSpecies],
+        [Position.Left, Position.Right],
+        5,
         0,
       ),
-      // Mini-boss: Mega Goob
+      // Enc 3: 2 Goobs (different positioning)
       createCustomEncounter(
         "w1_l1_e3",
-        EncounterType.MiniBoss,
-        [megaGoobSpecies],
-        [Position.Center],
-        6,
-        1,
-      ),
-      // 2 Goobs
-      createCustomEncounter(
-        "w1_l1_e4",
         EncounterType.Normal,
         [goobSpecies, goobSpecies],
         [Position.Left, Position.Center],
-        3,
+        5,
         0,
       ),
-      // Boss: Mega Goob + 2 Goob sidekicks
+      // Enc 4: Elite — 2 Goobs + 1 Heavy Goob
+      createCustomEncounter(
+        "w1_l1_e4",
+        EncounterType.Elite,
+        [goobSpecies, heavyGoobSpecies, goobSpecies],
+        [Position.Left, Position.Center, Position.Right],
+        10,
+        0,
+      ),
+      // Enc 5: Regular — 2 Goobs
       createCustomEncounter(
         "w1_l1_e5",
-        EncounterType.Boss,
-        [goobSpecies, megaGoobSpecies, goobSpecies],
+        EncounterType.Normal,
+        [goobSpecies, goobSpecies],
+        [Position.Left, Position.Right],
+        5,
+        0,
+      ),
+      // Enc 6: Mini-Boss — Mega Goob
+      createCustomEncounter(
+        "w1_l1_e6",
+        EncounterType.MiniBoss,
+        [megaGoobSpecies],
+        [Position.Center],
+        15,
+        1,
+      ),
+      // Enc 7: Regular — 2 Heavy Goobs
+      createCustomEncounter(
+        "w1_l1_e7",
+        EncounterType.Normal,
+        [heavyGoobSpecies, heavyGoobSpecies],
+        [Position.Left, Position.Right],
+        6,
+        0,
+      ),
+      // Enc 8: Regular — 3 Goobs (AoE threat)
+      createCustomEncounter(
+        "w1_l1_e8",
+        EncounterType.Normal,
+        [goobSpecies, goobSpecies, goobSpecies],
         [Position.Left, Position.Center, Position.Right],
-        9,
+        5,
+        0,
+      ),
+      // Enc 9: Elite — 2 Goobs + 1 Heavy Goob
+      createCustomEncounter(
+        "w1_l1_e9",
+        EncounterType.Elite,
+        [goobSpecies, heavyGoobSpecies, goobSpecies],
+        [Position.Left, Position.Center, Position.Right],
+        10,
+        0,
+      ),
+      // Enc 10: Boss — Alpha Goob (buffed Mega Goob, unique mechanic TBD)
+      createCustomEncounter(
+        "w1_l1_e10",
+        EncounterType.Boss,
+        [bossSpecies],
+        [Position.Center],
+        30,
         3,
       ),
     ],
     completionReward: {
-      materials: 5,
+      materials: 10,
       unlockedStation: "breeding",
     },
   };
@@ -423,12 +485,13 @@ export function createCampaign(availableSpecies: Species[]): Campaign {
 // Create campaign with custom enemies (Goob-based World 1)
 export function createGoobCampaign(
   goobSpecies: Species,
+  heavyGoobSpecies: Species,
   megaGoobSpecies: Species,
   playerSpecies: Species[],
 ): Campaign {
   return {
     worlds: [
-      createWorld1Goobs(goobSpecies, megaGoobSpecies),
+      createWorld1Goobs(goobSpecies, heavyGoobSpecies, megaGoobSpecies),
       createWorld2(playerSpecies), // Placeholder
       createWorld3(playerSpecies), // Placeholder
     ],
