@@ -15,4 +15,4 @@ export type {
 export { BattleEventType, Position, TargetType } from "./core/types";
 export { createUnit, isAlive, takeDamage } from "./core/unit";
 export { ALL_MUTATIONS, MUTATIONS_BY_ID } from "./data/mutations";
-export { ALL_SPECIES, BEAR, EAGLE, SPECIES_BY_ID, TIGER } from "./data/species";
+export { ALL_SPECIES, BEAR, EAGLE, SPECIES_BY_ID, TIGER, WOLF } from "./data/species";

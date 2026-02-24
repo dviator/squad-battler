@@ -15,9 +15,9 @@ import { GeneticGrade, ItemCategory, Position } from "../src/core/types";
 import { canBreed, createUnit } from "../src/core/unit";
 import { createGoobCampaign } from "../src/core/world";
 import { GOOB, MEGA_GOOB } from "../src/data/enemies";
-import { BEAR, EAGLE, TIGER } from "../src/data/species";
+import { BEAR, EAGLE, TIGER, WOLF } from "../src/data/species";
 
-const PLAYER_SPECIES = [BEAR, EAGLE, TIGER];
+const PLAYER_SPECIES = [BEAR, EAGLE, TIGER, WOLF];
 
 console.log("=== FULL ROGUELIKE META-PROGRESSION DEMO ===\n");
 console.log("🏢 Setting: Evil Corporate Lab - Basement Levels");

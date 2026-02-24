@@ -5,9 +5,9 @@ import { simulateCombat, simulateMultipleRuns, simulateRun } from "../src/core/r
 import { Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
 import { createCampaign, generateNormalEncounter } from "../src/core/world";
-import { BEAR, EAGLE, TIGER } from "../src/data/species";
+import { BEAR, EAGLE, TIGER, WOLF } from "../src/data/species";
 
-const SPECIES_POOL = [BEAR, EAGLE, TIGER];
+const SPECIES_POOL = [BEAR, EAGLE, TIGER, WOLF];
 
 console.log("=== GENETIC ROGUELIKE DEMO ===\n");
 

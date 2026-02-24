@@ -26,6 +26,10 @@ export const StatsSchema = z.object({
 
 export type Stats = z.infer<typeof StatsSchema>;
 
+export enum AttackSpecialEffect {
+  SwarmStrike = "swarm_strike",
+}
+
 export const AttackSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -33,6 +37,7 @@ export const AttackSchema = z.object({
   targetType: z.nativeEnum(TargetType),
   damageMultiplier: z.number().positive(),
   isAoe: z.boolean().default(false),
+  specialEffect: z.nativeEnum(AttackSpecialEffect).optional(),
 });
 
 export type Attack = z.infer<typeof AttackSchema>;
@@ -141,6 +146,7 @@ export const BattleStateSchema = z.object({
   isComplete: z.boolean(),
   winner: z.enum(["player", "enemy"]).nullable(),
   combatEffectStates: z.array(z.any()).optional(),
+  lastAttackedTargetId: z.record(z.string(), z.string()).optional(),
 });
 
 export type BattleState = z.infer<typeof BattleStateSchema>;

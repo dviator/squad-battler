@@ -7,9 +7,9 @@ import type { Unit } from "../src/core/types";
 import { GeneticGrade, Position } from "../src/core/types";
 import { canBreed, createUnit } from "../src/core/unit";
 import { createCampaign } from "../src/core/world";
-import { BEAR, EAGLE, TIGER } from "../src/data/species";
+import { BEAR, EAGLE, TIGER, WOLF } from "../src/data/species";
 
-const SPECIES_POOL = [BEAR, EAGLE, TIGER];
+const SPECIES_POOL = [BEAR, EAGLE, TIGER, WOLF];
 
 console.log("=== ROGUELIKE META-PROGRESSION DEMO ===\n");
 console.log("Theme: You're trapped in an evil corporate lab.");

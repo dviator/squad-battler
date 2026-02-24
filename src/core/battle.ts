@@ -11,7 +11,7 @@ import {
 } from "./combatEffects";
 import { SHOP_ITEMS } from "./shop";
 import { resolveTargets } from "./targeting";
-import { type BattleEvent, BattleEventType, type BattleState, type Unit } from "./types";
+import { AttackSpecialEffect, type BattleEvent, BattleEventType, type BattleState, type Unit } from "./types";
 import { getAttackById, isAlive, takeDamage } from "./unit";
 
 export function createBattleState(playerUnits: Unit[], enemyUnits: Unit[]): BattleState {
@@ -31,6 +31,7 @@ export function createBattleState(playerUnits: Unit[], enemyUnits: Unit[]): Batt
     isComplete: false,
     winner: null,
     combatEffectStates,
+    lastAttackedTargetId: {},
   };
 }
 
@@ -109,13 +110,22 @@ function processReadyAttacks(state: BattleState): BattleState {
   const collectReadyAttacks = (unit: Unit, isPlayer: boolean) => {
     if (!isAlive(unit)) return;
 
+    let effectiveSpeed = unit.stats.speed;
+    if (unit.speciesId === "wolf") {
+      const teamUnits = isPlayer ? state.playerUnits : state.enemyUnits;
+      const aliveAllies = teamUnits.filter(isAlive);
+      if (aliveAllies.length === 1 && aliveAllies[0]?.id === unit.id) {
+        effectiveSpeed += 3;
+      }
+    }
+
     unit.attackTimers.forEach((timer) => {
       if (timer.currentCooldown === 0) {
         pendingAttacks.push({
           unitId: unit.id,
           isPlayer,
           attackId: timer.attackId,
-          speed: unit.stats.speed,
+          speed: effectiveSpeed,
         });
       }
     });
@@ -218,9 +228,25 @@ function executeAttack(
 
     // Calculate damage with reduction (Team Shield Generator)
     const baseDamage = attacker.stats.attackPower * attack.damageMultiplier;
+
+    const teamKey = isPlayerAttacker ? "player" : "enemy";
+    const swarmMultiplier =
+      attack.specialEffect === AttackSpecialEffect.SwarmStrike &&
+      state.lastAttackedTargetId?.[teamKey] === target.id
+        ? 1.5
+        : 1.0;
+
+    const aliveAllies = attackerUnits.filter(isAlive);
+    const loneWolfMultiplier =
+      attacker.speciesId === "wolf" &&
+      aliveAllies.length === 1 &&
+      aliveAllies[0]?.id === attackerId
+        ? 1.3
+        : 1.0;
+
     const defenderSquad = isPlayerAttacker ? newEnemyUnits : newPlayerUnits;
     const reducedDamage = applyDamageReduction(
-      Math.floor(baseDamage),
+      Math.floor(baseDamage * swarmMultiplier * loneWolfMultiplier),
       defender,
       defenderSquad,
       SHOP_ITEMS,
@@ -289,12 +315,18 @@ function executeAttack(
     };
   };
 
+  const teamKey = isPlayerAttacker ? "player" : "enemy";
+  const firstTargetId = targets[0]?.id;
+
   return {
     ...state,
     playerUnits: newPlayerUnits.map(resetTimer),
     enemyUnits: newEnemyUnits.map(resetTimer),
     events,
     combatEffectStates: effectStates,
+    lastAttackedTargetId: firstTargetId
+      ? { ...state.lastAttackedTargetId, [teamKey]: firstTargetId }
+      : state.lastAttackedTargetId,
   };
 }
 

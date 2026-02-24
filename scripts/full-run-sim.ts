@@ -6,7 +6,7 @@ import type { ConsumableItem, Unit } from "../src/core/types";
 import { ConsumableEffect, ItemCategory, Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
 import { GOOB, HEAVY_GOOB, MEGA_GOOB } from "../src/data/enemies";
-import { BEAR, EAGLE, TIGER } from "../src/data/species";
+import { BEAR, EAGLE, TIGER, WOLF } from "../src/data/species";
 
 const SIMULATIONS = 500;
 
@@ -178,7 +178,7 @@ const ENCOUNTERS: EncounterDef[] = [
 
 // ─── Strategy helpers ─────────────────────────────────────────────────────────
 
-const SPECIES = [BEAR, EAGLE, TIGER] as const;
+const SPECIES = [BEAR, EAGLE, TIGER, WOLF] as const;
 
 function healSquad(
   squad: Unit[],

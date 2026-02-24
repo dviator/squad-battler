@@ -1,4 +1,4 @@
-import { type Species, TargetType } from "../core/types";
+import { AttackSpecialEffect, type Species, TargetType } from "../core/types";
 
 export const BEAR: Species = {
   id: "bear",
@@ -111,10 +111,49 @@ export const TIGER: Species = {
   ],
 };
 
-export const ALL_SPECIES: Species[] = [BEAR, EAGLE, TIGER];
+export const WOLF: Species = {
+  id: "wolf",
+  name: "Wolf",
+  description: "Pack hunter that deals bonus damage to focused targets and fights harder when alone",
+  baseStats: {
+    maxHp: 145,
+    speed: 13,
+    attackPower: 22,
+  },
+  attacks: [
+    {
+      id: "wolf_bite",
+      name: "Pack Bite",
+      baseCooldown: 2,
+      targetType: TargetType.OppositeEnemy,
+      damageMultiplier: 1.3,
+      isAoe: false,
+      specialEffect: AttackSpecialEffect.SwarmStrike,
+    },
+    {
+      id: "wolf_howl",
+      name: "Howling Strike",
+      baseCooldown: 4,
+      targetType: TargetType.LowestHpEnemy,
+      damageMultiplier: 1.8,
+      isAoe: false,
+    },
+    {
+      id: "wolf_lunge",
+      name: "Lunge",
+      baseCooldown: 3,
+      targetType: TargetType.RandomEnemy,
+      damageMultiplier: 1.5,
+      isAoe: false,
+    },
+  ],
+};
+
+export const ALL_SPECIES: Species[] = [BEAR, EAGLE, TIGER, WOLF];
 
 export const SPECIES_BY_ID: Record<string, Species> = {
   bear: BEAR,
   eagle: EAGLE,
   tiger: TIGER,
+  wolf: WOLF,
 };
