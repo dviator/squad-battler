@@ -223,17 +223,26 @@ bun run test:sim    # Run battle simulations
 4. Iterate based on data
 5. Add to game when verified
 
-## Agentic Development
+## Development Pipeline
 
-This project is set up for agentic coding with Claude Code.
+Squad Battler uses an autonomous development pipeline driven by Discord design sessions. See `docs/WORKFLOW.md` for the full picture.
+
+### How It Works
+
+1. Friends post game ideas in Discord `#design`
+2. A persistent Claude Code session refines ideas into design docs (`docs/design/queue/`)
+3. Claude implements queued docs in git worktrees, merges to main when tests pass
+4. Vercel deploys automatically; playtesters give feedback in `#playtest`
+
+Dan's role: playtesting, architecture notes in `#architecture`, and periodic review of refactor sessions. Not a gate on design or code review.
 
 ### Quality Hooks (`.claude/settings.json`)
 
 Three hooks run automatically during Claude Code sessions:
 
-- **PostToolUse (Edit|Write)**: Runs `biome check --write` on every file Claude edits, enforcing consistent formatting without manual intervention.
-- **PreToolUse (Bash → git commit)**: Blocks commits unless both `bun run typecheck` and `bun run test` pass. Only triggers on `git commit` commands, passes through all other Bash usage.
-- **Stop**: Prompt-based review that checks for unnecessary complexity, architecture violations, trivial comments, and missing enum usage before Claude finishes responding.
+- **PostToolUse (Edit|Write)**: Runs `biome check --write` on every file Claude edits
+- **PreToolUse (Bash → git commit)**: Blocks commits unless `bun run typecheck` and `bun run test` both pass
+- **Stop**: Reviews for architecture violations, unnecessary complexity, trivial comments, and missing enum usage
 
 ### Parallel Agents (`scripts/worktree-agent.sh`)
 
@@ -241,27 +250,22 @@ Run multiple Claude agents on independent features simultaneously using git work
 
 ```bash
 # Terminal 1
-./scripts/worktree-agent.sh feat/add-wolf "Add a Wolf species with pack tactics"
+./scripts/worktree-agent.sh feat/add-wolf "Implement Wolf species per docs/design/queue/wolf.md"
 
 # Terminal 2
-./scripts/worktree-agent.sh feat/poison-mutation "Add a poison status effect mutation"
+./scripts/worktree-agent.sh feat/poison-mutation "Implement poison mutation per docs/design/queue/poison.md"
 ```
 
-Each agent gets its own worktree, branch, and scoped tool permissions. Defaults to 50 turns and $5 budget. Run `./scripts/worktree-agent.sh --help` for options.
+Each agent gets its own worktree, branch, and scoped tool permissions. Run `./scripts/worktree-agent.sh --help` for options.
 
-### Overnight Batch (`scripts/overnight.sh`)
-
-Run long-horizon tasks unattended with logging and auto-PR creation:
+### Starting the Pipeline Session
 
 ```bash
-./scripts/overnight.sh "Add 5 new species with unique attack patterns and full test coverage"
-
-# With custom limits
-./scripts/overnight.sh --max-turns 300 --max-budget 30 \
-  "Implement status effects system (poison, stun, buffs) with breeding interactions"
+# In a tmux session (keeps running when you walk away)
+tmux new-session -s squad-battler
+caffeinate -i &
+claude --channels plugin:discord@claude-plugins-official --dangerously-skip-permissions
 ```
-
-Creates a timestamped branch, logs all output, pushes and opens a draft PR when done, and sends a macOS notification on completion. Defaults to 200 turns and $20 budget. Run `./scripts/overnight.sh --help` for options.
 
 ## License
 
