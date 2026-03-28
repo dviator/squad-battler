@@ -1,5 +1,5 @@
 import { confirm } from "@inquirer/prompts";
-import { createGameState, loadSave, saveGameState, unlockScanner } from "../core/gameState";
+import { createGameState, unlockScanner } from "../core/gameState";
 import { Position } from "../core/types";
 import { createUnit } from "../core/unit";
 import { advanceEncounter, createGoobCampaign, EncounterType } from "../core/world";
@@ -7,6 +7,7 @@ import { GOOB, HEAVY_GOOB, MEGA_GOOB } from "../data/enemies";
 import { BEAR, EAGLE, TIGER } from "../data/species";
 import { clearScreen, displayGameState, displayHeader } from "./display";
 import { combatPhase, labPhase, shopPhase } from "./phases";
+import { loadSave, saveGameState } from "./save";
 
 const ALL_SPECIES = [BEAR, EAGLE, TIGER, GOOB, HEAVY_GOOB, MEGA_GOOB];
 
