@@ -17,6 +17,7 @@ export interface Encounter {
   enemies: Unit[];
   goldReward: number;
   materialsReward: number;
+  scrapTechReward: number;
 }
 
 // Level definition (sequence of encounters)
@@ -114,6 +115,7 @@ export function createCustomEncounter(
   positions: Position[],
   goldReward: number,
   materialsReward: number = 0,
+  scrapTechReward: number = 0,
 ): Encounter {
   const enemies = enemySpecies.map((species, i) =>
     createUnit(species, positions[i] || (i as Position)),
@@ -125,6 +127,7 @@ export function createCustomEncounter(
     enemies,
     goldReward,
     materialsReward,
+    scrapTechReward,
   };
 }
 
@@ -143,6 +146,7 @@ export function generateNormalEncounter(
     enemies,
     goldReward: baseGoldReward,
     materialsReward: 0,
+    scrapTechReward: 2,
   };
 }
 
@@ -161,6 +165,7 @@ export function generateMiniBossEncounter(
     enemies,
     goldReward: baseGoldReward * 2,
     materialsReward: 1,
+    scrapTechReward: 8,
   };
 }
 
@@ -179,6 +184,7 @@ export function generateBossEncounter(
     enemies,
     goldReward: baseGoldReward * 3,
     materialsReward: 3,
+    scrapTechReward: 15,
   };
 }
 
@@ -306,6 +312,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Right],
         5,
         0,
+        2,
       ),
       // Enc 2: 2 Goobs
       createCustomEncounter(
@@ -315,6 +322,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Right],
         5,
         0,
+        2,
       ),
       // Enc 3: 2 Goobs (different positioning)
       createCustomEncounter(
@@ -324,6 +332,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Center],
         5,
         0,
+        2,
       ),
       // Enc 4: Elite — 2 Goobs + 1 Heavy Goob
       createCustomEncounter(
@@ -333,6 +342,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Center, Position.Right],
         10,
         0,
+        4,
       ),
       // Enc 5: Regular — 2 Goobs
       createCustomEncounter(
@@ -342,6 +352,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Right],
         5,
         0,
+        2,
       ),
       // Enc 6: Mini-Boss — Mega Goob
       createCustomEncounter(
@@ -351,6 +362,7 @@ export function createWorld1Goobs(
         [Position.Center],
         15,
         1,
+        8,
       ),
       // Enc 7: Regular — 2 Heavy Goobs
       createCustomEncounter(
@@ -360,6 +372,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Right],
         6,
         0,
+        3,
       ),
       // Enc 8: Regular — 3 Goobs (AoE threat)
       createCustomEncounter(
@@ -369,6 +382,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Center, Position.Right],
         5,
         0,
+        3,
       ),
       // Enc 9: Elite — 2 Goobs + 1 Heavy Goob
       createCustomEncounter(
@@ -378,6 +392,7 @@ export function createWorld1Goobs(
         [Position.Left, Position.Center, Position.Right],
         10,
         0,
+        4,
       ),
       // Enc 10: Boss — Alpha Goob (buffed Mega Goob, unique mechanic TBD)
       createCustomEncounter(
@@ -387,6 +402,7 @@ export function createWorld1Goobs(
         [Position.Center],
         30,
         3,
+        15,
       ),
     ],
     completionReward: {

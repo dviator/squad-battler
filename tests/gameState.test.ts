@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   addGold,
   addMaterials,
+  addScrapTech,
   advanceTime,
   advanceTimeAfterCombat,
   COMBATS_PER_DAY,
@@ -9,8 +10,11 @@ import {
   createGameState,
   getLivingUnits,
   spendCurrency,
+  spendScrapTech,
+  unlockScanner,
   unlockSpecies,
   unlockStation,
+  upgradeScanner,
 } from "../src/core/gameState";
 import { startBreeding, startHealing } from "../src/core/lab";
 import { LifeStage, Position } from "../src/core/types";
@@ -124,6 +128,79 @@ describe("Game State", () => {
     const advanced = advanceTime(withBreeding, 1);
 
     expect(advanced.roster.breeding[0]!.daysRemaining).toBe(2);
+  });
+});
+
+describe("Scrap Tech", () => {
+  test("initializes to 0", () => {
+    const state = createGameState([], []);
+    expect(state.scrapTech).toBe(0);
+  });
+
+  test("adds scrap tech", () => {
+    const state = createGameState([], []);
+    const updated = addScrapTech(state, 10);
+    expect(updated.scrapTech).toBe(10);
+  });
+
+  test("spends scrap tech successfully", () => {
+    const state = addScrapTech(createGameState([], []), 15);
+    const result = spendScrapTech(state, 5);
+    expect(result.success).toBe(true);
+    expect(result.newState.scrapTech).toBe(10);
+  });
+
+  test("cannot spend more scrap tech than available", () => {
+    const state = createGameState([], []);
+    const result = spendScrapTech(state, 5);
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Not enough scrap tech");
+  });
+});
+
+describe("Genetic Scanner", () => {
+  test("starts locked (capacity 0)", () => {
+    const state = createGameState([], []);
+    expect(state.scannerCapacity).toBe(0);
+  });
+
+  test("unlockScanner sets capacity to 1", () => {
+    const state = createGameState([], []);
+    const unlocked = unlockScanner(state);
+    expect(unlocked.scannerCapacity).toBe(1);
+  });
+
+  test("unlockScanner is idempotent if already unlocked", () => {
+    const state = unlockScanner(createGameState([], []));
+    const again = unlockScanner(state);
+    expect(again.scannerCapacity).toBe(1);
+  });
+
+  test("upgradeScanner increments capacity and spends scrap tech", () => {
+    const state = addScrapTech(unlockScanner(createGameState([], [])), 50);
+    const result = upgradeScanner(state);
+    expect(result.success).toBe(true);
+    expect(result.newState.scannerCapacity).toBe(2);
+    expect(result.newState.scrapTech).toBe(50 - 15); // first upgrade costs 15
+  });
+
+  test("upgradeScanner fails if not enough scrap tech", () => {
+    const state = unlockScanner(createGameState([], []));
+    const result = upgradeScanner(state);
+    expect(result.success).toBe(false);
+  });
+
+  test("upgradeScanner fails at max capacity", () => {
+    let state = addScrapTech(unlockScanner(createGameState([], [])), 9999);
+    // Upgrade to max
+    for (let i = 1; i < 8; i++) {
+      const result = upgradeScanner(state);
+      expect(result.success).toBe(true);
+      state = result.newState;
+    }
+    expect(state.scannerCapacity).toBe(8);
+    const result = upgradeScanner(state);
+    expect(result.success).toBe(false);
   });
 });
 

@@ -70,6 +70,14 @@ export enum LifeStage {
   Dead = "dead",
 }
 
+export const RevealedGenesSchema = z.object({
+  maxHp: z.boolean().default(false),
+  speed: z.boolean().default(false),
+  attackPower: z.boolean().default(false),
+});
+
+export type RevealedGenes = z.infer<typeof RevealedGenesSchema>;
+
 export const UnitSchema = z.object({
   id: z.string(),
   speciesId: z.string(),
@@ -83,6 +91,7 @@ export const UnitSchema = z.object({
   age: z.number().nonnegative().default(0), // in days
   lifeStage: z.nativeEnum(LifeStage).default(LifeStage.Young),
   geneticPotential: GeneticPotentialSchema,
+  revealedGenes: RevealedGenesSchema.default({ maxHp: false, speed: false, attackPower: false }),
   equipment: z.array(z.string()).default([]), // Equipment item IDs for this run
   cooldownReduction: z.number().nonnegative().default(0), // Temporary run-scoped cooldown reduction
 });

@@ -22,11 +22,22 @@ function createHpBar(current: number, max: number): string {
 // Display game state header
 export function displayGameState(state: GameState): void {
   console.log("\n" + "=".repeat(70));
-  console.log(`💰 Gold: ${state.currency.gold} | 🧬 Materials: ${state.currency.materials}`);
+  console.log(
+    `💰 Gold: ${state.currency.gold} | 🧬 Materials: ${state.currency.materials} | 🔧 Scrap Tech: ${state.scrapTech}`,
+  );
   console.log(
     `🌍 World ${state.progress.worldsCompleted + 1} | Progress: ${state.progress.encountersCompleted} encounters`,
   );
   console.log("=".repeat(70));
+}
+
+// Display a unit's genetic grades — shows actual grade for revealed genes, ? for unrevealed
+export function displayUnitGrades(unit: Unit): string {
+  const { geneticPotential, revealedGenes } = unit;
+  const hp = revealedGenes.maxHp ? geneticPotential.maxHp : "?";
+  const spd = revealedGenes.speed ? geneticPotential.speed : "?";
+  const atk = revealedGenes.attackPower ? geneticPotential.attackPower : "?";
+  return `HP:${hp} SPD:${spd} ATK:${atk}`;
 }
 
 // Display squad
@@ -51,7 +62,7 @@ export function displayRoster(state: GameState): void {
     console.log("    (empty)");
   } else {
     state.roster.squad.forEach((unit, i) => {
-      console.log(`    ${displayUnit(unit, i)}`);
+      console.log(`    ${displayUnit(unit, i)} | Genes: [${displayUnitGrades(unit)}]`);
     });
   }
 
@@ -60,7 +71,8 @@ export function displayRoster(state: GameState): void {
     console.log("    (empty)");
   } else {
     state.roster.stable.forEach((unit, i) => {
-      console.log(`    ${displayUnit(unit, i)}`);
+      const hpStatus = unit.stats.currentHp <= 0 ? " ☠️  DEFEATED" : "";
+      console.log(`    ${displayUnit(unit, i)} | Genes: [${displayUnitGrades(unit)}]${hpStatus}`);
     });
   }
 

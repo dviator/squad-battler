@@ -8,11 +8,19 @@ import {
   displayShopItem,
   displaySquad,
   displayUnit,
+  displayUnitGrades,
 } from "../cli/display";
 import { simulateBattle } from "../core/battle";
 import type { GameState } from "../core/gameState";
-import { advanceTimeAfterCombat } from "../core/gameState";
-import { applyHealing, isHealingComplete, startHealing } from "../core/lab";
+import {
+  addScrapTech,
+  advanceTimeAfterCombat,
+  getScannerUpgradeCost,
+  SCANNER_MAX_CAPACITY,
+  spendScrapTech,
+  upgradeScanner,
+} from "../core/gameState";
+import { applyHealing } from "../core/lab";
 import {
   applyConsumableToUnit,
   applyGeneticModToUnit,
@@ -20,9 +28,9 @@ import {
   purchaseItem,
 } from "../core/shop";
 import type { ConsumableItem, GeneticModItem, ShopItem, Species, Unit } from "../core/types";
-import { ItemCategory } from "../core/types";
+import { ItemCategory, type Position } from "../core/types";
 import { isAlive } from "../core/unit";
-import { type Campaign, getCurrentEncounter } from "../core/world";
+import { type Campaign, type Encounter, getCurrentEncounter } from "../core/world";
 
 // Shop Phase - Interactive shopping
 export async function shopPhase(state: GameState, allSpecies: Species[]): Promise<GameState> {
@@ -207,117 +215,242 @@ function updateUnitInRoster(state: GameState, unitId: string, newUnit: Unit): Ga
   };
 }
 
-// Lab Phase - Interactive lab management
+const HEAL_COST = 5;
+
+// Lab Phase - Between runs: heal units and select squad
 export async function labPhase(state: GameState): Promise<GameState> {
   displayHeader("🔬 Lab");
-  displayGameState(state);
-  displayRoster(state);
 
   let currentState = state;
-  let inLab = true;
 
+  // Squad selection is required before leaving the lab
+  if (currentState.roster.squad.length === 0) {
+    console.log("\n📋 Select your squad for this run:");
+    currentState = await squadSelectPhase(currentState);
+  }
+
+  // Scans available this lab visit (replenished each visit from scannerCapacity)
+  let scansRemaining = currentState.scannerCapacity;
+
+  let inLab = true;
   while (inLab) {
+    displayGameState(currentState);
+    displayRoster(currentState);
+
+    if (currentState.scannerCapacity > 0) {
+      const atMax = currentState.scannerCapacity >= SCANNER_MAX_CAPACITY;
+      const upgradeCostDisplay = atMax
+        ? "(MAX)"
+        : `| upgrade: ${getScannerUpgradeCost(currentState.scannerCapacity)} 🔧`;
+      console.log(
+        `\n🔬 Scanner: capacity ${currentState.scannerCapacity}/${SCANNER_MAX_CAPACITY} ${upgradeCostDisplay} | scans this visit: ${scansRemaining}`,
+      );
+    }
+
+    const allUnits = [...currentState.roster.squad, ...currentState.roster.stable];
+    const wounded = allUnits.filter((u) => u.stats.currentHp < u.stats.maxHp);
+    const canHeal = wounded.length > 0 && currentState.scrapTech >= HEAL_COST;
+    const hasUnscannedGenes = allUnits.some(
+      (u) => !u.revealedGenes.maxHp || !u.revealedGenes.speed || !u.revealedGenes.attackPower,
+    );
+    const canScan = currentState.scannerCapacity > 0 && scansRemaining > 0 && hasUnscannedGenes;
+    const upgradeCost = getScannerUpgradeCost(currentState.scannerCapacity);
+    const canUpgrade = upgradeCost !== null && currentState.scrapTech >= upgradeCost;
+
     const choices = [
-      { name: "🏥 Start healing wounded units", value: "heal" },
-      { name: "📋 View roster", value: "roster" },
-      { name: "✅ Done (continue to next battle)", value: "done" },
+      ...(canScan
+        ? [{ name: `🔬 Scan a gene (${scansRemaining} remaining this visit)`, value: "scan" }]
+        : []),
+      ...(canUpgrade
+        ? [
+            {
+              name: `⬆️  Upgrade scanner (${upgradeCost} 🔧 → capacity ${currentState.scannerCapacity + 1}/${SCANNER_MAX_CAPACITY})`,
+              value: "upgrade",
+            },
+          ]
+        : []),
+      ...(canHeal ? [{ name: `🏥 Heal a unit (${HEAL_COST} 🔧)`, value: "heal" }] : []),
+      { name: "🎯 Re-select squad", value: "squad" },
+      { name: "✅ Start run", value: "done" },
     ];
 
-    const choice = await select({
-      message: "What would you like to do?",
-      choices,
-    });
+    const choice = await select({ message: "What would you like to do?", choices });
 
     switch (choice) {
-      case "heal":
-        currentState = await healingStation(currentState);
+      case "scan": {
+        const result = await scanGene(currentState, scansRemaining);
+        currentState = result.state;
+        scansRemaining = result.scansRemaining;
         break;
-      case "roster":
-        displayRoster(currentState);
+      }
+      case "upgrade": {
+        const result = upgradeScanner(currentState);
+        if (result.success) {
+          currentState = result.newState;
+          scansRemaining += 1; // New capacity takes effect immediately this visit
+          console.log(`\n✅ Scanner upgraded to capacity ${currentState.scannerCapacity}!`);
+        } else {
+          console.log(`\n❌ ${result.error}`);
+        }
+        break;
+      }
+      case "heal":
+        currentState = await instantHeal(currentState);
+        break;
+      case "squad":
+        currentState = await squadSelectPhase(currentState);
         break;
       case "done":
-        inLab = false;
+        if (currentState.roster.squad.length === 0) {
+          console.log("\n⚠️  You need at least one unit in your squad!");
+        } else {
+          inLab = false;
+        }
         break;
     }
   }
 
-  // Complete any finished healing
-  currentState.roster.healing.forEach((slot) => {
-    if (isHealingComplete(slot)) {
-      const unit = [...currentState.roster.squad, ...currentState.roster.stable].find(
-        (u) => u.id === slot.unitId,
-      );
-      if (unit) {
-        const healedUnit = applyHealing(unit);
-        currentState = updateUnitInRoster(currentState, unit.id, healedUnit);
-      }
-    }
-  });
-
-  // Remove completed healing slots
-  currentState = {
-    ...currentState,
-    roster: {
-      ...currentState.roster,
-      healing: currentState.roster.healing.filter((slot) => !isHealingComplete(slot)),
-    },
-  };
-
   return currentState;
 }
 
-// Healing station
-async function healingStation(state: GameState): Promise<GameState> {
-  const wounded = [...state.roster.squad, ...state.roster.stable].filter(
-    (u) => u.stats.currentHp < u.stats.maxHp,
+// Scan a gene: pick unit → pick unrevealed gene → reveal it permanently
+async function scanGene(
+  state: GameState,
+  scansRemaining: number,
+): Promise<{ state: GameState; scansRemaining: number }> {
+  const allUnits = [...state.roster.squad, ...state.roster.stable];
+  const scannable = allUnits.filter(
+    (u) => !u.revealedGenes.maxHp || !u.revealedGenes.speed || !u.revealedGenes.attackPower,
   );
+
+  const unitChoice = await select({
+    message: "Scan which creature?",
+    choices: [
+      ...scannable.map((u) => ({
+        name: `${u.speciesId} — ${displayUnitGrades(u)}`,
+        value: u.id,
+      })),
+      { name: "Cancel", value: "cancel" },
+    ],
+  });
+
+  if (unitChoice === "cancel") return { state, scansRemaining };
+
+  const unit = allUnits.find((u) => u.id === unitChoice)!;
+  const geneChoices = [
+    ...(!unit.revealedGenes.maxHp
+      ? [{ name: `HP gene (currently ?)`, value: "maxHp" as const }]
+      : []),
+    ...(!unit.revealedGenes.speed
+      ? [{ name: `Speed gene (currently ?)`, value: "speed" as const }]
+      : []),
+    ...(!unit.revealedGenes.attackPower
+      ? [{ name: `Attack gene (currently ?)`, value: "attackPower" as const }]
+      : []),
+  ];
+
+  const geneChoice = await select({
+    message: "Which gene to scan?",
+    choices: [...geneChoices, { name: "Cancel", value: "cancel" as const }],
+  });
+
+  if (geneChoice === "cancel") return { state, scansRemaining };
+
+  const revealedUnit = {
+    ...unit,
+    revealedGenes: { ...unit.revealedGenes, [geneChoice]: true },
+  };
+
+  const gradeRevealed = unit.geneticPotential[geneChoice];
+  console.log(`\n🔬 Scanned! ${unit.speciesId}'s ${geneChoice} gene: ${gradeRevealed}`);
+
+  return {
+    state: updateUnitInRoster(state, unit.id, revealedUnit),
+    scansRemaining: scansRemaining - 1,
+  };
+}
+
+// Instant heal: pay HEAL_COST scrap tech, unit restored to full HP
+async function instantHeal(state: GameState): Promise<GameState> {
+  const allUnits = [...state.roster.squad, ...state.roster.stable];
+  const wounded = allUnits.filter((u) => u.stats.currentHp < u.stats.maxHp);
 
   if (wounded.length === 0) {
     console.log("\n✅ No wounded units!");
     return state;
   }
 
-  if (state.roster.healing.length >= 5) {
-    console.log("\n⚠️  Healing station is full! (max 5 units)");
-    return state;
-  }
-
-  console.log("\n🏥 WOUNDED UNITS:");
-  wounded.forEach((unit, i) => {
-    console.log(`  ${displayUnit(unit, i)}`);
-  });
-
   const choice = await select({
-    message: "Which unit to heal?",
+    message: `Heal which unit? (${HEAL_COST} 🔧 each)`,
     choices: [
-      ...wounded.map((unit, i) => ({
-        name: displayUnit(unit),
-        value: i,
+      ...wounded.map((unit) => ({
+        name: `${displayUnit(unit)} ${unit.stats.currentHp <= 0 ? "☠️ " : ""}`,
+        value: unit.id,
       })),
-      { name: "Cancel", value: -1 },
+      { name: "Cancel", value: "cancel" },
     ],
   });
 
-  if (choice === -1) return state;
+  if (choice === "cancel") return state;
 
-  const unit = wounded[choice];
-  if (!unit) return state;
+  const spendResult = spendScrapTech(state, HEAL_COST);
+  if (!spendResult.success) {
+    console.log(`\n❌ ${spendResult.error}`);
+    return state;
+  }
 
-  const healingSlot = startHealing(unit, 100);
+  const unit = allUnits.find((u) => u.id === choice)!;
+  const healedUnit = applyHealing(unit);
+  console.log(`\n✅ ${unit.speciesId} healed to full HP!`);
 
-  console.log(
-    `\n✅ ${unit.speciesId} placed in healing station (${healingSlot.daysRemaining} days)`,
-  );
+  return updateUnitInRoster(spendResult.newState, unit.id, healedUnit);
+}
 
-  // Remove from squad/stable and add to healing
+// Squad selection: pick up to 3 units from all available
+async function squadSelectPhase(state: GameState): Promise<GameState> {
+  const allUnits = [...state.roster.squad, ...state.roster.stable];
+
+  if (allUnits.length === 0) {
+    console.log("\n⚠️  No units available!");
+    return state;
+  }
+
+  const maxSquadSize = Math.min(3, allUnits.length);
+  const selectedIds: string[] = [];
+
+  for (let i = 0; i < maxSquadSize; i++) {
+    const remaining = allUnits.filter((u) => !selectedIds.includes(u.id));
+    if (remaining.length === 0) break;
+
+    const choice = await select({
+      message: `Pick squad member ${i + 1}/${maxSquadSize}:`,
+      choices: [
+        ...remaining.map((u) => ({
+          name: `${displayUnit(u)}${u.stats.currentHp <= 0 ? " ☠️  (needs healing)" : ""}`,
+          value: u.id,
+        })),
+        ...(i > 0 ? [{ name: "Done (smaller squad)", value: "done" }] : []),
+      ],
+    });
+
+    if (choice === "done") break;
+    selectedIds.push(choice as string);
+  }
+
+  const squad = selectedIds.map((id, idx) => {
+    const unit = allUnits.find((u) => u.id === id)!;
+    return { ...unit, position: idx as Position };
+  });
+  const stable = allUnits.filter((u) => !selectedIds.includes(u.id));
+
+  console.log(`\n✅ Squad set: ${squad.map((u) => u.speciesId).join(", ")}`);
+
   return {
     ...state,
     roster: {
       ...state.roster,
-      squad: state.roster.squad.filter((u) => u.id !== unit.id),
-      stable: state.roster.stable.filter((u) => u.id !== unit.id),
-      healing: [...state.roster.healing, healingSlot],
-      breeding: state.roster.breeding,
+      squad,
+      stable,
     },
   };
 }
@@ -326,18 +459,34 @@ async function healingStation(state: GameState): Promise<GameState> {
 export async function combatPhase(
   state: GameState,
   campaign: Campaign,
-): Promise<{ state: GameState; victory: boolean }> {
+): Promise<{ state: GameState; victory: boolean; encounter: Encounter }> {
   displayHeader("⚔️  Combat");
   displayGameState(state);
 
   const encounter = getCurrentEncounter(campaign);
   if (!encounter) {
     console.log("\n❌ No encounter available!");
-    return { state, victory: false };
+    return {
+      state,
+      victory: false,
+      encounter: {
+        id: "",
+        type: "normal" as never,
+        enemies: [],
+        goldReward: 0,
+        materialsReward: 0,
+        scrapTechReward: 0,
+      },
+    };
   }
 
-  console.log(`\n🎯 ENCOUNTER: ${encounter.type.toUpperCase()}`);
-  console.log(`💰 Reward: ${encounter.goldReward}g | 🧬 ${encounter.materialsReward} materials\n`);
+  const totalEncounters =
+    campaign.worlds[campaign.currentWorldIndex]?.levels[campaign.currentLevelIndex]?.encounters
+      .length ?? 0;
+  console.log(
+    `\n🎯 ENCOUNTER ${campaign.currentEncounterIndex + 1}/${totalEncounters}: ${encounter.type.toUpperCase()}`,
+  );
+  console.log(`💰 Reward: ${encounter.goldReward}g | 🔧 ${encounter.scrapTechReward} scrap tech\n`);
 
   displaySquad(state.roster.squad);
 
@@ -354,7 +503,7 @@ export async function combatPhase(
 
   if (!ready) {
     console.log("\n⏸️  Combat cancelled!");
-    return { state, victory: false };
+    return { state, victory: false, encounter };
   }
 
   console.log("\n⚔️  BATTLE STARTING...\n");
@@ -379,7 +528,7 @@ export async function combatPhase(
   displayBattleSummary(battleState.playerUnits, battleState.enemyUnits, victory);
 
   if (victory) {
-    console.log(`\n💰 +${encounter.goldReward}g | 🧬 +${encounter.materialsReward} materials`);
+    console.log(`\n💰 +${encounter.goldReward}g | 🔧 +${encounter.scrapTechReward} scrap tech`);
     newState = {
       ...newState,
       currency: {
@@ -387,8 +536,8 @@ export async function combatPhase(
         materials: newState.currency.materials + encounter.materialsReward,
       },
     };
+    newState = addScrapTech(newState, encounter.scrapTechReward);
 
-    // Award XP to survivors
     const survivors = battleState.playerUnits.filter(isAlive);
     console.log(`\n⭐ ${survivors.length} survivors gained XP!`);
   }
@@ -398,5 +547,5 @@ export async function combatPhase(
     default: true,
   });
 
-  return { state: newState, victory };
+  return { state: newState, victory, encounter };
 }

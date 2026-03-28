@@ -1,13 +1,30 @@
+import { mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 import type { Roster } from "./lab";
 import { advanceBreeding, advanceHealing } from "./lab";
 import type { Currency, Unit } from "./types";
 import { ageUnit } from "./unit";
+
+// Persisted between runs (saved to disk)
+export interface SaveData {
+  scrapTech: number;
+  scannerCapacity: number; // 0 = locked, 1–8 = unlocked at that capacity
+  stable: Unit[];
+  unlockedSpecies: string[];
+  unlockedStations: string[];
+  progress: {
+    worldsCompleted: number;
+    encountersCompleted: number;
+  };
+}
 
 // Game State tracks the player's progress
 export interface GameState {
   roster: Roster;
   currency: Currency;
   timeElapsed: number; // in days
+  scrapTech: number; // Meta-currency for lab upgrades, persists between runs
+  scannerCapacity: number; // 0 = locked, 1–8 = scans available per lab visit
   unlockedSpecies: string[];
   unlockedStations: string[];
   completedWorlds: number;
@@ -15,6 +32,15 @@ export interface GameState {
     worldsCompleted: number;
     encountersCompleted: number;
   };
+}
+
+export const SCANNER_MAX_CAPACITY = 8;
+// Cost to upgrade from capacity N to N+1; index = current capacity - 1
+export const SCANNER_UPGRADE_COSTS = [15, 30, 50, 75, 105, 140, 180] as const;
+
+export function getScannerUpgradeCost(currentCapacity: number): number | null {
+  if (currentCapacity <= 0 || currentCapacity >= SCANNER_MAX_CAPACITY) return null;
+  return SCANNER_UPGRADE_COSTS[currentCapacity - 1] ?? null;
 }
 
 // Time progression constants
@@ -40,6 +66,8 @@ export function createGameState(
       materials: 0,
     },
     timeElapsed: 0,
+    scrapTech: 0,
+    scannerCapacity: 0,
     unlockedSpecies: startingSpecies,
     unlockedStations: ["healing", "recruiting"],
     completedWorlds: 0,
@@ -160,6 +188,64 @@ export function completeWorld(state: GameState): GameState {
     ...state,
     completedWorlds: state.completedWorlds + 1,
   };
+}
+
+// Add scrap tech (meta-currency for lab upgrades)
+export function addScrapTech(state: GameState, amount: number): GameState {
+  return { ...state, scrapTech: state.scrapTech + amount };
+}
+
+// Spend scrap tech
+export function spendScrapTech(
+  state: GameState,
+  amount: number,
+): { success: boolean; newState: GameState; error?: string } {
+  if (state.scrapTech < amount) {
+    return { success: false, newState: state, error: "Not enough scrap tech" };
+  }
+  return { success: true, newState: { ...state, scrapTech: state.scrapTech - amount } };
+}
+
+// Unlock the genetic scanner at capacity 1 (triggered by first boss kill)
+export function unlockScanner(state: GameState): GameState {
+  if (state.scannerCapacity > 0) return state;
+  return { ...state, scannerCapacity: 1 };
+}
+
+// Upgrade scanner capacity by 1 tier (costs scrap tech)
+export function upgradeScanner(state: GameState): {
+  success: boolean;
+  newState: GameState;
+  error?: string;
+} {
+  const cost = getScannerUpgradeCost(state.scannerCapacity);
+  if (cost === null) {
+    return { success: false, newState: state, error: "Scanner already at maximum capacity" };
+  }
+  const spendResult = spendScrapTech(state, cost);
+  if (!spendResult.success) return { success: false, newState: state, error: spendResult.error };
+  return {
+    success: true,
+    newState: { ...spendResult.newState, scannerCapacity: state.scannerCapacity + 1 },
+  };
+}
+
+const SAVE_PATH = `${process.cwd()}/saves/save.json`;
+
+export async function saveGameState(data: SaveData): Promise<void> {
+  await mkdir(dirname(SAVE_PATH), { recursive: true });
+  await Bun.write(SAVE_PATH, JSON.stringify(data, null, 2));
+}
+
+export async function loadSave(): Promise<SaveData | null> {
+  try {
+    const file = Bun.file(SAVE_PATH);
+    const exists = await file.exists();
+    if (!exists) return null;
+    return (await file.json()) as SaveData;
+  } catch {
+    return null;
+  }
 }
 
 // Get all living units (squad + stable, excluding dead units)

@@ -4,24 +4,37 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/index.ts",
+    "web:dev": "vite",
+    "web:build": "vite build",
+    "web:preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:sim": "bun run src/sim/runner.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.web.json",
     "lint": "biome check .",
     "lint:fix": "biome check --write ."
   },
   "dependencies": {
     "@inquirer/prompts": "^8.2.1",
     "@rollup/rollup-darwin-x64": "^4.58.0",
-    "zod": "^3.22.4"
+    "framer-motion": "^12.38.0",
+    "react": "18",
+    "react-dom": "18",
+    "zod": "^3.22.4",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
+    "@tailwindcss/vite": "^4.2.2",
     "@types/bun": "latest",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
     "@vitest/ui": "^4.0.18",
     "fast-check": "^3.15.0",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
+    "vite": "^8.0.3",
     "vitest": "^4.0.18"
   }
 }

@@ -71,6 +71,7 @@ describe("Encounter Generation", () => {
     expect(encounter.enemies.length).toBeGreaterThan(0);
     expect(encounter.goldReward).toBe(3);
     expect(encounter.materialsReward).toBe(0);
+    expect(encounter.scrapTechReward).toBe(2);
   });
 
   test("generates mini-boss encounter with higher rewards", () => {
@@ -79,6 +80,7 @@ describe("Encounter Generation", () => {
     expect(encounter.type).toBe(EncounterType.MiniBoss);
     expect(encounter.goldReward).toBe(6); // 2x base
     expect(encounter.materialsReward).toBe(1);
+    expect(encounter.scrapTechReward).toBe(8);
   });
 
   test("generates boss encounter with highest rewards", () => {
@@ -87,6 +89,7 @@ describe("Encounter Generation", () => {
     expect(encounter.type).toBe(EncounterType.Boss);
     expect(encounter.goldReward).toBe(9); // 3x base
     expect(encounter.materialsReward).toBe(3);
+    expect(encounter.scrapTechReward).toBe(15);
   });
 });
 

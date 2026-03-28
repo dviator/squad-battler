@@ -136,6 +136,7 @@ export function createUnit(species: Species, position: Position, genome?: Partia
     age,
     lifeStage,
     geneticPotential,
+    revealedGenes: { maxHp: false, speed: false, attackPower: false },
     equipment: [],
     cooldownReduction: 0,
   };
