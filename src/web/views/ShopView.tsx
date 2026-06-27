@@ -108,7 +108,7 @@ export function ShopView() {
       )}
 
       {/* Shop items */}
-      <div className="flex-1 grid grid-cols-2 gap-2 mb-4">
+      <div className="flex-1 grid grid-cols-2 auto-rows-min gap-3 content-start mb-4">
         {enrichedItems.map((item) => (
           <ShopItemCard
             key={item.id}

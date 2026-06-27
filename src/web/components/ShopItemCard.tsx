@@ -56,13 +56,13 @@ export function ShopItemCard({ item, gold, isPurchased, onBuy }: ShopItemCardPro
         </div>
       </div>
 
-      <p className="text-xs text-muted leading-snug">{item.description}</p>
+      <p className="text-xs text-muted leading-snug flex-1">{item.description}</p>
 
       <button
         type="button"
         disabled={disabled}
         onClick={() => !disabled && onBuy(item)}
-        className={`w-full py-1.5 rounded-lg text-sm font-semibold transition-all
+        className={`mt-auto w-full py-1.5 rounded-lg text-sm font-semibold transition-all
           ${
             isPurchased
               ? "bg-panel-2 text-muted cursor-default"
