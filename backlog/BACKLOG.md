@@ -13,11 +13,12 @@ a dependency unblocks them.
 
 ## Actionable now
 
-_(none — backlog needs fresh ideas)_
+- **ticket-002-ui-design-system-foundation** (P1, L) — Clinical Bright Lab tokens +
+  sweep all views off raw zinc. parent: design-002. → `/implement-ticket`
 
 ## Ready to decompose
 
-_(none — design-001 is decomposed)_
+_(none — design-001, design-002 are decomposed)_
 
 ## Needs refinement (ideas / draft designs)
 
@@ -25,7 +26,8 @@ _(none)_
 
 ## Blocked / Needs input
 
-_(none)_
+- **ticket-003-ui-specimen-card-portraits** (P1, M) — blocked on ticket-002.
+- **ticket-004-ui-battle-faceoff** (P1, M) — blocked on ticket-003.
 
 ## Shipped — in verification window
 
