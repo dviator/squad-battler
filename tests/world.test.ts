@@ -2,10 +2,12 @@ import { describe, expect, test } from "vitest";
 import {
   advanceEncounter,
   createCampaign,
+  createGoobCampaign,
   createWorld1,
   createWorld2,
   createWorld3,
   EncounterType,
+  FLOOR_CATALOG,
   generateBossEncounter,
   generateEnemySquad,
   generateLevel,
@@ -13,8 +15,10 @@ import {
   generateNormalEncounter,
   generateWorld,
   getCurrentEncounter,
+  getFloorProgress,
   isCampaignComplete,
 } from "../src/core/world";
+import { GOOB, HEAVY_GOOB, MEGA_GOOB } from "../src/data/enemies";
 import { BEAR, EAGLE, TIGER } from "../src/data/species";
 
 const TEST_SPECIES = [BEAR, EAGLE, TIGER];
@@ -270,5 +274,128 @@ describe("Campaign", () => {
     // First level should unlock breeding station
     expect(result?.reward).toBeDefined();
     expect(result?.reward?.unlockedStation).toBe("breeding");
+  });
+});
+
+describe("Floor Catalog", () => {
+  test("catalog has exactly 10 floors", () => {
+    expect(FLOOR_CATALOG).toHaveLength(10);
+  });
+
+  test("floor numbers are sequential 1-10", () => {
+    const numbers = FLOOR_CATALOG.map((f) => f.floorNumber);
+    expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  });
+
+  test("every entry has required fields", () => {
+    for (const entry of FLOOR_CATALOG) {
+      expect(entry.id).toBeTruthy();
+      expect(entry.name).toBeTruthy();
+      expect(entry.themeTag).toBeTruthy();
+      expect(entry.difficulty).toBeGreaterThan(0);
+    }
+  });
+
+  test("floor 1 is the Goob floor (built content)", () => {
+    const floor1 = FLOOR_CATALOG.find((f) => f.floorNumber === 1);
+    expect(floor1?.themeTag).toBe("goobs");
+  });
+
+  test("floor 10 is the bonus floor", () => {
+    const floor10 = FLOOR_CATALOG.find((f) => f.floorNumber === 10);
+    expect(floor10?.themeTag).toBe("bonus");
+  });
+
+  test("difficulty increases with floor number", () => {
+    for (let i = 1; i < FLOOR_CATALOG.length; i++) {
+      expect(FLOOR_CATALOG[i]!.difficulty).toBeGreaterThan(FLOOR_CATALOG[i - 1]!.difficulty);
+    }
+  });
+});
+
+describe("Goob Campaign (10-floor structure)", () => {
+  const PLAYER_SPECIES = [BEAR, EAGLE, TIGER];
+
+  test("creates campaign with 10 floors", () => {
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    expect(campaign.worlds).toHaveLength(10);
+    expect(campaign.currentWorldIndex).toBe(0);
+    expect(campaign.currentLevelIndex).toBe(0);
+    expect(campaign.currentEncounterIndex).toBe(0);
+  });
+
+  test("floor 1 has Goob content", () => {
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    const floor1 = campaign.worlds[0]!;
+    expect(floor1.floorNumber).toBe(1);
+    expect(floor1.theme).toBe("goobs");
+    expect(floor1.levels.length).toBeGreaterThan(0);
+    expect(floor1.levels[0]!.encounters.length).toBe(10);
+  });
+
+  test("floors 2-10 are placeholders with no encounters", () => {
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    for (let i = 1; i < 10; i++) {
+      const floor = campaign.worlds[i]!;
+      expect(floor.floorNumber).toBe(i + 1);
+      expect(floor.levels).toHaveLength(0);
+    }
+  });
+
+  test("each floor has correct floorNumber from catalog", () => {
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    for (let i = 0; i < 10; i++) {
+      expect(campaign.worlds[i]!.floorNumber).toBe(i + 1);
+    }
+  });
+
+  test("campaign starts with getCurrentEncounter returning the first Goob encounter", () => {
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    const encounter = getCurrentEncounter(campaign);
+    expect(encounter).not.toBeNull();
+    expect(encounter?.type).toBe(EncounterType.Normal);
+  });
+
+  test("Goob floor plays to completion without regression", () => {
+    let campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    const goobLevel = campaign.worlds[0]!.levels[0]!;
+    const encounterCount = goobLevel.encounters.length;
+
+    let lastResult;
+    for (let i = 0; i < encounterCount; i++) {
+      lastResult = advanceEncounter(campaign);
+      campaign = lastResult.campaign;
+    }
+
+    expect(lastResult?.levelCompleted).toBe(true);
+    expect(lastResult?.worldCompleted).toBe(true);
+    expect(lastResult?.campaign.currentWorldIndex).toBe(1);
+  });
+});
+
+describe("Floor Progress", () => {
+  const PLAYER_SPECIES = [BEAR, EAGLE, TIGER];
+
+  test("returns correct progress for floor 1", () => {
+    const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    const progress = getFloorProgress(campaign);
+    expect(progress.floorNumber).toBe(1);
+    expect(progress.totalFloors).toBe(10);
+    expect(progress.floorName).toBe("Goobs & Weird Blobs");
+    expect(progress.themeTag).toBe("goobs");
+  });
+
+  test("updates floor number after completing floor 1", () => {
+    let campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, PLAYER_SPECIES);
+    const goobLevel = campaign.worlds[0]!.levels[0]!;
+
+    for (let i = 0; i < goobLevel.encounters.length; i++) {
+      const result = advanceEncounter(campaign);
+      campaign = result.campaign;
+    }
+
+    const progress = getFloorProgress(campaign);
+    expect(progress.floorNumber).toBe(2);
+    expect(progress.totalFloors).toBe(10);
   });
 });

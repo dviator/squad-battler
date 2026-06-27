@@ -36,15 +36,113 @@ export interface LevelReward {
   unlockedStation?: string;
 }
 
-// World definition (collection of levels)
+// World definition (collection of levels) — one floor of the campaign
 export interface World {
   id: string;
   name: string;
   description: string;
+  floorNumber: number; // 1-10: which floor this is in the campaign
   levels: Level[];
   difficulty: number; // Affects enemy scaling
   theme: string;
 }
+
+// Declarative metadata for each campaign floor. Content (levels/encounters) is
+// authored separately; adding a new floor only requires a catalog entry + its content.
+export interface FloorCatalogEntry {
+  floorNumber: number;
+  id: string;
+  name: string;
+  description: string;
+  themeTag: string;
+  difficulty: number;
+}
+
+// 9 main floors + 1 bonus = 10 total.
+// NOTE: Floor ordering is pending Dan's review (design-003 open questions).
+// Goobs sit at floor 1 as the one built floor; other positions are provisional.
+export const FLOOR_CATALOG: FloorCatalogEntry[] = [
+  {
+    floorNumber: 1,
+    id: "floor_1_goobs",
+    name: "Goobs & Weird Blobs",
+    description: "The lab's gelatinous cast-offs lurk in the lower chambers.",
+    themeTag: "goobs",
+    difficulty: 1,
+  },
+  {
+    floorNumber: 2,
+    id: "floor_2_genetic_scrap",
+    name: "Genetic Scrap",
+    description: "Discarded genetic material and lab waste.",
+    themeTag: "genetic_scrap",
+    difficulty: 2,
+  },
+  {
+    floorNumber: 3,
+    id: "floor_3_rejects",
+    name: "Reject Creatures",
+    description: "Things the lab deemed failures and threw out.",
+    themeTag: "reject_creatures",
+    difficulty: 3,
+  },
+  {
+    floorNumber: 4,
+    id: "floor_4_hybrids",
+    name: "Failed Hybrids",
+    description: "Botched genetic crossbreeds; leans into the breeding/genetics theme.",
+    themeTag: "failed_hybrids",
+    difficulty: 4,
+  },
+  {
+    floorNumber: 5,
+    id: "floor_5_hr",
+    name: "HR Department",
+    description: "Lab staff fanatically loyal to the evilcorp — first human enemies.",
+    themeTag: "hr_department",
+    difficulty: 5,
+  },
+  {
+    floorNumber: 6,
+    id: "floor_6_tbd",
+    name: "???",
+    description: "Theme to be authored.",
+    themeTag: "tbd",
+    difficulty: 6,
+  },
+  {
+    floorNumber: 7,
+    id: "floor_7_tbd",
+    name: "???",
+    description: "Theme to be authored.",
+    themeTag: "tbd",
+    difficulty: 7,
+  },
+  {
+    floorNumber: 8,
+    id: "floor_8_sharp",
+    name: "Sharp Creatures",
+    description: "Cute/fuzzy creatures weaponized with piercing/bleed genetic mods.",
+    themeTag: "sharp_creatures",
+    difficulty: 8,
+  },
+  {
+    floorNumber: 9,
+    id: "floor_9_tbd",
+    name: "???",
+    description: "Theme to be authored.",
+    themeTag: "tbd",
+    difficulty: 9,
+  },
+  {
+    floorNumber: 10,
+    id: "floor_10_bonus",
+    name: "Bonus Floor",
+    description: "The final challenge to beat the game.",
+    themeTag: "bonus",
+    difficulty: 10,
+  },
+];
 
 // Enemy generation
 
@@ -235,6 +333,7 @@ export function generateWorld(
   difficulty: number,
   levelCount: number = 2,
   theme: string = "corporate_lab",
+  floorNumber: number = 0,
 ): World {
   const levels: Level[] = [];
 
@@ -274,6 +373,7 @@ export function generateWorld(
     id: worldId,
     name: worldName,
     description,
+    floorNumber,
     levels,
     difficulty,
     theme,
@@ -413,11 +513,12 @@ export function createWorld1Goobs(
 
   return {
     id: "world_1",
-    name: "Basement Levels",
+    name: "Goobs & Weird Blobs",
     description: "Escape from the lower basement where the failed experiments lurk.",
+    floorNumber: 1,
     levels: [level1],
     difficulty: 1,
-    theme: "dark_basement",
+    theme: "goobs",
   };
 }
 
@@ -430,6 +531,7 @@ export function createWorld1(availableSpecies: Species[]): World {
     1,
     2,
     "dark_basement",
+    1,
   );
 }
 
@@ -442,6 +544,7 @@ export function createWorld2(availableSpecies: Species[]): World {
     3,
     2,
     "research_lab",
+    2,
   );
 
   // Override rewards for world 2
@@ -464,6 +567,7 @@ export function createWorld3(availableSpecies: Species[]): World {
     5,
     2,
     "office_floors",
+    3,
   );
 
   // Gene editing station unlock
@@ -477,12 +581,42 @@ export function createWorld3(availableSpecies: Species[]): World {
   return world;
 }
 
-// Campaign structure (all worlds in order)
+// Campaign structure (all worlds/floors in order)
 export interface Campaign {
   worlds: World[];
   currentWorldIndex: number;
   currentLevelIndex: number;
   currentEncounterIndex: number;
+}
+
+export interface FloorProgress {
+  floorNumber: number;
+  totalFloors: number;
+  floorName: string;
+  themeTag: string;
+}
+
+export function getFloorProgress(campaign: Campaign): FloorProgress {
+  const world = campaign.worlds[campaign.currentWorldIndex];
+  return {
+    floorNumber: world?.floorNumber ?? campaign.currentWorldIndex + 1,
+    totalFloors: campaign.worlds.length,
+    floorName: world?.name ?? "Unknown Floor",
+    themeTag: world?.theme ?? "unknown",
+  };
+}
+
+// Build an empty placeholder world for a catalog entry that has no content yet
+function createPlaceholderFloor(entry: FloorCatalogEntry): World {
+  return {
+    id: entry.id,
+    name: entry.name,
+    description: entry.description,
+    floorNumber: entry.floorNumber,
+    levels: [],
+    difficulty: entry.difficulty,
+    theme: entry.themeTag,
+  };
 }
 
 export function createCampaign(availableSpecies: Species[]): Campaign {
@@ -498,19 +632,21 @@ export function createCampaign(availableSpecies: Species[]): Campaign {
   };
 }
 
-// Create campaign with custom enemies (Goob-based World 1)
+// Create campaign with custom enemies (Goob-based World 1).
+// Builds all 10 floors from FLOOR_CATALOG; only floor 1 has content for now.
+// Remaining floors are empty placeholders — content added via FLOOR_CATALOG + their level data.
 export function createGoobCampaign(
   goobSpecies: Species,
   heavyGoobSpecies: Species,
   megaGoobSpecies: Species,
-  playerSpecies: Species[],
+  _playerSpecies: Species[],
 ): Campaign {
+  const goobFloor = createWorld1Goobs(goobSpecies, heavyGoobSpecies, megaGoobSpecies);
+  const floors: World[] = FLOOR_CATALOG.map((entry) =>
+    entry.floorNumber === 1 ? goobFloor : createPlaceholderFloor(entry),
+  );
   return {
-    worlds: [
-      createWorld1Goobs(goobSpecies, heavyGoobSpecies, megaGoobSpecies),
-      createWorld2(playerSpecies), // Placeholder
-      createWorld3(playerSpecies), // Placeholder
-    ],
+    worlds: floors,
     currentWorldIndex: 0,
     currentLevelIndex: 0,
     currentEncounterIndex: 0,

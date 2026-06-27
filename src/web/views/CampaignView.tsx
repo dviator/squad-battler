@@ -1,4 +1,4 @@
-import { getCurrentEncounter } from "@/core/world";
+import { getCurrentEncounter, getFloorProgress } from "@/core/world";
 import { UnitCard } from "@/web/components/UnitCard";
 import { useGameStore } from "@/web/store/gameStore";
 import {
@@ -14,6 +14,7 @@ export function CampaignView() {
   if (!gameState || !campaign) return null;
 
   const encounter = getCurrentEncounter(campaign);
+  const floorProgress = getFloorProgress(campaign);
   const world = campaign.worlds[campaign.currentWorldIndex];
   const level = world?.levels[campaign.currentLevelIndex];
 
@@ -27,8 +28,11 @@ export function CampaignView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <div className="text-xs text-muted uppercase tracking-wider">{world?.name}</div>
-          <div className="text-sm font-semibold text-ink">{level?.name}</div>
+          <div className="text-xs text-muted uppercase tracking-wider">
+            Floor {floorProgress.floorNumber} / {floorProgress.totalFloors}
+          </div>
+          <div className="text-sm font-semibold text-ink">{floorProgress.floorName}</div>
+          {level && <div className="text-xs text-muted">{level.name}</div>}
         </div>
         <div className="flex items-center gap-3 text-sm">
           <span className="text-warning">
