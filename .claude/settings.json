@@ -1,6 +1,25 @@
 {
   "permissions": {
-    "allow": ["Bash(qmd *)"]
+    "allow": [
+      "Bash(bun:*)",
+      "Bash(bunx:*)",
+      "Bash(git:*)",
+      "Bash(qmd:*)",
+      "Bash(./scripts/meta-context.sh:*)",
+      "Bash(./scripts/worktree-agent.sh:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(cat:*)",
+      "Bash(touch:*)",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(sed:*)",
+      "Bash(echo:*)"
+    ]
   },
   "hooks": {
     "PostToolUse": [
