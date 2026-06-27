@@ -42,7 +42,7 @@ Never import shell into core. Never import core directly from tests without goin
 | New shop items | `src/data/` |
 | New mechanics | `src/core/` (new file or extend existing) |
 | New tests | `tests/*.test.ts` |
-| Design docs | `docs/design/queue/` → see `docs/WORKFLOW.md` |
+| Ideas / designs / tickets | `backlog/` → see `meta/PIPELINE.md` |
 
 ---
 
@@ -76,40 +76,64 @@ bun run dev           # Run main entry point
 
 ## Pipeline Behavior
 
-This repo runs an **autonomous development pipeline**. See `docs/WORKFLOW.md` for the full picture.
+This repo runs an **autonomous development pipeline** operated through local files,
+git, skills, and scheduled cloud routines. Full details in `meta/PIPELINE.md`.
 
-### Session States
-- **Listening** — idle, watching Discord `#design` for new ideas
-- **Designing** — refining an idea with a contributor, design doc not yet committed
-- **Implementing** — working a queued design doc in a worktree
-- **Scheduled work** — running a refactor or doc-sync session
+### The loop
 
-Always finish current implementation and merge cleanly before picking up the next queued doc.
+```
+idea → design → ticket → code → ship → playtest-verify → archive
+```
 
-### Merge Policy
-- Merge **directly to main**. No pull requests in the hot path.
-- Tests must pass. This is the only gate.
-- Push triggers Vercel auto-deploy (once web frontend exists).
+Each stage is a skill. A scheduled heartbeat (`/dev-tick`) selects the single
+highest-value actionable item from the backlog and advances it **one stage per
+fire**, then stops — this bounds usage per run and keeps progress legible.
 
-### Design Doc Flow
-Ideas move through: `docs/design/queue/` → `docs/design/in-progress/` → `docs/design/implemented/`
-
-When picking up a queued doc: move it to `in-progress/`, implement, move to `implemented/` on merge.
-
-### Discord Channels
-| Channel | Purpose |
+| Stage skill | Does |
 |---|---|
-| `#design` | Contributors post ideas; Claude refines and creates design docs |
-| `#playtest` | Playtest feedback and bug reports |
-| `#architecture` | Dan drops architecture notes; Claude queues as refactor tasks |
-| `#build` | Claude posts status at each pipeline transition |
+| `/dev-tick` | Heartbeat: reads memory, selects one unit, dispatches the right stage, writes memory back |
+| `/refine-idea` | idea → `ready` design (or `needs-input`) |
+| `/decompose-design` | `ready` design → atomic, session-sized `todo` tickets |
+| `/implement-ticket` | ticket → code+tests → `/eval` → clean commit → merge → `shipped` |
+| `/eval` | verification gate: `typecheck` + `test` + `test:balance` |
+| `/capture-feedback` | feedback → curated corpus; playtest feedback verifies/reopens its ticket |
 
-Post to `#build` when: design doc committed, implementation started, merged, deploy live.
+### Corpus (where work and memory live)
+
+| Path | Role |
+|---|---|
+| `backlog/ideas/` | Lightweight scratchpad of unrefined thoughts (no status) |
+| `backlog/designs/` | Design docs (`draft`/`needs-input`/`ready`/`decomposed`) |
+| `backlog/tickets/` | Atomic tickets (`todo`/`in-progress`/`blocked`/`shipped`/`verified`/`reverted`) |
+| `backlog/archive/` | `verified` tickets + done designs, moved out of the active set |
+| `backlog/BACKLOG.md` | Generated prioritized index the heartbeat reads |
+| `meta/STATE.md` | Loop memory: in-flight unit, feature count, tick log |
+| `meta/INBOX.md` | Your review queue (`[SHIPPED]`/`[NEEDS-INPUT]`/`[REGRESSION]`) |
+| `meta/policies.md` | Distilled steering lessons (always loaded) |
+| `meta/feedback/` | Curated feedback corpus, frontmatter-tagged |
+
+Context retrieval: `scripts/meta-context.sh "<query>"` (qmd primary, grep/rg
+fallback). See `meta/qmd-setup.md`.
+
+### Merge & release policy
+- Merge **directly to main**, behind the `/eval` gate (no PRs in the hot path).
+- One ticket = one clean commit with the structured message in `meta/PIPELINE.md`.
+- Fix-forward. **Revert only on a hard `/eval` failure** (the post-merge-eval
+  routine handles this automatically). Your feedback steers, never approval-gates.
+- A ticket is **`shipped`, not done, at merge** — it stays live through a playtest
+  verification window, then becomes `verified` and archivable.
+
+### Notifications
+- Everything you need to review lands in `meta/INBOX.md`.
+- `PushNotification` fires only for `[NEEDS-INPUT]` (a blocked decision) and
+  `[REGRESSION]` — never for routine ships.
 
 ### Handling Ambiguity
-- **Never guess on game feel, balance, or design decisions** — ask in `#design`.
-- If a design doc has open questions, post in `#design` and wait before implementing.
-- Use placeholders (clearly marked with `TODO:` + explanation) only when technically necessary to unblock compilation.
+- **Never guess on game feel, balance, or design decisions.** Write the design as
+  `needs-input`, fill its Open Questions, post `[NEEDS-INPUT]` to `meta/INBOX.md`,
+  and wait. (See Autonomy Boundaries below and `docs/DESIGN_FRAMEWORK.md`.)
+- Use placeholders (`TODO:` + explanation) only when technically necessary to
+  unblock compilation.
 
 ---
 
@@ -121,7 +145,7 @@ Post to `#build` when: design doc committed, implementation started, merged, dep
 - Stat rebalancing when needed to hit simulation targets defined in `docs/DESIGN_FRAMEWORK.md`
 - Which tests to write
 
-**Claude asks humans (in `#design`):**
+**Claude asks the user (via `[NEEDS-INPUT]` in `meta/INBOX.md` + push):**
 - New species concepts, attack patterns, thematic names
 - New mutation ideas
 - Game feel decisions ("does this feel too powerful?")
@@ -148,20 +172,27 @@ Each agent gets its own worktree and branch. Tests gate each merge independently
 
 ---
 
-## Scheduled Sessions
+## Scheduled Routines
+
+Created via the `/schedule` skill (cloud cron). See `meta/PIPELINE.md` for cadence.
+
+**dev-tick** (e.g. daily): fires `/dev-tick` — one bounded unit of work per fire.
+
+**post-merge-eval** (e.g. nightly): runs `/eval` on `main`; auto-reverts + posts
+`[REGRESSION]` on a hard-gate failure.
 
 **Refactor session** (weekly):
 - Review recent commits for drift, duplication, shortcuts
-- Clean up without changing observable behavior
-- Post summary in `#build`
+- Clean up without changing observable behavior; gate with `/eval`
+- Note summary in `meta/STATE.md`
 
-**Doc-sync session** (after every ~5 features):
+**Doc-sync session** (after every ~5 shipped features, surfaced by `/dev-tick`):
 - Read current codebase
-- Update `docs/DESIGN_FRAMEWORK.md` to reflect what actually got built
-- Flag any design docs in `implemented/` that no longer match reality
-- Post summary in `#build`
+- Update `docs/DESIGN_FRAMEWORK.md` + `docs/SYSTEMS.md` to reflect what shipped
+- Run the archive sweep: move `verified` items to `backlog/archive/`
+- Note summary in `meta/STATE.md`
 
 ---
 
 *See `docs/DESIGN_FRAMEWORK.md` for game design decisions and idea evaluation.*
-*See `docs/WORKFLOW.md` for full pipeline documentation.*
+*See `meta/PIPELINE.md` for full pipeline / loop documentation.*

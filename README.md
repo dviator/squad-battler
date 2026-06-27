@@ -1,5 +1,7 @@
 # Squad Battler
 
+**Live:** https://squad-battler-five.vercel.app
+
 A genetic roguelike auto-battler. Players escape a corporate science lab by breeding creatures across runs, combining genetics and mutations with roguelike progression.
 
 The game is currently a CLI simulation engine. A web frontend is the next major milestone.
@@ -15,9 +17,7 @@ The game is currently a CLI simulation engine. A web frontend is the next major 
 - [`docs/SYSTEMS.md`](docs/SYSTEMS.md) — overview of all game systems
 - [`docs/systems/`](docs/systems/) — deep dives: combat, genetics, economy, meta-progression, world progression
 - [`docs/IMPLEMENTATION-ROADMAP.md`](docs/IMPLEMENTATION-ROADMAP.md) — what's built and what's next
-- [`docs/design/queue/`](docs/design/queue/) — ideas queued for implementation
-- [`docs/design/in-progress/`](docs/design/in-progress/) — currently being implemented
-- [`docs/design/implemented/`](docs/design/implemented/) — shipped features
+- [`backlog/`](backlog/) — live pipeline: ideas → designs → tickets → archive
 
 ---
 
@@ -36,6 +36,10 @@ bun run dev           # run main entry point
 
 Tests must pass before every commit (enforced by pre-commit hook). Merge directly to main — no PRs.
 
+```bash
+bun run test:balance  # balance sim sanity gate (part of /eval)
+```
+
 ### Parallel feature work
 
 ```bash
@@ -44,15 +48,20 @@ Tests must pass before every commit (enforced by pre-commit hook). Merge directl
 
 Each agent runs in an isolated git worktree. See `./scripts/worktree-agent.sh --help`.
 
-### Starting the pipeline session
+## Autonomous development pipeline
 
-```bash
-tmux new-session -s squad-battler
-caffeinate -i &
-claude --channels plugin:discord@claude-plugins-official --dangerously-skip-permissions
+This repo builds the game through an autonomous loop driven by local files, git,
+skills, and scheduled cloud routines:
+
+```
+idea → design → ticket → code → ship → playtest-verify → archive
 ```
 
-See [`docs/WORKFLOW.md`](docs/WORKFLOW.md) for the full pipeline documentation.
+- Skills (`/dev-tick`, `/refine-idea`, `/decompose-design`, `/implement-ticket`, `/eval`, `/capture-feedback`) run each stage.
+- Work and memory live in [`backlog/`](backlog/) and [`meta/`](meta/).
+- Review queue: [`meta/INBOX.md`](meta/INBOX.md). Steering: [`meta/policies.md`](meta/policies.md).
+
+See [`meta/PIPELINE.md`](meta/PIPELINE.md) for the full pipeline documentation.
 
 ---
 
