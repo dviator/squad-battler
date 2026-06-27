@@ -13,6 +13,9 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   chain multiple tickets in one fire — it blows the usage budget.
 - Merge directly to main behind the `/eval` gate. No PRs. Fix-forward; revert only
   on hard-gate failure.
+- **Always commit AND `git push origin main`.** A change isn't shipped until it's
+  pushed — an unpushed commit leaves the remote and every cloud routine (which
+  clones from GitHub) stale. End every unit of work pushed. [[feedback-002-always-commit-and-push]]
 - When a design is `needs-input`, carve out any fully-decided, creative-input-free
   slice (usually the engineering/structural foundation) into its own actionable
   `todo` ticket so the loop keeps producing while human creative input is pending.
@@ -28,3 +31,5 @@ wins for that ticket; update this file only for durable, repeatable guidance.
 
 - [[feedback-001-carve-actionable-slices]] — carve the decided engineering slice
   out of a `needs-input` design into an actionable ticket.
+- [[feedback-002-always-commit-and-push]] — always commit and push to main; a
+  change isn't shipped until it's on the remote.

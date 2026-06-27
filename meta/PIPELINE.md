@@ -98,8 +98,10 @@ Feedback applied: <feedback ids or none>
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 ```
 
-Merge directly (no PR). The pre-commit hook (`.claude/hooks/pre-commit-check.sh`)
-plus `/eval` are the gate. **Revert only on a hard `/eval` failure** — handled by
+Commit directly to `main` (no PR) **and `git push origin main`** — work isn't
+shipped until it's on the remote, since the cloud routines clone from GitHub. The
+pre-commit hook (`.claude/hooks/pre-commit-check.sh`) plus `/eval` are the gate.
+**Revert only on a hard `/eval` failure** — handled by
 the post-merge-eval routine, which reverts the bad commit, posts `[REGRESSION]`,
 and pushes. Everything else is fix-forward.
 

@@ -46,10 +46,12 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
    ```
 
-   Include the ticket/design file updates in the same commit. Merge to `main`
-   directly (no PR). The commit's `Ticket:` line is the durable link back — do not
-   try to store the merge sha in the ticket (it can't be known before the commit
-   exists; `git log --oneline -- backlog/tickets/<id>.md` recovers it).
+   Include the ticket/design file updates in the same commit. Commit to `main`
+   directly (no PR) **and `git push origin main`** — an unpushed commit leaves the
+   GitHub remote (and every cloud routine that clones it) stale, so a change isn't
+   shipped until it's pushed. The commit's `Ticket:` line is the durable link back —
+   do not try to store the merge sha in the ticket (it can't be known before the
+   commit exists; `git log --oneline -- backlog/tickets/<id>.md` recovers it).
 
 6. **Open the verification window.** Set the ticket `status: shipped` (NOT closed —
    it stays live for playtest feedback). Add a `[SHIPPED]` entry to `meta/INBOX.md`
