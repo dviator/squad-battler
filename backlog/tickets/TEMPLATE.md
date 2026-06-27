@@ -8,8 +8,11 @@ depends_on: [] # ticket ids that must be shipped/verified first
 feedback_refs: [] # meta/feedback/*.md ids — incl. playtest feedback on this ticket
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-commit: # filled on ship: short sha of the merge commit
 ---
+
+<!-- The shipping commit links back via its `Ticket:` line; find it with
+`git log --oneline -- backlog/tickets/<this-file>`. Don't store a self-referential
+sha here — it can't be known before the commit exists. -->
 
 # Ticket: <Name>
 

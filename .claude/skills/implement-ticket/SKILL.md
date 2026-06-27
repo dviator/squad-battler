@@ -45,7 +45,9 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    ```
 
    Include the ticket/design file updates in the same commit. Merge to `main`
-   directly (no PR). Record the short sha in the ticket's `commit:` field.
+   directly (no PR). The commit's `Ticket:` line is the durable link back — do not
+   try to store the merge sha in the ticket (it can't be known before the commit
+   exists; `git log --oneline -- backlog/tickets/<id>.md` recovers it).
 
 6. **Open the verification window.** Set the ticket `status: shipped` (NOT closed —
    it stays live for playtest feedback). Add a `[SHIPPED]` entry to `meta/INBOX.md`

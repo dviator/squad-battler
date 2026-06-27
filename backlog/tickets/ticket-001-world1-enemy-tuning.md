@@ -8,7 +8,6 @@ depends_on: []
 feedback_refs: []
 created: 2026-06-27
 updated: 2026-06-27
-commit: 4edce95
 ---
 
 > **Shipped 2026-06-27.** Buffed Goob-family attack ×1.9 (GOOB 38→72,
