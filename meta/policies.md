@@ -13,6 +13,10 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   chain multiple tickets in one fire — it blows the usage budget.
 - Merge directly to main behind the `/eval` gate. No PRs. Fix-forward; revert only
   on hard-gate failure.
+- When a design is `needs-input`, carve out any fully-decided, creative-input-free
+  slice (usually the engineering/structural foundation) into its own actionable
+  `todo` ticket so the loop keeps producing while human creative input is pending.
+  [[feedback-001-carve-actionable-slices]]
 
 ## Game design
 
@@ -22,4 +26,5 @@ wins for that ticket; update this file only for durable, repeatable guidance.
 
 ## Feedback log
 
-_(none yet — `/capture-feedback` links entries here as `[[feedback-id]]`)_
+- [[feedback-001-carve-actionable-slices]] — carve the decided engineering slice
+  out of a `needs-input` design into an actionable ticket.

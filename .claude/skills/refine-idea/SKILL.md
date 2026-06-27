@@ -17,8 +17,11 @@ idea from `$ARGUMENTS` if given, else the highest-value idea/draft from the back
    - `docs/DESIGN_FRAMEWORK.md` — the design constitution: tone, pillars, scope,
      idea-evaluation criteria, and the **required questions** + **open design
      questions**.
-   - `meta/policies.md` and `scripts/meta-context.sh "<idea topic>"` — relevant
-     prior feedback and related designs, so this builds on past steering.
+   - `meta/policies.md` — durable steering lessons.
+   - Relevant prior feedback and related designs:
+     - **In-session (MCP available):** call `mcp__plugin_qmd_qmd__query` with
+       `collections: ["meta","backlog","docs"]` — use lex + vec sub-queries.
+     - **CLI/cloud fallback:** `scripts/meta-context.sh "<idea topic>"`
 
 3. **Evaluate against the framework.** Is it in scope, on-tone, and does it have a
    clear player experience + at least one concrete acceptance criterion? Apply the
@@ -31,6 +34,14 @@ idea from `$ARGUMENTS` if given, else the highest-value idea/draft from the back
      Questions** section precisely, add a `[NEEDS-INPUT]` entry to `meta/INBOX.md`,
      and fire a `PushNotification`. **Do not guess.** (See policies / autonomy
      boundaries.)
+     - **Carve out the decided slice.** Before stopping, check whether part of the
+       design is fully decided and needs **no** creative input — typically the
+       engineering/structural foundation the content will later slot into. If so,
+       write that slice as its own actionable `todo` ticket now (parent = this
+       design, `depends_on: []`), keeping it strictly to what needs no human
+       decision; leave content-dependent work blocked on the open questions. This
+       keeps the loop producing while creative input is pending.
+       See [[feedback-001-carve-actionable-slices]].
    - **Ready:** write `backlog/designs/<id>.md` from `backlog/designs/TEMPLATE.md`
      with `status: ready`, all sections filled, `feedback_refs` set to any feedback
      ids that shaped it, concrete testable acceptance criteria.

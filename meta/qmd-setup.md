@@ -1,50 +1,70 @@
 # qmd setup — semantic retrieval for the pipeline
 
 [qmd](https://github.com/tobi/qmd) is the primary context-retrieval layer for the
-autonomous pipeline. `scripts/meta-context.sh` wraps it and **falls back to
-`grep`/`rg`** when qmd (or its index) isn't available, so the loop never breaks if
-qmd is missing — it just returns keyword matches instead of semantic ones.
+autonomous pipeline. It is available both as an **MCP plugin** (in-session, preferred)
+and a **CLI tool** (for scripts and cloud runs).
 
-## One-time local setup
+## Collections
 
-```bash
-# Install (see the qmd README for the current method)
-# Then register this repo's knowledge corpus as a collection named `squad-meta`:
-qmd collection add ./meta     --name squad-meta
-qmd collection add ./backlog  --name squad-meta
-qmd collection add ./docs     --name squad-meta
+Three collections are registered, one per corpus directory:
 
-# Optional: describe the collection to improve reranking
-qmd context add qmd://squad-meta "Squad Battler design docs, backlog tickets/designs, and curated dev feedback"
+| Collection | Path | Content |
+|---|---|---|
+| `meta` | `meta/` | Policies, feedback, STATE, INBOX |
+| `backlog` | `backlog/` | Tickets, designs, ideas |
+| `docs` | `docs/` | Design framework, system docs |
 
-# Build embeddings (downloads GGUF models on first run, a few hundred MB)
-qmd embed
+## Using the MCP plugin (in-session)
+
+When the `plugin:qmd:qmd` MCP server is connected, use the tools directly:
+
+```
+mcp__plugin_qmd_qmd__query  — lex/vec/hyde search across collections
+mcp__plugin_qmd_qmd__get    — retrieve a full document by path or docid
+mcp__plugin_qmd_qmd__status — check collection health
 ```
 
-After adding new feedback or backlog items, refresh the index:
+Always pass `collections: ["meta","backlog","docs"]` to search across all corpus
+directories, or scope to one collection when you know where the content lives.
 
-```bash
-qmd embed   # incremental
-```
+## Using the CLI (scripts / cloud fallback)
 
-`/capture-feedback` runs this automatically after writing a feedback file.
-
-## Usage
+`scripts/meta-context.sh` wraps the CLI and **falls back to `grep`/`rg`** when
+qmd or its index isn't available, so the loop never breaks.
 
 ```bash
 scripts/meta-context.sh "breeding balance feedback"     # ranked snippets
 scripts/meta-context.sh --raw "shop economy"            # file paths only
 ```
 
-The pipeline skills call this to assemble curated, relevant context for a cold
-session instead of loading the whole corpus.
+Direct CLI:
+```bash
+qmd query "mutation balance" -c meta -c backlog -c docs
+```
+
+## One-time local setup
+
+```bash
+# Install qmd (see the qmd README for the current method), then:
+qmd collection add ./meta    --name meta
+qmd collection add ./backlog --name backlog
+qmd collection add ./docs    --name docs
+
+# Build embeddings (downloads GGUF model on first run, ~334MB)
+qmd embed
+```
+
+After adding new feedback or backlog items, refresh:
+
+```bash
+qmd update && qmd embed   # incremental
+```
+
+`/capture-feedback` runs this automatically after writing a feedback file.
 
 ## Caveat: ephemeral cloud sessions
 
-The `squad-meta` index and the GGUF models live in `~/.cache/qmd/`, which is
-**not** in the repo and **not** persisted across ephemeral cloud-routine runs.
-There, `meta-context.sh` degrades to `grep` automatically — adequate for keyword
-recall, just not semantic. The richest recall is therefore on your local machine
-where the index persists. If you later want full semantic recall in the cloud
-too, add a `qmd collection add … && qmd embed` bootstrap step to the routine
-prompt (it pays the model-download cost each fire).
+The index and GGUF models live in `~/.cache/qmd/`, which is **not** persisted
+across ephemeral cloud-routine runs. There, `meta-context.sh` degrades to `grep`
+automatically — adequate for keyword recall, just not semantic. For full semantic
+recall in cloud routines, add a `qmd collection add … && qmd embed` bootstrap step.

@@ -13,7 +13,8 @@ a dependency unblocks them.
 
 ## Actionable now
 
-_(none — backlog needs fresh ideas)_
+- **ticket-005-floor-structure-foundation** (P1, M) — generalize World→Floor for a
+  data-driven 9+bonus campaign (no new content). parent: design-003. → `/implement-ticket`
 
 ## Ready to decompose
 
@@ -26,8 +27,9 @@ _(none)_
 ## Blocked / Needs input
 
 - **design-003-overall-level-design** (P1) — 9-floor campaign macro design.
-  Structure locked; needs Dan on 3 missing themes, ordering, floor-10, per-floor
-  rosters, meta-progression (see INBOX). Structural-foundation slice is actionable.
+  Structure locked + foundation carved into ticket-005 (actionable). Still needs Dan
+  on 3 missing themes, ordering, floor-10, per-floor rosters, meta-progression (see
+  INBOX) before content tickets.
 
 ## Shipped — in verification window
 

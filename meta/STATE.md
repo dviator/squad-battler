@@ -16,15 +16,19 @@ changelog. Detailed history lives in git and `meta/INBOX.md`.
 
 Nothing in flight. UI design pass (design-002) complete — tickets 002/003/004
 `shipped`, awaiting playtest. design-003 (overall level design) refined →
-`needs-input` (structure locked; creative content needs Dan — see INBOX); its
-structural-foundation slice is actionable on request. ticket-001 also awaiting
-playtest. Note: 4 features shipped, last_doc_sync_at 0 → doc-sync + archive due soon.
+`needs-input` (creative content needs Dan — see INBOX); its structural-foundation
+slice is now **ticket-005 (actionable)**, the next thing `/dev-tick` will pick up.
+ticket-001 also awaiting playtest. Note: 4 features shipped, last_doc_sync_at 0 →
+doc-sync + archive due soon.
 
 ## Tick log (most recent first, keep ~10)
 
+- 2026-06-27 · steering · enshrined "carve the decided slice out of a needs-input
+  design" (feedback-001 + policies + refine-idea skill). Created
+  ticket-005-floor-structure-foundation (actionable) from design-003.
 - 2026-06-27 · refine · idea overall-level-design → design-003 (needs-input). Locked
   9 floors + bonus, floor = themed world, boss per floor. Open: 3 themes, ordering,
-  floor-10, rosters, meta-progression. Structural slice actionable.
+  floor-10, rosters, meta-progression. Structural slice → ticket-005.
 - 2026-06-27 · implement · ticket-004-ui-battle-faceoff → shipped. BattleArena now
   squad-left / VS / enemy-right with directional lunges; verified in-browser.
   Completes design-002 (UI design pass).
