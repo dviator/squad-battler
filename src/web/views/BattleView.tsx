@@ -27,8 +27,8 @@ export function BattleView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <div className="text-xs text-zinc-500 uppercase tracking-wider">Combat</div>
-          <div className="text-sm font-semibold text-zinc-200">
+          <div className="text-xs text-muted uppercase tracking-wider">Combat</div>
+          <div className="text-sm font-semibold text-ink">
             {encounter.type.replace(/_/g, " ")} encounter
           </div>
         </div>
@@ -36,8 +36,8 @@ export function BattleView() {
           <button
             type="button"
             onClick={() => (replay.speed === 1 ? replay.setSpeed(3) : replay.setSpeed(1))}
-            className="text-xs px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400
-              border border-zinc-700 transition-all"
+            className="text-xs px-2 py-1 rounded bg-panel-2 hover:bg-panel-2 text-muted
+              border border-line transition-all"
           >
             {replay.speed === 1 ? "Fast" : "Normal"}
           </button>
@@ -45,8 +45,8 @@ export function BattleView() {
             type="button"
             onClick={replay.skipToEnd}
             disabled={replay.isDone}
-            className="text-xs px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400
-              border border-zinc-700 transition-all disabled:opacity-40"
+            className="text-xs px-2 py-1 rounded bg-panel-2 hover:bg-panel-2 text-muted
+              border border-line transition-all disabled:opacity-40"
           >
             Skip →
           </button>
@@ -65,31 +65,31 @@ export function BattleView() {
 
       {/* Event log */}
       <div className="mt-4 flex-1 flex flex-col min-h-0">
-        <div className="text-xs text-zinc-600 uppercase tracking-wider mb-1">Battle Log</div>
+        <div className="text-xs text-muted uppercase tracking-wider mb-1">Battle Log</div>
         <div
           ref={logRef}
-          className="flex-1 overflow-y-auto max-h-40 rounded-lg bg-zinc-950 border
-            border-zinc-800 p-3 font-mono text-xs text-zinc-400 space-y-0.5"
+          className="flex-1 overflow-y-auto max-h-40 rounded-lg bg-paper border
+            border-line p-3 font-mono text-xs text-muted space-y-0.5"
         >
           {replay.log.map((line, i) => (
             <div
               key={i}
               className={`animate-fade-in leading-relaxed ${
                 line.includes("Victory")
-                  ? "text-green-400 font-bold"
+                  ? "text-bio font-bold"
                   : line.includes("Defeat")
-                    ? "text-red-400 font-bold"
+                    ? "text-danger font-bold"
                     : line.includes("fallen")
-                      ? "text-red-500"
+                      ? "text-danger"
                       : line.startsWith("  ")
-                        ? "text-zinc-600 pl-2"
-                        : "text-zinc-300"
+                        ? "text-muted pl-2"
+                        : "text-ink"
               }`}
             >
               {line}
             </div>
           ))}
-          {!replay.isDone && <div className="text-zinc-700 animate-pulse">▋</div>}
+          {!replay.isDone && <div className="text-muted animate-pulse">▋</div>}
         </div>
       </div>
 
@@ -98,15 +98,15 @@ export function BattleView() {
         <div className="mt-4 space-y-2">
           {playerWon ? (
             <>
-              <div className="text-center text-green-400 font-bold text-lg">🏆 Victory!</div>
-              <div className="text-center text-sm text-zinc-400 mb-2">
+              <div className="text-center text-bio font-bold text-lg">🏆 Victory!</div>
+              <div className="text-center text-sm text-muted mb-2">
                 +{encounter.goldReward}g
                 {encounter.materialsReward > 0 && ` · +${encounter.materialsReward} 🔩`}
               </div>
               <button
                 type="button"
                 onClick={afterBattleWin}
-                className="w-full py-3 rounded-xl bg-green-700 hover:bg-green-600 text-white
+                className="w-full py-3 rounded-xl bg-bio hover:bg-bio text-white
                   font-bold text-base transition-all"
               >
                 Collect Rewards →
@@ -114,16 +114,14 @@ export function BattleView() {
             </>
           ) : (
             <>
-              <div className="text-center text-red-400 font-bold text-lg">💔 Defeat</div>
-              <div className="text-center text-sm text-zinc-500 mb-2">
-                Your squad was wiped out.
-              </div>
+              <div className="text-center text-danger font-bold text-lg">💔 Defeat</div>
+              <div className="text-center text-sm text-muted mb-2">Your squad was wiped out.</div>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={afterBattleLoss}
-                  className="py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300
-                    font-semibold text-sm transition-all border border-zinc-700"
+                  className="py-2.5 rounded-xl bg-panel-2 hover:bg-panel-2 text-ink
+                    font-semibold text-sm transition-all border border-line"
                 >
                   Retreat (25% HP)
                 </button>
@@ -133,7 +131,7 @@ export function BattleView() {
                     // Re-run the battle from campaign view
                     afterBattleLoss();
                   }}
-                  className="py-2.5 rounded-xl bg-red-900 hover:bg-red-800 text-red-200
+                  className="py-2.5 rounded-xl bg-danger/15 hover:bg-danger text-danger
                     font-semibold text-sm transition-all"
                 >
                   Return to Camp

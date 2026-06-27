@@ -1,6 +1,6 @@
 ---
 id: ticket-002-ui-design-system-foundation
-status: todo
+status: shipped
 priority: 1
 size: L
 parent: design-002-ui-clinical-bright-lab
@@ -45,3 +45,9 @@ claude-in-chrome for contrast/readability.
 
 Presentational only — no store/sim/core changes. Leaves battle vertical + emoji
 portraits for ticket-003/004.
+
+> **Shipped 2026-06-27.** Clinical Bright Lab tokens in `index.css`; color helpers
+> retuned + `getSpeciesTint` added in `utils/species.ts`; swept all `*.tsx` off raw
+> `zinc/cyan/red/...` onto semantic tokens (0 raw palette classes remain). Verified
+> in-browser: menu, shop, battle render light/clinical with good contrast.
+> `/eval`: typecheck ✓ test ✓ (576) balance ✓ · web:build ✓.

@@ -20,6 +20,21 @@ export function getSpeciesEmoji(speciesId: string): string {
   return SPECIES_EMOJI[speciesId] ?? "🔬";
 }
 
+// Tint for the specimen-card art panel — a light wash a future portrait sits over.
+const SPECIES_TINT: Record<string, string> = {
+  bear: "bg-amber-100",
+  eagle: "bg-sky-100",
+  tiger: "bg-orange-100",
+  goob: "bg-violet-100",
+  heavy_goob: "bg-slate-200",
+  mega_goob: "bg-red-100",
+  mega_goob_boss: "bg-red-100",
+};
+
+export function getSpeciesTint(speciesId: string): string {
+  return SPECIES_TINT[speciesId] ?? "bg-panel-2";
+}
+
 export function getSpeciesName(speciesId: string): string {
   return SPECIES_BY_ID[speciesId]?.name ?? speciesId;
 }
@@ -48,13 +63,13 @@ export function getLifeStageLabel(stage: LifeStage): string {
 export function getLifeStageColor(stage: LifeStage): string {
   switch (stage) {
     case LifeStage.Young:
-      return "text-cyan-400";
+      return "text-accent";
     case LifeStage.Adult:
-      return "text-green-400";
+      return "text-bio";
     case LifeStage.Elderly:
-      return "text-amber-400";
+      return "text-warning";
     case LifeStage.Dead:
-      return "text-zinc-500";
+      return "text-muted";
   }
 }
 
@@ -74,37 +89,37 @@ export function getEncounterTypeLabel(type: EncounterType): string {
 export function getEncounterTypeColor(type: EncounterType): string {
   switch (type) {
     case EncounterType.Normal:
-      return "text-zinc-300 bg-zinc-700";
+      return "text-muted bg-panel-2";
     case EncounterType.Elite:
-      return "text-amber-300 bg-amber-900/50";
+      return "text-warning bg-warning/15";
     case EncounterType.MiniBoss:
-      return "text-orange-300 bg-orange-900/50";
+      return "text-danger bg-danger/10";
     case EncounterType.Boss:
-      return "text-red-300 bg-red-900/50";
+      return "text-danger bg-danger/20 font-bold";
   }
 }
 
 export function getItemCategoryColor(category: ItemCategory): string {
   switch (category) {
     case ItemCategory.Consumable:
-      return "text-green-400";
+      return "text-bio";
     case ItemCategory.GeneticMod:
-      return "text-purple-400";
+      return "text-gene";
     case ItemCategory.Equipment:
-      return "text-cyan-400";
+      return "text-accent";
   }
 }
 
 export function getItemRarityColor(item: ShopItemDefinition): string {
   switch (item.rarity) {
     case ItemRarity.Common:
-      return "border-zinc-600";
+      return "border-line";
     case ItemRarity.Uncommon:
-      return "border-green-700";
+      return "border-bio";
     case ItemRarity.Rare:
-      return "border-blue-600";
+      return "border-accent";
     case ItemRarity.VeryRare:
-      return "border-purple-600";
+      return "border-gene";
   }
 }
 
@@ -122,7 +137,7 @@ export function getItemRarityLabel(item: ShopItemDefinition): string {
 }
 
 export function getHpColor(pct: number): string {
-  if (pct > 0.6) return "bg-green-500";
-  if (pct > 0.3) return "bg-amber-500";
-  return "bg-red-500";
+  if (pct > 0.6) return "bg-bio";
+  if (pct > 0.3) return "bg-warning";
+  return "bg-danger";
 }

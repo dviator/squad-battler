@@ -1,11 +1,7 @@
+import type { ShopItemDefinition } from "@/core/shop";
 import type { ShopItem } from "@/core/types";
 import { ItemCategory } from "@/core/types";
-import type { ShopItemDefinition } from "@/core/shop";
-import {
-  getItemCategoryColor,
-  getItemRarityColor,
-  getItemRarityLabel,
-} from "@/web/utils/species";
+import { getItemCategoryColor, getItemRarityColor, getItemRarityLabel } from "@/web/utils/species";
 
 interface ShopItemCardProps {
   item: ShopItemDefinition;
@@ -36,7 +32,7 @@ export function ShopItemCard({ item, gold, isPurchased, onBuy }: ShopItemCardPro
 
   return (
     <div
-      className={`rounded-xl border-2 p-3 bg-zinc-900 flex flex-col gap-2
+      className={`rounded-xl border-2 p-3 bg-panel flex flex-col gap-2
         transition-all ${rarityBorder}
         ${isPurchased ? "opacity-50" : ""}
         ${!canAfford && !isPurchased ? "opacity-70" : ""}
@@ -46,21 +42,21 @@ export function ShopItemCard({ item, gold, isPurchased, onBuy }: ShopItemCardPro
         <div className="flex items-center gap-2">
           <span className="text-xl">{CATEGORY_EMOJI[item.category]}</span>
           <div>
-            <div className="text-sm font-bold text-zinc-100 leading-tight">{item.name}</div>
+            <div className="text-sm font-bold text-ink leading-tight">{item.name}</div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className={`text-xs ${categoryColor}`}>{CATEGORY_LABEL[item.category]}</span>
-              <span className="text-zinc-700 text-xs">·</span>
-              <span className="text-xs text-zinc-500">{rarityLabel}</span>
+              <span className="text-muted text-xs">·</span>
+              <span className="text-xs text-muted">{rarityLabel}</span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <span className="text-amber-400 text-sm">🪙</span>
-          <span className="text-amber-300 font-bold text-sm tabular-nums">{item.cost}</span>
+          <span className="text-warning text-sm">🪙</span>
+          <span className="text-warning font-bold text-sm tabular-nums">{item.cost}</span>
         </div>
       </div>
 
-      <p className="text-xs text-zinc-400 leading-snug">{item.description}</p>
+      <p className="text-xs text-muted leading-snug">{item.description}</p>
 
       <button
         type="button"
@@ -69,10 +65,10 @@ export function ShopItemCard({ item, gold, isPurchased, onBuy }: ShopItemCardPro
         className={`w-full py-1.5 rounded-lg text-sm font-semibold transition-all
           ${
             isPurchased
-              ? "bg-zinc-800 text-zinc-600 cursor-default"
+              ? "bg-panel-2 text-muted cursor-default"
               : !canAfford
-                ? "bg-zinc-800 text-zinc-600 cursor-not-allowed"
-                : "bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer"
+                ? "bg-panel-2 text-muted cursor-not-allowed"
+                : "bg-accent hover:bg-accent text-white cursor-pointer"
           }
         `}
       >

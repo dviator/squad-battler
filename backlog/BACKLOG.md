@@ -13,8 +13,8 @@ a dependency unblocks them.
 
 ## Actionable now
 
-- **ticket-002-ui-design-system-foundation** (P1, L) — Clinical Bright Lab tokens +
-  sweep all views off raw zinc. parent: design-002. → `/implement-ticket`
+- **ticket-003-ui-specimen-card-portraits** (P1, M) — SpecimenCard component.
+  parent: design-002. (in flight) → `/implement-ticket`
 
 ## Ready to decompose
 
@@ -26,10 +26,11 @@ _(none)_
 
 ## Blocked / Needs input
 
-- **ticket-003-ui-specimen-card-portraits** (P1, M) — blocked on ticket-002.
 - **ticket-004-ui-battle-faceoff** (P1, M) — blocked on ticket-003.
 
 ## Shipped — in verification window
 
+- **ticket-002-ui-design-system-foundation** (design-002) — Clinical Bright Lab
+  token system; all views light. Awaiting playtest.
 - **ticket-001-world1-enemy-tuning** (design-001) — World 1 difficulty pass.
   Awaiting playtest → `/capture-feedback` to verify.

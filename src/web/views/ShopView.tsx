@@ -55,15 +55,15 @@ export function ShopView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-bold text-zinc-100">🏪 Shop</h2>
-          <div className="text-xs text-zinc-500">Pre-battle supplies</div>
+          <h2 className="text-lg font-bold text-ink">🏪 Shop</h2>
+          <div className="text-xs text-muted">Pre-battle supplies</div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-amber-300 font-bold">🪙 {gold}g</span>
+          <span className="text-warning font-bold">🪙 {gold}g</span>
           <button
             type="button"
             onClick={goToCampaign}
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="text-xs text-muted hover:text-ink transition-colors"
           >
             ← Back
           </button>
@@ -72,7 +72,7 @@ export function ShopView() {
 
       {/* Next encounter preview */}
       {encounter && (
-        <div className="mb-4 p-3 rounded-lg bg-zinc-900 border border-zinc-800">
+        <div className="mb-4 p-3 rounded-lg bg-panel border border-line">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span
@@ -80,7 +80,7 @@ export function ShopView() {
               >
                 {getEncounterTypeLabel(encounter.type)}
               </span>
-              <span className="text-xs text-zinc-500">Next fight</span>
+              <span className="text-xs text-muted">Next fight</span>
             </div>
             <div className="flex gap-2">
               {encounter.enemies.map((e) => (
@@ -95,12 +95,12 @@ export function ShopView() {
 
       {/* Error message */}
       {buyError && (
-        <div className="mb-3 p-2 rounded-lg bg-red-900/30 border border-red-800 text-red-400 text-sm">
+        <div className="mb-3 p-2 rounded-lg bg-danger/15 border border-danger/60 text-danger text-sm">
           {buyError}
           <button
             type="button"
             onClick={() => setBuyError(null)}
-            className="ml-2 text-red-600 hover:text-red-400"
+            className="ml-2 text-danger hover:text-danger"
           >
             ×
           </button>
@@ -125,7 +125,7 @@ export function ShopView() {
         type="button"
         onClick={() => encounter && runBattle()}
         disabled={!encounter || squad.length === 0}
-        className="w-full py-3 rounded-xl bg-red-700 hover:bg-red-600 text-white
+        className="w-full py-3 rounded-xl bg-danger hover:bg-danger text-white
           font-bold text-base transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
         ⚔️ Fight!

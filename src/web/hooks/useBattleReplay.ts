@@ -1,7 +1,7 @@
-import { BattleEventType } from "@/core/types";
-import type { BattleEvent, BattleState, Unit } from "@/core/types";
-import { getSpeciesName } from "@/web/utils/species";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { BattleEvent, BattleState, Unit } from "@/core/types";
+import { BattleEventType } from "@/core/types";
+import { getSpeciesName } from "@/web/utils/species";
 
 interface ReplayState {
   unitHps: Map<string, number>;
@@ -49,10 +49,7 @@ export function useBattleReplay(
     [initialPlayerUnits, initialEnemyUnits],
   );
 
-  const meaningful = useMemo(
-    () => battleState.events.filter(isMeaningful),
-    [battleState.events],
-  );
+  const meaningful = useMemo(() => battleState.events.filter(isMeaningful), [battleState.events]);
 
   const initialHps = useMemo(() => {
     const map = new Map<string, number>();
@@ -114,17 +111,17 @@ export function useBattleReplay(
             });
             setHitUnitIds((prev) => new Set(prev).add(event.targetId));
             const name = getUnitName(event.targetId);
-            setLog((l) => [
-              ...l,
-              `  ${name} takes ${event.damage} dmg → ${event.remainingHp} HP`,
-            ]);
-            setTimeout(() => {
-              setHitUnitIds((prev) => {
-                const next = new Set(prev);
-                next.delete(event.targetId);
-                return next;
-              });
-            }, Math.floor(baseMs * 0.6));
+            setLog((l) => [...l, `  ${name} takes ${event.damage} dmg → ${event.remainingHp} HP`]);
+            setTimeout(
+              () => {
+                setHitUnitIds((prev) => {
+                  const next = new Set(prev);
+                  next.delete(event.targetId);
+                  return next;
+                });
+              },
+              Math.floor(baseMs * 0.6),
+            );
           }
           break;
         }

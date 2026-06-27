@@ -18,6 +18,14 @@ the durable record).
 
 ---
 
+### [SHIPPED] 2026-06-27 · ticket-002 UI design-system foundation
+
+The web UI is now the Clinical Bright Lab look — light paper bg, lab-teal/bio-green
+accents, semantic design tokens, all 5 views swept off the old dark zinc theme.
+Battle is still top/bottom with emoji portraits (that's ticket-003 specimen cards +
+ticket-004 left↔right face-off, coming next). Have a look when convenient; feedback
+on the palette/feel via `/capture-feedback`.
+
 ### [SHIPPED] 2026-06-27 · ticket-001 World 1 difficulty pass
 
 World 1 was a walkover (starter squad beat the boss ~94%). Buffed Goob-family

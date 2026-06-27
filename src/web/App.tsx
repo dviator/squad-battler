@@ -9,7 +9,7 @@ export function App() {
   const { view } = useGameStore();
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-paper">
       {view === "menu" && <MainMenuView />}
       {view === "campaign" && <CampaignView />}
       {view === "shop" && <ShopView />}

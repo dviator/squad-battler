@@ -81,15 +81,15 @@ export function LabView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-bold text-zinc-100">🧪 Lab</h2>
-          <div className="text-xs text-zinc-500">Manage your roster</div>
+          <h2 className="text-lg font-bold text-ink">🧪 Lab</h2>
+          <div className="text-xs text-muted">Manage your roster</div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-cyan-300 text-xs font-semibold">⚙️ {scrapTech} ST</span>
+          <span className="text-accent text-xs font-semibold">⚙️ {scrapTech} ST</span>
           <button
             type="button"
             onClick={goToCampaign}
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="text-xs text-muted hover:text-ink transition-colors"
           >
             ← Back
           </button>
@@ -97,10 +97,10 @@ export function LabView() {
       </div>
 
       {/* Time advance */}
-      <div className="mb-4 p-3 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-between">
+      <div className="mb-4 p-3 rounded-lg bg-panel border border-line flex items-center justify-between">
         <div>
-          <div className="text-xs text-zinc-400">Advance time to complete operations</div>
-          <div className="text-xs text-zinc-600 mt-0.5">
+          <div className="text-xs text-muted">Advance time to complete operations</div>
+          <div className="text-xs text-muted mt-0.5">
             Day {Math.floor(gameState.timeElapsed + 1)},{" "}
             {Math.round((gameState.timeElapsed % 1) * 24)}h elapsed
           </div>
@@ -109,24 +109,24 @@ export function LabView() {
           <button
             type="button"
             onClick={() => advanceGameTime(6)}
-            className="text-xs px-2 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700
-              text-zinc-300 border border-zinc-700 transition-all"
+            className="text-xs px-2 py-1.5 rounded bg-panel-2 hover:bg-panel-2
+              text-ink border border-line transition-all"
           >
             +6h
           </button>
           <button
             type="button"
             onClick={() => advanceGameTime(24)}
-            className="text-xs px-2 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700
-              text-zinc-300 border border-zinc-700 transition-all"
+            className="text-xs px-2 py-1.5 rounded bg-panel-2 hover:bg-panel-2
+              text-ink border border-line transition-all"
           >
             +1d
           </button>
           <button
             type="button"
             onClick={() => advanceGameTime(72)}
-            className="text-xs px-2 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700
-              text-zinc-300 border border-zinc-700 transition-all"
+            className="text-xs px-2 py-1.5 rounded bg-panel-2 hover:bg-panel-2
+              text-ink border border-line transition-all"
           >
             +3d
           </button>
@@ -134,14 +134,14 @@ export function LabView() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
+      <div className="flex gap-1 mb-4 bg-panel p-1 rounded-lg border border-line">
         {TABS.filter((t) => t.unlocked).map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => handleTabChange(t.id)}
             className={`flex-1 py-1.5 rounded text-xs font-semibold transition-all ${
-              tab === t.id ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+              tab === t.id ? "bg-panel-2 text-ink" : "text-muted hover:text-ink"
             }`}
           >
             {t.label}
@@ -154,7 +154,7 @@ export function LabView() {
         <div className="flex flex-col gap-3">
           {roster.healing.length > 0 && (
             <div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">In progress</div>
+              <div className="text-xs text-muted uppercase tracking-wider mb-2">In progress</div>
               {roster.healing.map((slot) => {
                 const unit = allUnits.find((u) => u.id === slot.unitId);
                 const complete = isHealingComplete(slot);
@@ -162,13 +162,13 @@ export function LabView() {
                   <div
                     key={slot.unitId}
                     className="flex items-center justify-between p-3 rounded-lg
-                      bg-zinc-900 border border-zinc-800 mb-2"
+                      bg-panel border border-line mb-2"
                   >
                     <div>
-                      <div className="text-sm text-zinc-200">
+                      <div className="text-sm text-ink">
                         {unit ? getSpeciesName(unit.speciesId) : "?"}
                       </div>
-                      <div className="text-xs text-zinc-500">
+                      <div className="text-xs text-muted">
                         {complete
                           ? "Ready to collect!"
                           : `${slot.daysRemaining.toFixed(1)} days remaining`}
@@ -178,7 +178,7 @@ export function LabView() {
                       <button
                         type="button"
                         onClick={() => collectHealed(slot.unitId)}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-green-700 hover:bg-green-600
+                        className="text-xs px-3 py-1.5 rounded-lg bg-bio hover:bg-bio
                           text-white font-semibold transition-all"
                       >
                         Collect ✓
@@ -192,7 +192,7 @@ export function LabView() {
 
           {availableForHealing.length > 0 ? (
             <div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+              <div className="text-xs text-muted uppercase tracking-wider mb-2">
                 Send to heal (100 HP/day)
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -202,8 +202,8 @@ export function LabView() {
                     <button
                       type="button"
                       onClick={() => sendToHealing(unit.id)}
-                      className="mt-1.5 w-full text-xs py-1 rounded-lg bg-green-900 hover:bg-green-800
-                        text-green-300 transition-all"
+                      className="mt-1.5 w-full text-xs py-1 rounded-lg bg-bio/15 hover:bg-bio
+                        text-bio transition-all"
                     >
                       Send to heal
                     </button>
@@ -214,7 +214,7 @@ export function LabView() {
           ) : (
             availableForHealing.length === 0 &&
             roster.healing.length === 0 && (
-              <div className="text-center text-zinc-600 text-sm py-8">All units are at full HP</div>
+              <div className="text-center text-muted text-sm py-8">All units are at full HP</div>
             )
           )}
         </div>
@@ -225,7 +225,7 @@ export function LabView() {
         <div className="flex flex-col gap-3">
           {roster.breeding.length > 0 && (
             <div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">In progress</div>
+              <div className="text-xs text-muted uppercase tracking-wider mb-2">In progress</div>
               {roster.breeding.map((slot, i) => {
                 const complete = isBreedingComplete(slot);
                 const offspringSpecies = slot.offspringGenome?.speciesId;
@@ -233,18 +233,18 @@ export function LabView() {
                   <div
                     key={i}
                     className="flex items-center justify-between p-3 rounded-lg
-                      bg-zinc-900 border border-zinc-800 mb-2"
+                      bg-panel border border-line mb-2"
                   >
                     <div>
-                      <div className="text-sm text-zinc-200">
+                      <div className="text-sm text-ink">
                         🥚 Offspring
                         {offspringSpecies && (
-                          <span className="text-zinc-500 text-xs ml-1">
+                          <span className="text-muted text-xs ml-1">
                             ({getSpeciesName(offspringSpecies)})
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-zinc-500">
+                      <div className="text-xs text-muted">
                         {complete ? "Ready!" : `${slot.daysRemaining.toFixed(1)} days remaining`}
                       </div>
                     </div>
@@ -252,7 +252,7 @@ export function LabView() {
                       <button
                         type="button"
                         onClick={() => collectOffspring(offspringSpecies)}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-600
+                        className="text-xs px-3 py-1.5 rounded-lg bg-gene hover:bg-gene
                           text-white font-semibold transition-all"
                       >
                         Collect 🥚
@@ -266,11 +266,11 @@ export function LabView() {
 
           {roster.breeding.length === 0 && (
             <div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+              <div className="text-xs text-muted uppercase tracking-wider mb-2">
                 Select two parents (Adult or Elderly)
               </div>
               {breedEligible.length < 2 ? (
-                <div className="text-center text-zinc-600 text-sm py-8">
+                <div className="text-center text-muted text-sm py-8">
                   Need at least 2 Adult/Elderly units to breed.
                   <br />
                   <span className="text-xs">Units must be 7+ days old.</span>
@@ -300,7 +300,7 @@ export function LabView() {
                             }}
                           />
                           {(isP1 || isP2) && (
-                            <div className="text-center text-xs text-purple-400 mt-0.5">
+                            <div className="text-center text-xs text-gene mt-0.5">
                               Parent {isP1 ? "1" : "2"}
                             </div>
                           )}
@@ -318,7 +318,7 @@ export function LabView() {
                         setBreedParent2(null);
                       }
                     }}
-                    className="w-full py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white
+                    className="w-full py-2.5 rounded-xl bg-gene hover:bg-gene text-white
                       font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Start Breeding (3 days)
@@ -333,7 +333,7 @@ export function LabView() {
       {/* Recruit tab */}
       {tab === "recruit" && (
         <div className="flex flex-col gap-3">
-          <div className="text-xs text-zinc-500 mb-2">
+          <div className="text-xs text-muted mb-2">
             Recruit a new level 1 unit with random genetics.
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -342,24 +342,22 @@ export function LabView() {
                 key={species.id}
                 type="button"
                 onClick={() => recruitUnit(species.id)}
-                className="p-3 rounded-xl border border-zinc-700 bg-zinc-900 hover:border-cyan-600
-                  hover:bg-zinc-800 transition-all text-left"
+                className="p-3 rounded-xl border border-line bg-panel hover:border-accent/40
+                  hover:bg-panel-2 transition-all text-left"
               >
                 <div className="text-xl mb-1">
                   {species.id === "bear" ? "🐻" : species.id === "eagle" ? "🦅" : "🐯"}
                 </div>
-                <div className="text-sm font-bold text-zinc-100">{species.name}</div>
-                <div className="text-xs text-zinc-500 mt-0.5">{species.description}</div>
-                <div className="text-xs text-zinc-600 mt-1">
+                <div className="text-sm font-bold text-ink">{species.name}</div>
+                <div className="text-xs text-muted mt-0.5">{species.description}</div>
+                <div className="text-xs text-muted mt-1">
                   HP:{species.baseStats.maxHp} SPD:{species.baseStats.speed} ATK:
                   {species.baseStats.attackPower}
                 </div>
               </button>
             ))}
           </div>
-          <div className="text-center text-xs text-zinc-700 mt-2">
-            New units are added to stable
-          </div>
+          <div className="text-center text-xs text-muted mt-2">New units are added to stable</div>
         </div>
       )}
 
@@ -367,14 +365,14 @@ export function LabView() {
       {tab === "squad" && (
         <div className="flex flex-col gap-4">
           <div>
-            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+            <div className="text-xs text-muted uppercase tracking-wider mb-2">
               Active Squad (max 3)
             </div>
             <div className="grid grid-cols-3 gap-2">
               {roster.squad.map((unit, idx) => (
                 <div key={unit.id}>
                   <UnitCard unit={unit} compact />
-                  <div className="text-center text-xs text-zinc-600 mt-0.5">Slot {idx + 1}</div>
+                  <div className="text-center text-xs text-muted mt-0.5">Slot {idx + 1}</div>
                 </div>
               ))}
             </div>
@@ -382,7 +380,7 @@ export function LabView() {
 
           {stableUnits.length > 0 && (
             <div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+              <div className="text-xs text-muted uppercase tracking-wider mb-2">
                 Stable — tap to swap into squad
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -395,8 +393,8 @@ export function LabView() {
                           key={idx}
                           type="button"
                           onClick={() => swapSquadMember(idx, unit.id)}
-                          className="flex-1 text-xs py-1 rounded bg-zinc-800 hover:bg-zinc-700
-                            text-zinc-400 border border-zinc-700 transition-all"
+                          className="flex-1 text-xs py-1 rounded bg-panel-2 hover:bg-panel-2
+                            text-muted border border-line transition-all"
                         >
                           →{idx + 1}
                         </button>
@@ -409,7 +407,7 @@ export function LabView() {
           )}
 
           {stableUnits.length === 0 && roster.stable.length === 0 && (
-            <div className="text-center text-zinc-600 text-sm py-8">
+            <div className="text-center text-muted text-sm py-8">
               No units in stable.
               <br />
               <span className="text-xs">Recruit or breed new units.</span>
@@ -422,20 +420,20 @@ export function LabView() {
       {tab === "scanner" && (
         <div className="flex flex-col gap-4">
           {/* Scanner status */}
-          <div className="p-4 rounded-xl border border-cyan-900 bg-zinc-900">
+          <div className="p-4 rounded-xl border border-accent/40 bg-panel">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-sm font-bold text-cyan-300">Genetic Scanner</div>
-                <div className="text-xs text-zinc-500 mt-0.5">
+                <div className="text-sm font-bold text-accent">Genetic Scanner</div>
+                <div className="text-xs text-muted mt-0.5">
                   Capacity:{" "}
-                  <span className="text-cyan-400 font-semibold">
+                  <span className="text-accent font-semibold">
                     {scannerCapacity}/{SCANNER_MAX_CAPACITY}
                   </span>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs text-zinc-500">Scans remaining</div>
-                <div className="text-2xl font-bold text-cyan-400">{effectiveScansRemaining}</div>
+                <div className="text-xs text-muted">Scans remaining</div>
+                <div className="text-2xl font-bold text-accent">{effectiveScansRemaining}</div>
               </div>
             </div>
 
@@ -445,29 +443,29 @@ export function LabView() {
                 disabled={scrapTech < upgradeCost}
                 onClick={() => upgradeScannerCapacity()}
                 className="w-full py-2 rounded-lg text-sm font-semibold transition-all
-                  bg-cyan-900 hover:bg-cyan-800 text-cyan-200
+                  bg-accent/15 hover:bg-accent text-accent
                   disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Upgrade to {scannerCapacity + 1} scans — {upgradeCost} ST
                 {scrapTech < upgradeCost && (
-                  <span className="text-xs text-zinc-500 ml-1">
+                  <span className="text-xs text-muted ml-1">
                     (need {upgradeCost - scrapTech} more)
                   </span>
                 )}
               </button>
             )}
             {upgradeCost === null && scannerCapacity >= SCANNER_MAX_CAPACITY && (
-              <div className="text-center text-xs text-cyan-600 mt-1">Maximum capacity reached</div>
+              <div className="text-center text-xs text-accent mt-1">Maximum capacity reached</div>
             )}
           </div>
 
           {/* Unit gene reveal list */}
           <div>
-            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+            <div className="text-xs text-muted uppercase tracking-wider mb-2">
               Reveal Hidden Genes
             </div>
             {allUnits.length === 0 ? (
-              <div className="text-center text-zinc-600 text-sm py-4">No units available</div>
+              <div className="text-center text-muted text-sm py-4">No units available</div>
             ) : (
               <div className="flex flex-col gap-2">
                 {allUnits.map((unit) => {
@@ -478,15 +476,12 @@ export function LabView() {
                     attackPower: "ATK",
                   };
                   return (
-                    <div
-                      key={unit.id}
-                      className="p-3 rounded-xl border border-zinc-800 bg-zinc-900"
-                    >
+                    <div key={unit.id} className="p-3 rounded-xl border border-line bg-panel">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-semibold text-zinc-200">
+                        <span className="text-sm font-semibold text-ink">
                           {getSpeciesName(unit.speciesId)}
                         </span>
-                        <span className="text-xs text-zinc-600">Lv.{unit.level}</span>
+                        <span className="text-xs text-muted">Lv.{unit.level}</span>
                       </div>
                       <div className="flex gap-2">
                         {genes.map((gene) => {
@@ -507,16 +502,16 @@ export function LabView() {
                               className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all
                                 ${
                                   revealed
-                                    ? "bg-cyan-900/40 text-cyan-300 cursor-default border border-cyan-800"
+                                    ? "bg-accent/15 text-accent cursor-default border border-accent/40"
                                     : effectiveScansRemaining > 0
-                                      ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
-                                      : "bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800"
+                                      ? "bg-panel-2 hover:bg-panel-2 text-ink border border-line"
+                                      : "bg-panel text-muted cursor-not-allowed border border-line"
                                 }
                               `}
                             >
                               {geneLabels[gene]}
                               {revealed && (
-                                <span className="ml-1 text-cyan-400">
+                                <span className="ml-1 text-accent">
                                   {unit.geneticPotential[gene]}
                                 </span>
                               )}
@@ -532,7 +527,7 @@ export function LabView() {
           </div>
 
           {effectiveScansRemaining === 0 && (
-            <div className="text-center text-xs text-zinc-600 py-2">
+            <div className="text-center text-xs text-muted py-2">
               No scans remaining this visit. Return after the next encounter to reset.
             </div>
           )}

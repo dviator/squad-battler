@@ -31,7 +31,7 @@ function UnitSlot({
   isEnemy: boolean;
 }) {
   if (!unit) {
-    return <div className="rounded-xl border border-zinc-800 border-dashed min-h-[120px] opacity-30" />;
+    return <div className="rounded-xl border border-line border-dashed min-h-[120px] opacity-30" />;
   }
 
   return (
@@ -86,7 +86,7 @@ export function BattleArena({
     <div className="flex flex-col gap-3">
       {/* Enemy row */}
       <div>
-        <div className="text-xs text-red-400 font-semibold uppercase tracking-wider mb-2">
+        <div className="text-xs text-danger font-semibold uppercase tracking-wider mb-2">
           Enemies
         </div>
         {renderRow(enemyUnits, true)}
@@ -94,14 +94,14 @@ export function BattleArena({
 
       {/* Divider */}
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-zinc-800" />
-        <span className="text-zinc-600 text-xs">⚔️</span>
-        <div className="flex-1 h-px bg-zinc-800" />
+        <div className="flex-1 h-px bg-panel-2" />
+        <span className="text-muted text-xs">⚔️</span>
+        <div className="flex-1 h-px bg-panel-2" />
       </div>
 
       {/* Player row */}
       <div>
-        <div className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-2">
+        <div className="text-xs text-accent font-semibold uppercase tracking-wider mb-2">
           Your Squad
         </div>
         {renderRow(playerUnits, false)}
