@@ -13,9 +13,10 @@ export const GOOB: Species = {
     // encounter — meaningful attrition across 10 encounters without being lethal.
     maxHp: 200,
     speed: 8,
-    // 38 attack: slap (30) hits Bear/Tiger via OppositeEnemy, tackle (38) is
-    // random. Creates the attrition needed so enc 1-5 filter ~40% of no-items runs.
-    attackPower: 38,
+    // 72 attack: tuned so a fresh squad — including the in-run healing/XP the
+    // run simulator models — reaches the World 1 mini-boss ~60-70% of the time
+    // (DESIGN_FRAMEWORK target 40-70%). Validated by `bun run test:balance`.
+    attackPower: 72,
   },
   attacks: [
     {
@@ -47,11 +48,10 @@ export const MEGA_GOOB: Species = {
     // depleted mid-run squad, but survivable for a healed whale-strategy squad.
     maxHp: 700,
     speed: 7,
-    // 38 attack: Slam (57) + Crush (76) + Wave (38 to all). At ~6-7 ticks to kill,
-    // fires Slam at tick 4 and Crush at tick 5; Wave at tick 6 sometimes fires.
-    // Creates meaningful RNG variance: depleted squads (32% HP) win ~25-35%,
-    // healed squads (70% HP) win ~55-70%. Balances mini-boss difficulty.
-    attackPower: 38,
+    // 72 attack: Slam (×1.5), Crush (×2.0), Wave (×1.0 to all). The mini-boss is
+    // the run's main wall — squads defeat it ~30-40% of the time and the buffed
+    // boss (Alpha Goob) only ~5-15% (DESIGN_FRAMEWORK targets). Tuned via test:balance.
+    attackPower: 72,
   },
   attacks: [
     {
@@ -90,9 +90,10 @@ export const HEAVY_GOOB: Species = {
     // to kill. Two Heavy Goobs create sustained pressure without being instant-kill.
     maxHp: 260,
     speed: 6,
-    // 28 attack: Stomping Crash (50 damage) fires every 6 ticks — meaningful
-    // single-target threat. Two Heavy Goobs in enc 7 apply sustained pressure.
-    attackPower: 28,
+    // 53 attack: Stomping Crash (×1.8) every 6 ticks — a heavy single-target hit.
+    // Two Heavy Goobs (enc 7) and the elite encounters apply the sustained pressure
+    // that thins squads before the boss. Tuned via test:balance.
+    attackPower: 53,
   },
   attacks: [
     {

@@ -13,8 +13,7 @@ a dependency unblocks them.
 
 ## Actionable now
 
-- **ticket-001-world1-enemy-tuning** (P1, M) — Retune World 1 enemy strength to hit
-  `test:balance` targets. parent: design-001. → `/implement-ticket`
+_(none — backlog needs fresh ideas)_
 
 ## Ready to decompose
 
@@ -30,4 +29,5 @@ _(none)_
 
 ## Shipped — in verification window
 
-_(none yet — awaiting playtest)_
+- **ticket-001-world1-enemy-tuning** (design-001) — World 1 difficulty pass.
+  Awaiting playtest → `/capture-feedback` to verify.

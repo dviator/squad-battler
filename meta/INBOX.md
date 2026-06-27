@@ -18,4 +18,13 @@ the durable record).
 
 ---
 
-_(empty)_
+### [SHIPPED] 2026-06-27 · ticket-001 World 1 difficulty pass
+
+World 1 was a walkover (starter squad beat the boss ~94%). Buffed Goob-family
+attack ×1.9; sim now hits all balance targets (mini-boss reach 69%, boss kill 7.5%)
+and avg run depth dropped from ~25 to ~6 encounters.
+
+**Please playtest a couple of runs** and confirm it feels tense rather than just
+hitting the numbers — the buffed boss's Crushing Weight can now one-shot a unit, so
+that's the main feel risk. Then run `/capture-feedback` (positive → ticket
+`verified`; negative → I'll spawn a follow-up). Commit: see git log for ticket-001.
