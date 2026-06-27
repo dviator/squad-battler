@@ -7,3 +7,6 @@ dist/
 .vercel
 .env*
 .claude/worktrees/
+
+# npm lockfile — project uses bun (bun.lock)
+package-lock.json

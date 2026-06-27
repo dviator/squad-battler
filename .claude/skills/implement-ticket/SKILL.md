@@ -15,10 +15,12 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    `in_flight`. Confirm it's `size: S|M` — if `L`, stop and route to
    `/decompose-design`.
 
-2. **Load context.** Read the ticket + its parent design. Run
-   `scripts/meta-context.sh "<ticket topic>"` and read `meta/policies.md` for
-   relevant feedback/steering. Honor the repo conventions in `CLAUDE.md` (layer
-   separation, enums, Zod, tests required).
+2. **Load context.** Read the ticket + its parent design. Read `meta/policies.md`
+   for relevant feedback/steering. Pull relevant prior context:
+   - **In-session (MCP available):** call `mcp__plugin_qmd_qmd__query` with
+     `collections: ["meta","backlog","docs"]` — use lex + vec sub-queries.
+   - **CLI/cloud fallback:** `scripts/meta-context.sh "<ticket topic>"`
+   Honor the repo conventions in `CLAUDE.md` (layer separation, enums, Zod, tests required).
 
 3. **Implement.** Work directly on `main` for the single heartbeat (the eval gate
    below + the pre-commit hook are the safety net). For parallel/manual work use

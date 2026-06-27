@@ -40,7 +40,9 @@ and `sentiment`.
 
 ## 4. Refresh retrieval & state
 
-- Run `qmd embed` if qmd is installed (so the new feedback is searchable). The
-  `grep` fallback needs no step.
+- Refresh the search index so the new feedback is immediately searchable:
+  run `qmd update && qmd embed` (updates BM25 + regenerates vectors). The MCP
+  plugin reads from the same index — no extra step needed there. The `grep`
+  fallback needs no step.
 - Update `meta/STATE.md` tick log and `BACKLOG.md` if ticket statuses changed.
 - Clear the corresponding `meta/INBOX.md` entry once handled.

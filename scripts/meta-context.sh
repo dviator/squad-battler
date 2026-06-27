@@ -32,15 +32,14 @@ fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CORPUS_DIRS=(meta backlog docs)
-QMD_COLLECTION="squad-meta"
 
 # ── Primary: qmd ──
-# Use it only if the binary exists AND the collection has been indexed, otherwise
-# fall through to ripgrep so a fresh/ephemeral environment still returns results.
+# Use it only if the binary exists AND at least one collection has been indexed,
+# otherwise fall through to ripgrep so a fresh/ephemeral environment still returns results.
 if command -v qmd >/dev/null 2>&1; then
-  if qmd collection list 2>/dev/null | grep -q "$QMD_COLLECTION"; then
-    echo "# meta-context via qmd (collection: $QMD_COLLECTION)"
-    qmd query "$QUERY" --collection "$QMD_COLLECTION" 2>/dev/null && exit 0
+  if qmd collection list 2>/dev/null | grep -qE "^(meta|backlog|docs) "; then
+    echo "# meta-context via qmd (collections: meta backlog docs)"
+    qmd query "$QUERY" -c meta -c backlog -c docs 2>/dev/null && exit 0
     echo "# qmd query failed — falling back to ripgrep" >&2
   fi
 fi

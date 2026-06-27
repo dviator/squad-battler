@@ -42,8 +42,11 @@ Sizing: if the selected ticket is `size: L`, do not implement it — route to
 
 Invoke the matching stage skill (`/refine-idea`, `/decompose-design`, or
 `/implement-ticket`) for the selected item. Let that skill own its gates and
-outputs. Pass relevant context first — run
-`scripts/meta-context.sh "<topic of the item>"` and feed the results in.
+outputs. Pass relevant context first:
+
+- **In-session (MCP available):** call `mcp__plugin_qmd_qmd__query` with
+  `collections: ["meta","backlog","docs"]` — use lex + vec sub-queries.
+- **CLI/cloud fallback:** `scripts/meta-context.sh "<topic of the item>"`
 
 ## 4. Housekeeping (cheap, every tick)
 
