@@ -93,6 +93,18 @@ body {
   animation: shake 0.3s ease-out;
 }
 
+/* Directional attack lunge — squad lunges right toward enemies, enemies left. */
+@keyframes lunge-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+}
+@keyframes lunge-left {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-10px); }
+}
+.animate-lunge-right { animation: lunge-right 0.4s ease-out; }
+.animate-lunge-left { animation: lunge-left 0.4s ease-out; }
+
 /* Custom scrollbar — light */
 ::-webkit-scrollbar {
   width: 8px;

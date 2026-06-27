@@ -23,7 +23,7 @@ export function BattleView() {
   }, [replay.log]);
 
   return (
-    <div className="min-h-screen flex flex-col max-w-lg mx-auto p-4">
+    <div className="min-h-screen flex flex-col max-w-5xl mx-auto p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -64,7 +64,7 @@ export function BattleView() {
       />
 
       {/* Event log */}
-      <div className="mt-4 flex-1 flex flex-col min-h-0">
+      <div className="mt-4 flex-1 flex flex-col min-h-0 w-full max-w-3xl mx-auto">
         <div className="text-xs text-muted uppercase tracking-wider mb-1">Battle Log</div>
         <div
           ref={logRef}
@@ -95,7 +95,7 @@ export function BattleView() {
 
       {/* Post-battle controls */}
       {replay.isDone && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-2 w-full max-w-md mx-auto">
           {playerWon ? (
             <>
               <div className="text-center text-bio font-bold text-lg">🏆 Victory!</div>

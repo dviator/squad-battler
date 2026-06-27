@@ -1,7 +1,7 @@
 ---
 updated: 2026-06-27
-in_flight: ticket-004-ui-battle-faceoff # ticket/design id currently being worked, or null
-features_shipped: 3 # increments on each shipped ticket; doc-sync triggers every ~5
+in_flight: null # ticket/design id currently being worked, or null
+features_shipped: 4 # increments on each shipped ticket; doc-sync triggers every ~5
 last_doc_sync_at: 0 # features_shipped value at last doc-sync
 ---
 
@@ -14,12 +14,16 @@ changelog. Detailed history lives in git and `meta/INBOX.md`.
 
 ## Current focus
 
-UI design pass (design-002) in progress, one ticket at a time: ticket-002 (design
-system) + ticket-003 (specimen cards) `shipped`; ticket-004 (battle face-off) in
-flight. ticket-001 also awaiting playtest.
+Nothing in flight. UI design pass (design-002) complete — tickets 002/003/004 all
+`shipped`, awaiting playtest. ticket-001 also awaiting playtest. Backlog has no
+actionable items; next `/dev-tick` will idle or surface `[NEEDS-INPUT]` for ideas.
+Note: 4 features shipped, last_doc_sync_at 0 → doc-sync + archive sweep due soon.
 
 ## Tick log (most recent first, keep ~10)
 
+- 2026-06-27 · implement · ticket-004-ui-battle-faceoff → shipped. BattleArena now
+  squad-left / VS / enemy-right with directional lunges; verified in-browser.
+  Completes design-002 (UI design pass).
 - 2026-06-27 · implement · ticket-003-ui-specimen-card-portraits → shipped. Unified
   SpecimenCard (tinted art panel, SPEC tag, grade badge) for roster + battle;
   verified in-browser. Next: ticket-004 battle face-off.

@@ -18,6 +18,14 @@ the durable record).
 
 ---
 
+### [SHIPPED] 2026-06-27 · ticket-004 battle left↔right face-off (UI pass complete)
+
+The battle now reads as a face-off: **your squad on the left**, **enemies on the
+right**, with a VS divider and directional attack lunges (squad lunges right,
+enemies left). On narrow screens it stacks. This completes the full UI design pass
+(design-002) — Clinical Bright Lab palette + specimen cards + face-off. Play a run
+and let me know how it feels; `/capture-feedback` to verify or steer.
+
 ### [SHIPPED] 2026-06-27 · ticket-003 specimen-card portraits
 
 Units now render as large specimen cards — a species-tinted art panel with a big

@@ -15,36 +15,7 @@ function getUnitAtPosition(units: Unit[], position: Position): Unit | undefined 
   return units.find((u) => u.position === position);
 }
 
-function UnitSlot({
-  unit,
-  currentHp,
-  isDead,
-  isAttacking,
-  isHit,
-  isEnemy,
-}: {
-  unit: Unit | undefined;
-  currentHp: number;
-  isDead: boolean;
-  isAttacking: boolean;
-  isHit: boolean;
-  isEnemy: boolean;
-}) {
-  if (!unit) {
-    return <div className="rounded-xl border border-line border-dashed min-h-[120px] opacity-30" />;
-  }
-
-  return (
-    <BattleUnitCard
-      unit={unit}
-      currentHp={currentHp}
-      isEnemy={isEnemy}
-      isDead={isDead}
-      isAttacking={isAttacking}
-      isHit={isHit}
-    />
-  );
-}
+const POSITIONS = [Position.Left, Position.Center, Position.Right] as const;
 
 export function BattleArena({
   playerUnits,
@@ -54,27 +25,28 @@ export function BattleArena({
   activeAttackerId,
   hitUnitIds,
 }: BattleArenaProps) {
-  const positions = [Position.Left, Position.Center, Position.Right] as const;
-
-  function renderRow(units: Unit[], isEnemy: boolean) {
+  function side(units: Unit[], isEnemy: boolean) {
     return (
-      <div className="grid grid-cols-3 gap-2">
-        {positions.map((pos) => {
+      <div className="flex flex-col gap-2">
+        {POSITIONS.map((pos) => {
           const unit = getUnitAtPosition(units, pos);
-          const hp = unit ? (unitHps.get(unit.id) ?? unit.stats.currentHp) : 0;
-          const dead = unit ? deadUnitIds.has(unit.id) : false;
-          const attacking = unit ? unit.id === activeAttackerId : false;
-          const hit = unit ? hitUnitIds.has(unit.id) : false;
-
+          if (!unit) {
+            return (
+              <div
+                key={pos}
+                className="rounded-xl border border-dashed border-line min-h-[180px] opacity-40"
+              />
+            );
+          }
           return (
-            <UnitSlot
+            <BattleUnitCard
               key={pos}
               unit={unit}
-              currentHp={hp}
-              isDead={dead}
-              isAttacking={attacking}
-              isHit={hit}
+              currentHp={unitHps.get(unit.id) ?? unit.stats.currentHp}
               isEnemy={isEnemy}
+              isDead={deadUnitIds.has(unit.id)}
+              isAttacking={unit.id === activeAttackerId}
+              isHit={hitUnitIds.has(unit.id)}
             />
           );
         })}
@@ -82,30 +54,29 @@ export function BattleArena({
     );
   }
 
+  function column(label: string, labelColor: string, units: Unit[], isEnemy: boolean) {
+    return (
+      <div className="flex-1 min-w-0">
+        <div className={`text-xs font-semibold uppercase tracking-wider mb-2 ${labelColor}`}>
+          {label}
+        </div>
+        {side(units, isEnemy)}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-3">
-      {/* Enemy row */}
-      <div>
-        <div className="text-xs text-danger font-semibold uppercase tracking-wider mb-2">
-          Enemies
-        </div>
-        {renderRow(enemyUnits, true)}
+    <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
+      {column("Your Squad", "text-accent", playerUnits, false)}
+
+      {/* VS divider — horizontal on mobile, vertical on desktop */}
+      <div className="flex md:flex-col items-center justify-center gap-2 md:self-stretch md:pt-8">
+        <div className="h-px flex-1 bg-line md:h-full md:w-px md:flex-none" />
+        <span className="text-sm font-bold text-muted">VS</span>
+        <div className="h-px flex-1 bg-line md:h-full md:w-px md:flex-none" />
       </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-panel-2" />
-        <span className="text-muted text-xs">⚔️</span>
-        <div className="flex-1 h-px bg-panel-2" />
-      </div>
-
-      {/* Player row */}
-      <div>
-        <div className="text-xs text-accent font-semibold uppercase tracking-wider mb-2">
-          Your Squad
-        </div>
-        {renderRow(playerUnits, false)}
-      </div>
+      {column("Enemies", "text-danger", enemyUnits, true)}
     </div>
   );
 }

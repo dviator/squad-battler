@@ -13,8 +13,7 @@ a dependency unblocks them.
 
 ## Actionable now
 
-- **ticket-004-ui-battle-faceoff** (P1, M) — squad-left / VS / enemy-right arena.
-  parent: design-002. (in flight) → `/implement-ticket`
+_(none — backlog needs fresh ideas)_
 
 ## Ready to decompose
 
@@ -30,9 +29,13 @@ _(none)_
 
 ## Shipped — in verification window
 
+- **ticket-004-ui-battle-faceoff** (design-002) — left↔right battle face-off +
+  directional lunges. Awaiting playtest.
 - **ticket-003-ui-specimen-card-portraits** (design-002) — large art-ready
   specimen cards. Awaiting playtest.
 - **ticket-002-ui-design-system-foundation** (design-002) — Clinical Bright Lab
   token system; all views light. Awaiting playtest.
+- **ticket-001-world1-enemy-tuning** (design-001) — World 1 difficulty pass.
+  Awaiting playtest → `/capture-feedback` to verify.
 - **ticket-001-world1-enemy-tuning** (design-001) — World 1 difficulty pass.
   Awaiting playtest → `/capture-feedback` to verify.

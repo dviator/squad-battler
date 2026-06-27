@@ -266,7 +266,7 @@ export function BattleUnitCard({
   if (isDead) {
     cardClass += "border-line opacity-40 grayscale";
   } else if (isAttacking) {
-    cardClass += "border-accent animate-attack";
+    cardClass += `border-accent animate-attack ${isEnemy ? "animate-lunge-left" : "animate-lunge-right"}`;
   } else if (isHit) {
     cardClass += "border-danger animate-hit animate-shake";
   } else if (isEnemy) {

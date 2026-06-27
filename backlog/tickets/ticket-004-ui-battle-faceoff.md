@@ -1,6 +1,6 @@
 ---
 id: ticket-004-ui-battle-faceoff
-status: todo
+status: shipped
 priority: 1
 size: M
 parent: design-002-ui-clinical-bright-lab
@@ -40,3 +40,10 @@ states) via claude-in-chrome.
 ## Notes
 
 `depends_on` ticket-003 (specimen cards).
+
+> **Shipped 2026-06-27.** Rebuilt `BattleArena` as squad-left / VS / enemy-right
+> (columns stack each side's up-to-3 cards; dashed placeholder for empty slots;
+> responsive — stacks below `md`). Widened `BattleView` to `max-w-5xl` (log/controls
+> kept narrow). Added directional lunge keyframes; attacking squad lunges right,
+> enemies left (derived from `isEnemy`). Verified in-browser. `/eval`: typecheck ✓
+> test ✓ balance ✓ · web:build ✓. Completes design-002.
