@@ -18,6 +18,13 @@ the durable record).
 
 ---
 
+### [SHIPPED] 2026-06-27 · ticket-003 specimen-card portraits
+
+Units now render as large specimen cards — a species-tinted art panel with a big
+glyph (real portrait art drops straight in later), a SPEC-### tag, and a genetic
+grade badge, across the campaign roster and the battle arena. Battle is still
+top/bottom; ticket-004 turns it into the left↔right face-off next.
+
 ### [SHIPPED] 2026-06-27 · ticket-002 UI design-system foundation
 
 The web UI is now the Clinical Bright Lab look — light paper bg, lab-teal/bio-green

@@ -1,6 +1,6 @@
 ---
 id: ticket-003-ui-specimen-card-portraits
-status: todo
+status: shipped
 priority: 1
 size: M
 parent: design-002-ui-clinical-bright-lab
@@ -40,3 +40,10 @@ battle and roster/pickers.
 
 `depends_on` ticket-002 (tokens). Keep the existing prop surface so call sites
 barely change.
+
+> **Shipped 2026-06-27.** Rewrote `UnitCard.tsx`: shared `SpecimenCard` shell
+> (tinted `SpecimenArt` panel + large glyph, `SPEC-###` tag, best-grade badge,
+> nameplate, HpBar) used by both `UnitCard` (roster) and `BattleUnitCard` (battle
+> states). `compact` kept as a dense list row with a tint chip. Call sites
+> unchanged. Verified in-browser: campaign + battle show large art-ready cards.
+> `/eval`: typecheck ✓ test ✓ balance ✓ · web:build ✓.
