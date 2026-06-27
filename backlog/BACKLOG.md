@@ -13,12 +13,15 @@ a dependency unblocks them.
 
 ## Actionable now
 
-- **ticket-005-floor-structure-foundation** (P1, M) — generalize World→Floor for a
-  data-driven 9+bonus campaign (no new content). parent: design-003. → `/implement-ticket`
+_(none — all tickets shipped or blocked on design-003 input)_
+
+**Note: features_shipped = 5, last_doc_sync_at = 0 → doc-sync + archive sweep due.**
+The doc-sync routine (or next `/dev-tick`) should update `docs/DESIGN_FRAMEWORK.md` +
+`docs/SYSTEMS.md` to reflect 5 shipped features, then move verified items to archive.
 
 ## Ready to decompose
 
-_(none — design-001, design-002 are decomposed)_
+_(none — design-001, design-002 are decomposed; design-003 is needs-input)_
 
 ## Needs refinement (ideas / draft designs)
 
@@ -27,19 +30,20 @@ _(none)_
 ## Blocked / Needs input
 
 - **design-003-overall-level-design** (P1) — 9-floor campaign macro design.
-  Structure locked + foundation carved into ticket-005 (actionable). Still needs Dan
-  on 3 missing themes, ordering, floor-10, per-floor rosters, meta-progression (see
-  INBOX) before content tickets.
+  Structure locked + foundation shipped (ticket-005). Still needs Dan on:
+  3 missing themes, floor ordering/difficulty curve, floor-10 identity,
+  per-floor enemy/boss rosters, meta-progression. See INBOX.
 
 ## Shipped — in verification window
 
+- **ticket-005-floor-structure-foundation** (design-003) — 10-floor data-driven
+  campaign; FLOOR_CATALOG, World.floorNumber, getFloorProgress; UI shows "Floor X/10".
+  Awaiting playtest.
 - **ticket-004-ui-battle-faceoff** (design-002) — left↔right battle face-off +
   directional lunges. Awaiting playtest.
 - **ticket-003-ui-specimen-card-portraits** (design-002) — large art-ready
   specimen cards. Awaiting playtest.
 - **ticket-002-ui-design-system-foundation** (design-002) — Clinical Bright Lab
   token system; all views light. Awaiting playtest.
-- **ticket-001-world1-enemy-tuning** (design-001) — World 1 difficulty pass.
-  Awaiting playtest → `/capture-feedback` to verify.
 - **ticket-001-world1-enemy-tuning** (design-001) — World 1 difficulty pass.
   Awaiting playtest → `/capture-feedback` to verify.

@@ -1,6 +1,6 @@
 ---
 id: ticket-005-floor-structure-foundation
-status: todo
+status: shipped
 priority: 1
 size: M
 parent: design-003-overall-level-design

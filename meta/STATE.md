@@ -1,7 +1,7 @@
 ---
 updated: 2026-06-27
 in_flight: null # ticket/design id currently being worked, or null
-features_shipped: 4 # increments on each shipped ticket; doc-sync triggers every ~5
+features_shipped: 5 # increments on each shipped ticket; doc-sync triggers every ~5
 last_doc_sync_at: 0 # features_shipped value at last doc-sync
 ---
 
@@ -14,15 +14,19 @@ changelog. Detailed history lives in git and `meta/INBOX.md`.
 
 ## Current focus
 
-Nothing in flight. UI design pass (design-002) complete — tickets 002/003/004
-`shipped`, awaiting playtest. design-003 (overall level design) refined →
-`needs-input` (creative content needs Dan — see INBOX); its structural-foundation
-slice is now **ticket-005 (actionable)**, the next thing `/dev-tick` will pick up.
-ticket-001 also awaiting playtest. Note: 4 features shipped, last_doc_sync_at 0 →
-doc-sync + archive due soon.
+Nothing in flight. ticket-005 (floor-structure-foundation) shipped: Campaign is
+now a declarative 10-floor structure; Goob floor plays identically; UI shows
+"Floor X / 10". design-003 remains needs-input (floor ordering, 3 themes, rosters
+— see INBOX). **features_shipped = 5 → doc-sync due** (last_doc_sync_at = 0):
+next `/dev-tick` should trigger the doc-sync + archive sweep before picking new
+work, or the doc-sync routine handles it.
 
 ## Tick log (most recent first, keep ~10)
 
+- 2026-06-27 · implement · ticket-005-floor-structure-foundation → shipped. FLOOR_CATALOG
+  (10 entries), World.floorNumber, getFloorProgress, createGoobCampaign → 10 floors.
+  CampaignView shows "Floor X / 10". 163 tests green, balance hard gates pass. Pushed.
+  Next: doc-sync due (features_shipped hit 5).
 - 2026-06-27 · steering · enshrined "carve the decided slice out of a needs-input
   design" (feedback-001 + policies + refine-idea skill). Created
   ticket-005-floor-structure-foundation (actionable) from design-003.
