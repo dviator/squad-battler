@@ -25,7 +25,9 @@ _(none)_
 
 ## Blocked / Needs input
 
-_(none)_
+- **design-003-overall-level-design** (P1) — 9-floor campaign macro design.
+  Structure locked; needs Dan on 3 missing themes, ordering, floor-10, per-floor
+  rosters, meta-progression (see INBOX). Structural-foundation slice is actionable.
 
 ## Shipped — in verification window
 

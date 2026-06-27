@@ -14,13 +14,17 @@ changelog. Detailed history lives in git and `meta/INBOX.md`.
 
 ## Current focus
 
-Nothing in flight. UI design pass (design-002) complete — tickets 002/003/004 all
-`shipped`, awaiting playtest. ticket-001 also awaiting playtest. Backlog has no
-actionable items; next `/dev-tick` will idle or surface `[NEEDS-INPUT]` for ideas.
-Note: 4 features shipped, last_doc_sync_at 0 → doc-sync + archive sweep due soon.
+Nothing in flight. UI design pass (design-002) complete — tickets 002/003/004
+`shipped`, awaiting playtest. design-003 (overall level design) refined →
+`needs-input` (structure locked; creative content needs Dan — see INBOX); its
+structural-foundation slice is actionable on request. ticket-001 also awaiting
+playtest. Note: 4 features shipped, last_doc_sync_at 0 → doc-sync + archive due soon.
 
 ## Tick log (most recent first, keep ~10)
 
+- 2026-06-27 · refine · idea overall-level-design → design-003 (needs-input). Locked
+  9 floors + bonus, floor = themed world, boss per floor. Open: 3 themes, ordering,
+  floor-10, rosters, meta-progression. Structural slice actionable.
 - 2026-06-27 · implement · ticket-004-ui-battle-faceoff → shipped. BattleArena now
   squad-left / VS / enemy-right with directional lunges; verified in-browser.
   Completes design-002 (UI design pass).

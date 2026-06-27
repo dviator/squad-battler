@@ -18,6 +18,24 @@ the durable record).
 
 ---
 
+### [NEEDS-INPUT] 2026-06-27 · design-003 Overall Level Design
+
+Refined your `overall-level-design` idea into `backlog/designs/design-003-overall-level-design.md`.
+Locked with you: 9 floors + bonus 10th, floor = themed world of N encounters, boss
+per floor. Still needs your creative input before full decomposition:
+
+1. **3 missing floor themes** (you have 6 of 9).
+2. **Floor ordering** — confirm/reorder my proposed curve (genetic scrap → goobs →
+   reject → hybrids → HR → TBD → TBD → sharp creatures → TBD climax → bonus).
+3. **Floor-10 bonus** — what is it (true boss / endless / secret)?
+4. **Per-floor enemy & boss rosters** (new species/mutations are yours to author).
+5. **Meta-progression** — breed/lab between floors, or only between runs?
+
+Note: the **structural foundation** (generalize World→Floor for a 9+bonus campaign,
+reframe the Goob content as one floor, show floor progress in UI) is already
+actionable and can be built without waiting on the above. Say the word and I'll
+decompose + ship that slice.
+
 ### [SHIPPED] 2026-06-27 · ticket-004 battle left↔right face-off (UI pass complete)
 
 The battle now reads as a face-off: **your squad on the left**, **enemies on the
