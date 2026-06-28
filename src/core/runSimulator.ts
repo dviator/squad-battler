@@ -177,11 +177,7 @@ export function simulateRun(
       break;
     }
 
-    // Shop phase before combat
-    const shop = generateShop(combatsCompleted);
-    gameState = aiShopDecisions(gameState, shop, speciesPool);
-
-    // Combat phase
+    // Combat phase — the run opens on combat; no shop precedes the first fight.
     const combatResult = simulateCombat(gameState.roster.squad, encounter);
 
     if (!combatResult.victory) {
@@ -219,6 +215,11 @@ export function simulateRun(
     gameState = addGold(gameState, combatResult.goldEarned);
     gameState = addMaterials(gameState, combatResult.materialsEarned);
     gameState = advanceTimeAfterCombat(gameState);
+
+    // Shop phase — the shop is earned: entered after each win, spending the
+    // winnings, before advancing to the next node.
+    const shop = generateShop(combatsCompleted);
+    gameState = aiShopDecisions(gameState, shop, speciesPool);
 
     // Advance to next encounter
     const advanceResult = advanceEncounter(currentCampaign);

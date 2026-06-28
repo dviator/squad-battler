@@ -164,13 +164,14 @@ export const useGameStore = create<AppStore>((set, get) => ({
     gameState = addGold(gameState, STARTING_GOLD);
 
     const campaign = createGoobCampaign(GOOB, HEAVY_GOOB, MEGA_GOOB, [BEAR, EAGLE, TIGER]);
-    const shopItems = generateShop(0);
 
+    // Action before economy: open on the first fight, not a shop. The shop is
+    // earned — it first appears after the first win (see afterBattleWin).
     set({
-      view: "shop",
+      view: "campaign",
       gameState,
       campaign,
-      shopItems,
+      shopItems: [],
       shopPurchasedIds: [],
       battleCtx: null,
     });

@@ -55,8 +55,8 @@ export function ShopView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-bold text-ink">🏪 Shop</h2>
-          <div className="text-xs text-muted">Pre-battle supplies</div>
+          <h2 className="text-lg font-bold text-ink">🏪 Resupply</h2>
+          <div className="text-xs text-muted">Spend your winnings before the next node</div>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-warning font-bold">🪙 {gold}g</span>

@@ -56,3 +56,12 @@ after the first win, via claude-in-chrome.
 The decided slice of [[design-004-level-loop-and-squad-frame]]; enshrines
 [[feedback-005-action-before-economy]]. No creative input required — ordering and
 copy only.
+
+> **Eval passed 2026-06-27 (awaiting merge).** `simulateRun` reordered to combat-
+> first (shop after each win); web `startNewGame` lands on `view: "campaign"` (the
+> squad/node screen with the Fight button) with no pre-fight shop; ShopView copy
+> reframed as post-fight "Resupply". Added `runSimulator` test "opens on combat — no
+> shop runs before the first fight" (spy verified to intercept). `/eval`: typecheck
+> ✓ · 164 tests ✓ · balance hard gates ✓ · web:build ✓. On branch
+> `worktree-design-004-level-loop`; merge to main held pending reconciliation with
+> Dan's in-flight pipeline WIP (verify-queue) in the primary checkout.

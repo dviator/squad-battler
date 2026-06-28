@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { createGameState } from "../src/core/gameState";
 import {
   aiLabDecisions,
@@ -8,6 +8,7 @@ import {
   simulateMultipleRuns,
   simulateRun,
 } from "../src/core/runSimulator";
+import * as shopModule from "../src/core/shop";
 import { generateShop } from "../src/core/shop";
 import { Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
@@ -166,6 +167,27 @@ describe("Full Run Simulation", () => {
     const result = simulateRun(gameState, campaign, TEST_SPECIES);
 
     expect(result.combatsCompleted).toBeGreaterThanOrEqual(0);
+  });
+
+  test("opens on combat — no shop runs before the first fight", () => {
+    // A 0-attack unit can never win, so the first encounter is a guaranteed loss.
+    // Under action-before-economy, the run reaches combat first and ends at the
+    // loss without ever generating a shop. (Old behavior shopped before combat #1.)
+    const base = createUnit(BEAR, Position.Center);
+    const cannotWin = { ...base, stats: { ...base.stats, attackPower: 0 } };
+
+    const gameState = {
+      ...createGameState([cannotWin], []),
+      currency: { gold: 100, materials: 0 },
+    };
+    const campaign = createCampaign(TEST_SPECIES);
+
+    const shopSpy = vi.spyOn(shopModule, "generateShop");
+    const result = simulateRun(gameState, campaign, TEST_SPECIES);
+    expect(result.reason).toBe("defeat");
+    expect(result.combatsCompleted).toBe(0);
+    expect(shopSpy).not.toHaveBeenCalled();
+    shopSpy.mockRestore();
   });
 
   test("tracks gold and materials earned", () => {
