@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-28
-in_flight: null # ticket/design id currently being worked, or null
+in_flight: ticket-007-shop-sequence-combat-first # ticket/design id currently being worked, or null
 features_shipped: 5 # increments on each shipped ticket; doc-sync triggers every ~5
 last_doc_sync_at: 5 # features_shipped value at last doc-sync
 ---
@@ -21,6 +21,12 @@ S) + idea (single-starting-ability-progression, needs refinement).
 
 ## Tick log (most recent first, keep ~10)
 
+- 2026-06-28 · design+steering · Dan reworked the level loop. Filed
+  design-004-level-loop-and-squad-frame (action before economy: run opens on combat,
+  shop is earned; combat+shop share one persistent squad frame). Decomposed →
+  tickets 007 (shop-seq bug, in-progress bg), 008 (squad frame + card layout), 009
+  (card visual design, needs-input), 010 (shop layout). Enshrined feedback-005 +
+  policies + DESIGN_FRAMEWORK Run Loop. design-004 open feel Qs → INBOX.
 - 2026-06-28 · doc-sync · updated DESIGN_FRAMEWORK.md + SYSTEMS.md for 5 shipped
   features: Web UI system added, World Progression updated for 10-floor FLOOR_CATALOG,
   floor-count design question resolved. Archive sweep: 0 verified items, none moved.

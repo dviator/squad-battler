@@ -33,6 +33,16 @@ wins for that ticket; update this file only for durable, repeatable guidance.
 - Never guess on game feel, balance, or new content (species/mutations/items).
   Surface a `[NEEDS-INPUT]` instead. Humans provide creativity; Claude provides
   engineering. (See `docs/DESIGN_FRAMEWORK.md`.)
+- **Action before economy.** A run/level loop **opens on combat, never a shop.** The
+  shop is *earned* — it first appears after the first win and recurs after fights,
+  never before the first one. Item choices are more meaningful once you've seen units
+  perform, and the shop should be a real constraint (spend only what you earned).
+  Generalize: front-load the core fantasy; gate preparatory/secondary systems behind
+  first engagement. [[feedback-005-action-before-economy]]
+- **Persistent squad frame.** Keep the squad's character cards on screen across
+  phases (combat ↔ shop) in one shared frame; don't design redundant per-phase
+  screens that drop the units from view. The character card (portrait, HP, attack
+  icon, attack-turn timer) is the single source of truth per unit. [[feedback-005-action-before-economy]]
 
 ## Feedback log
 
@@ -44,3 +54,5 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   retry when a concurrent writer moved main.
 - [[feedback-004-feature-branch-per-session]] — work on a feature branch (worktree
   locally) merged to main; never commit feature work directly to main.
+- [[feedback-005-action-before-economy]] — the run opens on combat, never a shop;
+  the shop is earned. Keep the squad on screen in one persistent frame across phases.

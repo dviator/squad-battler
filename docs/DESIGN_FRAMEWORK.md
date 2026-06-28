@@ -34,10 +34,22 @@ Finish Run → Earn Genetics Points → Lab Phase (heal, breed, manage stable) �
 
 ### Run Loop
 ```
-Squad enters → [Combat → Shop] × 9–10 → Mini-Boss → Boss → Return to Lab
+Squad enters → Combat → [Shop → next node → Combat] × N → Boss → Return to Lab
 ```
 
-HP persists between combats within a run. Items from shop are run-scoped (expire at run end).
+**Action before economy** — the run opens on combat, *never* a shop. The shop is
+earned: the first shop a player sees is *after the first win*, and it recurs after
+each fight (it doubles as the squad screen). Nodes are linear for now with light
+randomization; the shop after the last pre-boss fight is the boss prep. This
+front-loads the fight and makes item choices informed (you've seen your units
+perform) and constrained (spend only what you earned). See
+`backlog/designs/design-004-level-loop-and-squad-frame.md` + `meta/policies.md`.
+
+Combat and shop share **one persistent squad frame** — the character cards stay on
+screen across both phases.
+
+HP persists between combats within a run; the only mid-run recovery is bought
+consumables. Items from shop are run-scoped (expire at run end).
 
 ---
 

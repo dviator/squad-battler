@@ -13,6 +13,13 @@ a dependency unblocks them.
 
 ## Actionable now
 
+- **ticket-007-shop-sequence-combat-first** (P1, S) — *in-progress* (background):
+  run opens on combat, shop is earned (no shop before fight 1). core `simulateRun`
+  + web `startNewGame`. → `/implement-ticket`
+- **ticket-008-persistent-squad-frame** (P1, M) — one shared `CharacterCard` +
+  `SquadFrame` across battle + shop; attack-turn timer (live/idle). → `/implement-ticket`
+- **ticket-010-shop-screen-layout** (P2, M) — ShopView on the persistent frame;
+  depends_on ticket-007 + ticket-008. → `/implement-ticket` (after deps)
 - **ticket-006-lint-cleanup-scripts** (P3, S) — clear Biome lint errors in demo
   scripts (tech debt, no parent). → `/implement-ticket`
 
@@ -28,6 +35,12 @@ _(none — design-001, design-002 are decomposed; design-003 is needs-input)_
 
 ## Blocked / Needs input
 
+- **ticket-009-character-card-design** (P1) — card visual-design language (timer
+  treatment, hierarchy, the "fun"). Blocked on Dan (design-004 Open Q1); structure
+  ships in ticket-008. See INBOX.
+- **design-004-level-loop-and-squad-frame** (P1) — core loop decided & decomposed
+  (tickets 007–010). Open feel Qs for Dan: card visual design (Q1), shop economy
+  feel (Q2), node randomization (Q3), pre-boss treatment (Q4). See INBOX.
 - **design-003-overall-level-design** (P1) — 9-floor campaign macro design.
   Structure locked + foundation shipped (ticket-005). Still needs Dan on:
   3 missing themes, floor ordering/difficulty curve, floor-10 identity,

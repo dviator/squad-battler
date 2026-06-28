@@ -18,6 +18,32 @@ the durable record).
 
 ---
 
+### [NEEDS-INPUT] 2026-06-27 · design-004 Level Loop & Squad Frame
+
+Filed `design-004-level-loop-and-squad-frame` from our session and decomposed it.
+Locked with you: **action before economy** — the run opens on combat, the shop is
+earned (no shop before fight 1), shop after every fight → next node (linear, lightly
+randomized) → boss; combat + shop share one **persistent squad frame**. Encoded the
+judgment in `meta/policies.md` + `feedback-005-action-before-economy` +
+`DESIGN_FRAMEWORK` Run Loop.
+
+Tickets: **007** shop-sequence bug (*started in background now*), **008** persistent
+squad frame + card layout (actionable), **009** card visual design (blocked, below),
+**010** shop screen layout (after 007+008).
+
+Needs your creative input before I push on the card *design* and economy feel:
+
+1. **Card visual design language (ticket-009)** — how the attack-turn timer reads
+   (radial ring vs. depleting bar vs. pip countdown), information hierarchy, and the
+   polish that makes the tick-combat fun to watch. I can prototype 1–2 timer
+   treatments in-browser for you to pick from — say the word.
+2. **Shop economy feel** — how tight should "spend only what you earned" be? I'll
+   tune to balance targets unless you have a feel in mind.
+3. **Node randomization** — how light is "light"? Enemy layout only, or minor
+   difficulty variation too?
+4. **Pre-boss treatment** — is the normal post-fight shop before the boss enough, or
+   should the boss get a distinct prep beat?
+
 ### [NEEDS-INPUT] 2026-06-27 · design-003 Overall Level Design
 
 Refined your `overall-level-design` idea into `backlog/designs/design-003-overall-level-design.md`.
