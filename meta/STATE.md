@@ -1,8 +1,8 @@
 ---
-updated: 2026-06-27
+updated: 2026-06-28
 in_flight: null # ticket/design id currently being worked, or null
 features_shipped: 5 # increments on each shipped ticket; doc-sync triggers every ~5
-last_doc_sync_at: 0 # features_shipped value at last doc-sync
+last_doc_sync_at: 5 # features_shipped value at last doc-sync
 ---
 
 # Pipeline State — MEMORY
@@ -14,15 +14,17 @@ changelog. Detailed history lives in git and `meta/INBOX.md`.
 
 ## Current focus
 
-Nothing in flight. ticket-005 (floor-structure-foundation) shipped: Campaign is
-now a declarative 10-floor structure; Goob floor plays identically; UI shows
-"Floor X / 10". design-003 remains needs-input (floor ordering, 3 themes, rosters
-— see INBOX). **features_shipped = 5 → doc-sync due** (last_doc_sync_at = 0):
-next `/dev-tick` should trigger the doc-sync + archive sweep before picking new
-work, or the doc-sync routine handles it.
+Doc-sync complete (features_shipped 5 → last_doc_sync_at 5). DESIGN_FRAMEWORK +
+SYSTEMS reflect 5 shipped features. Archive sweep: no verified items yet (all 5
+tickets in verification window). Actionable: ticket-006 (lint-cleanup-scripts, P3
+S) + idea (single-starting-ability-progression, needs refinement).
 
 ## Tick log (most recent first, keep ~10)
 
+- 2026-06-28 · doc-sync · updated DESIGN_FRAMEWORK.md + SYSTEMS.md for 5 shipped
+  features: Web UI system added, World Progression updated for 10-floor FLOOR_CATALOG,
+  floor-count design question resolved. Archive sweep: 0 verified items, none moved.
+  last_doc_sync_at = 5. Next: implement ticket-006 (lint-cleanup-scripts).
 - 2026-06-27 · implement · ticket-005-floor-structure-foundation → shipped. FLOOR_CATALOG
   (10 entries), World.floorNumber, getFloorProgress, createGoobCampaign → 10 floors.
   CampaignView shows "Floor X / 10". 163 tests green, balance hard gates pass. Pushed.

@@ -113,20 +113,37 @@ How all major systems in Squad Battler interconnect. Each system has its own det
 ---
 
 ### 5. World Progression
-**What it does:** Structures each run into escalating encounters.
+**What it does:** Structures each run into escalating encounters across 10 floors.
 
-- **9–10 encounters per world** (regular → mini-boss → boss)
-- Each encounter has a **type** (regular, elite, mini-boss, boss)
-- **Enemy compositions** scale in difficulty
-- **Gold rewards** and **drop rates** vary by encounter type
+- **10 floors** declared in `FLOOR_CATALOG` (9 regular + 1 bonus boss floor)
+- Floor 1 (Goob campaign) is fully playable; floors 2–10 are structural placeholders
+- Each floor carries a number, name, and theme tag; ends in a boss slot
+- `getFloorProgress` returns current floor + overall progress; UI shows "Floor X / 10"
+- Per-floor enemy compositions, mini-boss, and boss encounters not yet authored (pending design-003)
 
 **Feeds into:** Player resources, run pacing, unlock triggers
-**Fed by:** World design, difficulty scaling
+**Fed by:** `FLOOR_CATALOG` data, per-floor content (human-authored)
 **Detailed in:** `docs/systems/world-progression.md`
 
 ---
 
+### 6. Web UI
+**What it does:** Renders the full game experience in the browser.
+
+- **Clinical Bright Lab design system** — semantic color tokens; all 5 views (menu, campaign, battle, shop, lab) use light palette
+- **SpecimenCard** — unified species-tinted art panel (placeholder glyph, art-ready), `SPEC-###` tag, grade badge, HP/SPD/ATK
+- **Battle arena** — left↔right face-off (squad vs enemies), responsive, directional lunge animations on attack/hit
+- **Floor progress** — "Floor X / 10" in CampaignView header
+
+**Feeds into:** Player-facing all systems
+**Fed by:** All game systems via `gameStore`
+
+---
+
 ## Key Cross-System Interactions
+
+### Web UI × All Systems
+All game state flows through `gameStore`; the UI renders it. Combat, economy, progression, and lab states all have dedicated views. UI changes are presentational — they never modify core system logic.
 
 ### Genetics × Combat
 The primary feedback loop. Better genetics → better combat outcomes → more resources → better breeding → better genetics.
@@ -155,7 +172,10 @@ Shop items are run-scoped — they don't carry over. This means later encounters
 | Genetics (mutations) | ⚠️ Partial (exists, not integrated) | High |
 | Breeding | ❌ Not implemented | Critical |
 | Meta Progression | ❌ Not implemented | Critical |
-| World Progression (structure) | ⚠️ Partial (campaign exists, wrong scale) | High |
+| World Progression (structure) | ⚠️ Partial (10-floor FLOOR_CATALOG; only floor 1 has content) | High |
 | Lab Hub | ⚠️ Partial (healing only) | High |
 | Unlock System | ❌ Not implemented | Medium |
 | Equipment effects (combat) | ❌ Not implemented | Medium |
+| Web UI (design system) | ✅ Implemented (Clinical Bright Lab tokens) | — |
+| Web UI (unit display) | ✅ Implemented (SpecimenCard across all views) | — |
+| Web UI (battle layout) | ✅ Implemented (left↔right face-off, animations) | — |

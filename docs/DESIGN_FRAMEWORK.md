@@ -43,6 +43,12 @@ HP persists between combats within a run. Items from shop are run-scoped (expire
 
 ## Existing Systems
 
+### Web UI ✅ Implemented
+- Clinical Bright Lab design system: semantic color tokens (`paper`, `panel`, `ink`, `accent`, `bio`, `danger`) across all 5 views
+- `SpecimenCard` component: species-tinted art panel, `SPEC-###` tag, grade badge, HP bar — used in roster, picker, and battle
+- Battle arena: left↔right face-off (squad vs enemies), responsive (stacks on narrow screens), directional attack animations
+- Floor progress: "Floor X / 10" displayed in CampaignView
+
 ### Combat ✅ Implemented
 - Tick-based auto-battle: each attack has an independent cooldown timer
 - 3 positions: Left / Center / Right — affect targeting
@@ -90,8 +96,10 @@ Grades F → S determine stat ranges at unit creation. Higher grade = higher pos
 - Species unlocks triggered by mini-boss defeats
 
 ### World Progression ⚠️ Partial
-- Campaign structure exists but not at full 9–10 encounter scale
+- 10-floor data-driven campaign implemented: `FLOOR_CATALOG` (9 regular + 1 bonus floor), `World.floorNumber`, `getFloorProgress`, UI shows "Floor X / 10"
+- Floor 1 (Goob content) fully playable; floors 2–10 are structural placeholders awaiting creative content (design-003)
 - Mini-boss and boss encounters not fully integrated
+- Per-floor themes, enemy rosters, and difficulty curve pending (design-003 needs-input)
 
 ### Lab Hub ⚠️ Partial
 - Healing implemented; breeding, equipment management not yet
@@ -172,7 +180,7 @@ Ask these in `#design` before writing the doc:
 These require human input before work can begin on affected systems:
 
 - [ ] Final squad size (currently 3 — keep or increase to 4–5?)
-- [ ] Number of worlds (3? 5? 7?)
+- [x] Number of floors: resolved as 10 (9 regular + 1 bonus), per design-003 + ticket-005
 - [ ] Species unlock progression — which mini-boss unlocks which species?
 - [ ] Lab equipment unlock tree — which boss unlocks what?
 - [ ] Genetic inheritance rules — exact probability tuning
