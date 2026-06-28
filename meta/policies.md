@@ -17,9 +17,12 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   pushed — an unpushed commit leaves the remote and every cloud routine (which
   clones from GitHub) stale. End every unit of work pushed. [[feedback-002-always-commit-and-push]]
 - **One ticket = one commit** (code + tests + bookkeeping together; bookkeeping
-  before committing). `main` has concurrent writers (cloud routines + local
-  sessions): if `git push` is rejected, `git pull --rebase origin main`, re-run
-  `/eval`, push again. [[feedback-003-one-commit-and-push-races]]
+  before committing). [[feedback-003-one-commit-and-push-races]]
+- **Work on a feature branch, never directly on `main`.** Branch off latest
+  `origin/main` (local: in a `git worktree`; cloud: a plain branch in its clone),
+  do everything on the branch, `/eval`, then `rebase origin/main` → `merge --ff-only`
+  → push. The merge to main is the one integration gate for concurrent writers.
+  Recipe: "Branch & worktree workflow" in `meta/PIPELINE.md`. [[feedback-004-feature-branch-per-session]]
 - When a design is `needs-input`, carve out any fully-decided, creative-input-free
   slice (usually the engineering/structural foundation) into its own actionable
   `todo` ticket so the loop keeps producing while human creative input is pending.
@@ -39,3 +42,5 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   change isn't shipped until it's on the remote.
 - [[feedback-003-one-commit-and-push-races]] — one ticket = one commit; rebase-and-
   retry when a concurrent writer moved main.
+- [[feedback-004-feature-branch-per-session]] — work on a feature branch (worktree
+  locally) merged to main; never commit feature work directly to main.

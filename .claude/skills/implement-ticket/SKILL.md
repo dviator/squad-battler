@@ -11,9 +11,12 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
 
 ## Steps
 
-1. **Claim it.** Set the ticket `status: in-progress`, update `meta/STATE.md`
-   `in_flight`. Confirm it's `size: S|M` — if `L`, stop and route to
-   `/decompose-design`.
+1. **Branch off latest main.** Never work directly on `main`. Start from a fresh
+   branch off `origin/main` (see "Branch & worktree workflow" in `meta/PIPELINE.md`):
+   - *Local:* `git fetch origin && git worktree add -b feat/<ticket-id> ../squad-battler-worktrees/<ticket-id> origin/main`, then `cd` in.
+   - *Cloud (ephemeral clone, already isolated):* `git fetch origin && git checkout -b feat/<ticket-id> origin/main`.
+   Then set the ticket `status: in-progress`, update `meta/STATE.md` `in_flight`.
+   Confirm it's `size: S|M` — if `L`, stop and route to `/decompose-design`.
 
 2. **Load context.** Read the ticket + its parent design. Read `meta/policies.md`
    for relevant feedback/steering. Pull relevant prior context:
@@ -22,10 +25,8 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    - **CLI/cloud fallback:** `scripts/meta-context.sh "<ticket topic>"`
    Honor the repo conventions in `CLAUDE.md` (layer separation, enums, Zod, tests required).
 
-3. **Implement.** Work directly on `main` for the single heartbeat (the eval gate
-   below + the pre-commit hook are the safety net). For parallel/manual work use
-   `scripts/worktree-agent.sh`. Write the code **and its tests together** — tests
-   are required, no exceptions. Follow the acceptance criteria exactly.
+3. **Implement (on the branch).** Write the code **and its tests together** —
+   tests are required, no exceptions. Follow the acceptance criteria exactly.
 
 4. **Run the eval gate.** Invoke `/eval`. It runs `typecheck` + `test` +
    `test:balance`. **Do not commit if any hard gate fails.** On failure: fix
@@ -39,11 +40,11 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    - Bump `features_shipped` in `meta/STATE.md`, clear `in_flight`, prepend a
      tick-log line, regenerate `backlog/BACKLOG.md`.
 
-6. **Commit — exactly ONE clean commit** (code + tests + bookkeeping together).
-   One ticket = one commit; do **not** split code and bookkeeping into two commits
-   (the post-merge-eval revert path reverts a single commit — a split leaves
-   bookkeeping claiming "shipped" after a code revert). Structured message (see
-   `meta/PIPELINE.md`):
+6. **Commit on the branch — exactly ONE clean commit** (code + tests + bookkeeping
+   together). One ticket = one commit; do **not** split code and bookkeeping into
+   two commits (the post-merge-eval revert path reverts a single commit — a split
+   leaves bookkeeping claiming "shipped" after a code revert). Structured message
+   (see `meta/PIPELINE.md`):
 
    ```
    feat(<area>): <ticket title>
@@ -59,12 +60,16 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    The commit's `Ticket:` line is the durable link back — do not store the merge
    sha in the ticket (`git log --oneline -- backlog/tickets/<id>.md` recovers it).
 
-7. **Push — and handle a moved remote.** `git push origin main`. Work isn't
-   shipped until it's pushed. If the push is **rejected** (another writer — a
-   concurrent local session or cloud routine — advanced `main` during this run):
-   `git pull --rebase origin main`, re-run `/eval` (the rebase may have pulled in
-   conflicting work), regenerate `BACKLOG.md` if it drifted, then push again.
-   Repeat until the push succeeds and `git log origin/main..HEAD` is empty.
+7. **Integrate to main + push.** Bring the branch up to date and merge linearly:
+   `git fetch origin && git rebase origin/main` (a concurrent writer may have moved
+   main — if the rebase pulls in changes, re-run `/eval` and regenerate `BACKLOG.md`
+   if it drifted), then `git checkout main && git merge --ff-only feat/<ticket-id>
+   && git push origin main`. If the push is still rejected, repeat the rebase until
+   it lands and `git log origin/main..HEAD` is empty. Work isn't shipped until it's
+   pushed.
+
+8. **Clean up.** Local: `git worktree remove <dir>` and delete the merged branch
+   (`git branch -d feat/<ticket-id>`). Cloud: the ephemeral clone is discarded.
 
 Then **stop**. The ticket is verified later via `/capture-feedback` once the user
 playtests it.

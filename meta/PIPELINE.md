@@ -98,15 +98,42 @@ Feedback applied: <feedback ids or none>
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 ```
 
-Commit directly to `main` (no PR) **and `git push origin main`** — work isn't
-shipped until it's on the remote, since the cloud routines clone from GitHub. One
-ticket = **one commit** (code + tests + bookkeeping together). `main` has
-concurrent writers (cloud routines + local sessions): if a push is rejected,
-`git pull --rebase origin main`, re-run `/eval`, then push again. The pre-commit
-hook (`.claude/hooks/pre-commit-check.sh`) plus `/eval` are the gate.
-**Revert only on a hard `/eval` failure** — handled by
-the post-merge-eval routine, which reverts the bad commit, posts `[REGRESSION]`,
-and pushes. Everything else is fix-forward.
+Work happens on a short-lived **feature branch** (see Branch & worktree workflow
+below), never directly on `main` — `main` only ever receives a finished,
+eval-passing unit via merge + `git push origin main`. Work isn't shipped until
+it's on the remote (the cloud routines clone from GitHub). One ticket = **one
+commit** (code + tests + bookkeeping together). No PRs in the hot path. The
+pre-commit hook (`.claude/hooks/pre-commit-check.sh`) plus `/eval` are the gate.
+**Revert only on a hard `/eval` failure** — handled by the post-merge-eval
+routine, which reverts the bad commit, posts `[REGRESSION]`, and pushes.
+Everything else is fix-forward.
+
+### Branch & worktree workflow
+
+Every unit of work runs on its own feature branch so concurrent writers (cloud
+routines + local sessions) integrate through one gate — the merge to `main` —
+instead of racing on shared commits. Keeps the one-commit/linear/revert-safe
+properties intact.
+
+1. **Isolated checkout + branch off latest main.**
+   - *Local session:* use a worktree so parallel sessions never share a checkout —
+     `git fetch origin && git worktree add -b <type>/<ticket-id> ../squad-battler-worktrees/<ticket-id> origin/main`, then `cd` into it.
+   - *Cloud routine:* the ephemeral clone is already an isolated checkout — just
+     branch: `git fetch origin && git checkout -b <type>/<ticket-id> origin/main`.
+2. **Do all the work on the branch** — code + tests + bookkeeping — then run `/eval`.
+3. **One commit** on the branch (structured message above).
+4. **Integrate linearly:** `git fetch origin && git rebase origin/main` (re-run
+   `/eval` if the rebase pulled in changes), then
+   `git checkout main && git merge --ff-only <branch> && git push origin main`.
+   If the push is still rejected, repeat the rebase until
+   `git log origin/main..HEAD` is empty.
+5. **Clean up:** `git worktree remove <dir>` (local) and delete the merged branch.
+
+Branch naming: `<type>/<ticket-id>` where `<type>` matches the commit
+(`feat`/`fix`/`chore`/`docs`), e.g. `feat/ticket-005-floor-structure-foundation`.
+
+`scripts/worktree-agent.sh` is a separate tool for *manually launching a parallel
+headless agent* in a worktree — not the in-session flow above.
 
 ---
 

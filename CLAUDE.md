@@ -116,7 +116,11 @@ Context retrieval: `scripts/meta-context.sh "<query>"` (qmd primary, grep/rg
 fallback). See `meta/qmd-setup.md`.
 
 ### Merge & release policy
-- Merge **directly to main**, behind the `/eval` gate (no PRs in the hot path).
+- **Work on a feature branch, never directly on `main`** (local: in a `git
+  worktree`; cloud: a branch in the ephemeral clone). `/eval` on the branch, then
+  `rebase origin/main` → `merge --ff-only` → push. The merge to main is the single
+  integration gate for concurrent writers. No PRs in the hot path. Full recipe:
+  "Branch & worktree workflow" in `meta/PIPELINE.md`.
 - One ticket = one clean commit with the structured message in `meta/PIPELINE.md`.
 - Fix-forward. **Revert only on a hard `/eval` failure** (the post-merge-eval
   routine handles this automatically). Your feedback steers, never approval-gates.
@@ -158,17 +162,26 @@ fallback). See `meta/qmd-setup.md`.
 
 ## Worktree Usage
 
-For parallel feature work:
+**Default for every unit of work** (not just parallel): each session works in its
+own worktree on a feature branch, then merges to `main`. This isolates concurrent
+writers so they integrate through one gate. Full recipe: "Branch & worktree
+workflow" in `meta/PIPELINE.md`.
 
 ```bash
-# Terminal 1
-./scripts/worktree-agent.sh feat/feature-name "Description of feature"
-
-# Terminal 2
-./scripts/worktree-agent.sh feat/other-feature "Description of other feature"
+# Start a unit of work in an isolated worktree + branch off latest main
+git fetch origin
+git worktree add -b feat/ticket-NNN-slug ../squad-battler-worktrees/ticket-NNN-slug origin/main
+cd ../squad-battler-worktrees/ticket-NNN-slug
+# ...implement + tests + bookkeeping, run /eval, one commit...
+# integrate linearly:
+git fetch origin && git rebase origin/main      # re-run /eval if it pulled changes
+git checkout main && git merge --ff-only feat/ticket-NNN-slug && git push origin main
+git worktree remove ../squad-battler-worktrees/ticket-NNN-slug   # cleanup
 ```
 
-Each agent gets its own worktree and branch. Tests gate each merge independently. See `scripts/worktree-agent.sh --help`.
+`scripts/worktree-agent.sh` is a separate tool for **manually launching a parallel
+headless agent** in a worktree (it opens a draft PR; not the in-session merge-to-main
+flow above). See `scripts/worktree-agent.sh --help`.
 
 ---
 
