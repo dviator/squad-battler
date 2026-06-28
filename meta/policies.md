@@ -36,6 +36,14 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   `todo` ticket so the loop keeps producing while human creative input is pending.
   [[feedback-001-carve-actionable-slices]]
 
+## Web & rendering
+
+- The web layer is **mobile-first** and must render well at ~360px and on
+  desktop. Follow `docs/MOBILE_STANDARDS.md`: dense card grids reflow
+  (`grid-cols-2 md:grid-cols-3`, never bare `grid-cols-3`), flex text rows use
+  `min-w-0`+`truncate`, chip rows `flex-wrap`, no fixed px widths. The
+  `check:responsive` guard gates commits on the mechanical rules.
+
 ## Game design
 
 - Never guess on game feel, balance, or new content (species/mutations/items).

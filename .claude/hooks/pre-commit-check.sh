@@ -29,4 +29,10 @@ if [ $TEST_EXIT -ne 0 ]; then
   exit 2
 fi
 
+echo "Running responsive-layout check..." >&2
+if ! bun run check:responsive >&2; then
+  echo "Responsive check failed. See docs/MOBILE_STANDARDS.md." >&2
+  exit 2
+fi
+
 exit 0

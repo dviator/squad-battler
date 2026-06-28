@@ -89,7 +89,7 @@ export function CampaignView() {
       {/* Squad */}
       <div className="mb-4">
         <div className="text-xs text-muted uppercase tracking-wider mb-2">Your Squad</div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {gameState.roster.squad.map((unit) => (
             <UnitCard key={unit.id} unit={unit} />
           ))}

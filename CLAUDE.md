@@ -30,6 +30,7 @@ Never import shell into core. Never import core directly from tests without goin
 - **Comments** — only where logic is non-obvious. Do not restate what the code says.
 - **Path alias** — `@/*` maps to `src/`. Use it for imports across layers.
 - **Line width** — 100 chars (enforced by Biome). Double quotes, trailing commas, always semicolons.
+- **Responsive** — the web layer is mobile-first. Follow `docs/MOBILE_STANDARDS.md`; `bun run check:responsive` gates commits against mobile-layout regressions.
 
 ---
 
