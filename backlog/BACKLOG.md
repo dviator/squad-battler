@@ -13,7 +13,8 @@ a dependency unblocks them.
 
 ## Actionable now
 
-_(none — all tickets shipped or blocked on design-003 input)_
+- **ticket-006-lint-cleanup-scripts** (P3, S) — clear Biome lint errors in demo
+  scripts (tech debt, no parent). → `/implement-ticket`
 
 **Note: features_shipped = 5, last_doc_sync_at = 0 → doc-sync + archive sweep due.**
 The doc-sync routine (or next `/dev-tick`) should update `docs/DESIGN_FRAMEWORK.md` +
