@@ -32,7 +32,17 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    forward within budget; if you can't resolve it this fire, set the ticket
    `status: blocked` with a note on why, update STATE, and stop.
 
-5. **Commit (one clean commit).** Use the structured message (see
+5. **Do the bookkeeping (before committing).** Make all the non-code file changes
+   now so they land in the **same single commit** as the code:
+   - Set the ticket `status: shipped` (NOT closed — it stays live for playtest).
+   - Add a `[SHIPPED]` entry to `meta/INBOX.md` inviting playtest.
+   - Bump `features_shipped` in `meta/STATE.md`, clear `in_flight`, prepend a
+     tick-log line, regenerate `backlog/BACKLOG.md`.
+
+6. **Commit — exactly ONE clean commit** (code + tests + bookkeeping together).
+   One ticket = one commit; do **not** split code and bookkeeping into two commits
+   (the post-merge-eval revert path reverts a single commit — a split leaves
+   bookkeeping claiming "shipped" after a code revert). Structured message (see
    `meta/PIPELINE.md`):
 
    ```
@@ -46,17 +56,15 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
    ```
 
-   Include the ticket/design file updates in the same commit. Commit to `main`
-   directly (no PR) **and `git push origin main`** — an unpushed commit leaves the
-   GitHub remote (and every cloud routine that clones it) stale, so a change isn't
-   shipped until it's pushed. The commit's `Ticket:` line is the durable link back —
-   do not try to store the merge sha in the ticket (it can't be known before the
-   commit exists; `git log --oneline -- backlog/tickets/<id>.md` recovers it).
+   The commit's `Ticket:` line is the durable link back — do not store the merge
+   sha in the ticket (`git log --oneline -- backlog/tickets/<id>.md` recovers it).
 
-6. **Open the verification window.** Set the ticket `status: shipped` (NOT closed —
-   it stays live for playtest feedback). Add a `[SHIPPED]` entry to `meta/INBOX.md`
-   inviting playtest (no push — routine ship). Bump `features_shipped` in
-   `meta/STATE.md`, clear `in_flight`, log the tick, regenerate `BACKLOG.md`.
+7. **Push — and handle a moved remote.** `git push origin main`. Work isn't
+   shipped until it's pushed. If the push is **rejected** (another writer — a
+   concurrent local session or cloud routine — advanced `main` during this run):
+   `git pull --rebase origin main`, re-run `/eval` (the rebase may have pulled in
+   conflicting work), regenerate `BACKLOG.md` if it drifted, then push again.
+   Repeat until the push succeeds and `git log origin/main..HEAD` is empty.
 
 Then **stop**. The ticket is verified later via `/capture-feedback` once the user
 playtests it.
