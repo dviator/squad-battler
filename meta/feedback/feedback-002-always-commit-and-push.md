@@ -17,7 +17,7 @@ pushed. Dan: "let's encode the guidance to always commit and push changes."
 
 ## Why it matters
 
-The cloud routines (`dev-tick`, `post-merge-eval`) run in ephemeral environments
+The cloud routines (e.g. `dev-tick`) run in ephemeral environments
 that **clone from GitHub**. They see `origin/main`, never the local working tree. An
 unpushed commit is invisible to them and to any other clone — so the next scheduled
 run would build on stale code, and shipped work would silently fail to propagate.

@@ -42,8 +42,8 @@ Implement exactly one ticket, ship it cleanly, then stop. Pick the ticket from
 
 6. **Commit on the branch — exactly ONE clean commit** (code + tests + bookkeeping
    together). One ticket = one commit; do **not** split code and bookkeeping into
-   two commits (the post-merge-eval revert path reverts a single commit — a split
-   leaves bookkeeping claiming "shipped" after a code revert). Structured message
+   two commits (a single-commit ticket reverts cleanly — a split leaves bookkeeping
+   claiming "shipped" after a code revert). Structured message
    (see `meta/PIPELINE.md`):
 
    ```

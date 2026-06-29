@@ -108,7 +108,7 @@ fire**, then stops — this bounds usage per run and keeps progress legible.
 | `backlog/archive/` | `verified` tickets + done designs, moved out of the active set |
 | `backlog/BACKLOG.md` | Generated prioritized index the heartbeat reads |
 | `meta/STATE.md` | Loop memory: in-flight unit, feature count, tick log |
-| `meta/INBOX.md` | Your review queue (`[SHIPPED]`/`[NEEDS-INPUT]`/`[REGRESSION]`) |
+| `meta/INBOX.md` | Your review queue (`[SHIPPED]`/`[NEEDS-INPUT]`) |
 | `meta/policies.md` | Distilled steering lessons (always loaded) |
 | `meta/feedback/` | Curated feedback corpus, frontmatter-tagged |
 
@@ -122,15 +122,16 @@ fallback). See `meta/qmd-setup.md`.
   integration gate for concurrent writers. No PRs in the hot path. Full recipe:
   "Branch & worktree workflow" in `meta/PIPELINE.md`.
 - One ticket = one clean commit with the structured message in `meta/PIPELINE.md`.
-- Fix-forward. **Revert only on a hard `/eval` failure** (the post-merge-eval
-  routine handles this automatically). Your feedback steers, never approval-gates.
+- Fix-forward. `/eval` before every push is the integration gate, so a hard
+  failure shouldn't reach `main`; if one ever slips through, revert that commit
+  manually. Your feedback steers, never approval-gates.
 - A ticket is **`shipped`, not done, at merge** — it stays live through a playtest
   verification window, then becomes `verified` and archivable.
 
 ### Notifications
 - Everything you need to review lands in `meta/INBOX.md`.
-- `PushNotification` fires only for `[NEEDS-INPUT]` (a blocked decision) and
-  `[REGRESSION]` — never for routine ships.
+- `PushNotification` fires only for `[NEEDS-INPUT]` (a blocked decision) — never
+  for routine ships.
 
 ### Handling Ambiguity
 - **Never guess on game feel, balance, or design decisions.** Write the design as
@@ -190,9 +191,6 @@ flow above). See `scripts/worktree-agent.sh --help`.
 Created via the `/schedule` skill (cloud cron). See `meta/PIPELINE.md` for cadence.
 
 **dev-tick** (e.g. daily): fires `/dev-tick` — one bounded unit of work per fire.
-
-**post-merge-eval** (e.g. nightly): runs `/eval` on `main`; auto-reverts + posts
-`[REGRESSION]` on a hard-gate failure.
 
 **Refactor session** (weekly):
 - Review recent commits for drift, duplication, shortcuts

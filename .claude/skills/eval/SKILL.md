@@ -1,6 +1,6 @@
 ---
 name: eval
-description: The verification gate. Runs typecheck, the test suite, and the balance simulation check, then reports pass/fail with details. Hard gates block; soft balance targets are advisory. Use before committing/merging, as a post-merge regression check, or whenever you need to confirm the build is sound.
+description: The verification gate. Runs typecheck, the test suite, and the balance simulation check, then reports pass/fail with details. Hard gates block; soft balance targets are advisory. Use before committing/merging, or whenever you need to confirm the build is sound.
 ---
 
 # /eval — verification gate
@@ -36,11 +36,3 @@ EVAL: PASS | FAIL
   balance:   ✓ | ✗ hard gates; <n> soft targets out of range
   key sim numbers: mini-boss reach X% · boss kill Y%
 ```
-
-## Post-merge regression mode
-
-When run by the post-merge-eval routine against `main`: if a HARD gate fails, the
-build on main is broken — create a `git revert` of the offending commit, add a
-`[REGRESSION]` entry to `meta/INBOX.md` with the failing details, fire a
-`PushNotification`, and set the offending ticket `status: reverted`. Revert only on
-HARD failure; soft drift is reported, never auto-reverted.

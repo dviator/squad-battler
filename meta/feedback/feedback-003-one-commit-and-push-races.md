@@ -23,9 +23,9 @@ surfaced two things during reconciliation:
 
 ## Why it matters
 
-- **One ticket = one commit** isn't cosmetic: `post-merge-eval` reverts *a single
-  commit* on a hard-gate failure. If code and bookkeeping are split, reverting the
-  code leaves the ticket/STATE/BACKLOG claiming "shipped."
+- **One ticket = one commit** isn't cosmetic: a single-commit ticket reverts
+  cleanly. If code and bookkeeping are split, reverting the code leaves the
+  ticket/STATE/BACKLOG claiming "shipped."
 - **`main` has multiple concurrent writers** — the cloud routines *and* any local
   session. A cloud `git push` can be rejected because origin moved during its run.
   Without rebase-and-retry, the run would do all the work and then fail to ship it.

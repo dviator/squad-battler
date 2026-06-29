@@ -104,9 +104,8 @@ eval-passing unit via merge + `git push origin main`. Work isn't shipped until
 it's on the remote (the cloud routines clone from GitHub). One ticket = **one
 commit** (code + tests + bookkeeping together). No PRs in the hot path. The
 pre-commit hook (`.claude/hooks/pre-commit-check.sh`) plus `/eval` are the gate.
-**Revert only on a hard `/eval` failure** — handled by the post-merge-eval
-routine, which reverts the bad commit, posts `[REGRESSION]`, and pushes.
-Everything else is fix-forward.
+`/eval` runs before every push, so a hard failure shouldn't reach `main`; if one
+ever slips through, revert that commit manually. Everything else is fix-forward.
 
 ### Branch & worktree workflow
 
@@ -142,7 +141,6 @@ headless agent* in a worktree — not the in-session flow above.
 | Routine | Cadence (default) | Fires |
 |---|---|---|
 | dev-tick | daily | `/dev-tick` — one unit of work |
-| post-merge-eval | nightly | `/eval` on main; auto-revert on hard fail |
 | refactor | weekly | drift/duplication cleanup, gated by `/eval` |
 | doc-sync | every ~5 ships (surfaced by `/dev-tick`) | sync design docs + archive sweep |
 
@@ -154,9 +152,8 @@ budget — each fire is one bounded session by design.
 ## Notifications
 
 `meta/INBOX.md` is the single place to review. `[SHIPPED]` (review on your cadence,
-no push), `[NEEDS-INPUT]` (decision required — push), `[REGRESSION]` (auto-revert
-happened — push). Clear an entry by deleting it; the ticket/design holds the
-durable record.
+no push), `[NEEDS-INPUT]` (decision required — push). Clear an entry by deleting
+it; the ticket/design holds the durable record.
 
 ---
 
