@@ -4,7 +4,7 @@ import { ItemRarity, SHOP_ITEMS } from "@/core/shop";
 import type { ShopItem } from "@/core/types";
 import { getCurrentEncounter } from "@/core/world";
 import { ShopItemCard } from "@/web/components/ShopItemCard";
-import { UnitPicker } from "@/web/components/UnitPicker";
+import { SquadFrame } from "@/web/components/SquadFrame";
 import { useGameStore } from "@/web/store/gameStore";
 import {
   getEncounterTypeColor,
@@ -33,12 +33,12 @@ export function ShopView() {
 
   function handleBuy(item: ShopItem) {
     if (squad.length === 1) {
-      // Only one unit — auto-select
       const result = buyItem(item, squad[0]!.id);
       if (!result.ok) setBuyError(result.error ?? "Purchase failed");
       return;
     }
     setPendingItem(item);
+    setBuyError(null);
   }
 
   function handleSelectUnit(unitId: string) {
@@ -53,7 +53,7 @@ export function ShopView() {
   return (
     <div className="min-h-screen flex flex-col max-w-lg mx-auto p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <h2 className="text-lg font-bold text-ink">🏪 Resupply</h2>
           <div className="text-xs text-muted">Spend your winnings before the next node</div>
@@ -70,9 +70,33 @@ export function ShopView() {
         </div>
       </div>
 
+      {/* Persistent squad frame — same CharacterCard used in combat, idle state here */}
+      <div className="mb-3">
+        {pendingItem && (
+          <div className="mb-2 text-xs text-accent font-semibold">
+            Apply &ldquo;{pendingItem.name}&rdquo; to a unit — tap a card below:
+          </div>
+        )}
+        <SquadFrame
+          units={squad}
+          orientation="horizontal"
+          selectedUnitId={null}
+          onUnitClick={pendingItem ? handleSelectUnit : undefined}
+        />
+        {pendingItem && (
+          <button
+            type="button"
+            onClick={() => setPendingItem(null)}
+            className="mt-1.5 text-xs text-muted hover:text-ink transition-colors"
+          >
+            ✕ Cancel
+          </button>
+        )}
+      </div>
+
       {/* Next encounter preview */}
       {encounter && (
-        <div className="mb-4 p-3 rounded-lg bg-panel border border-line">
+        <div className="mb-3 p-3 rounded-lg bg-panel border border-line">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span
@@ -130,16 +154,6 @@ export function ShopView() {
       >
         ⚔️ Fight!
       </button>
-
-      {/* Unit picker modal */}
-      {pendingItem && (
-        <UnitPicker
-          units={squad}
-          title={`Apply "${pendingItem.name}" to:`}
-          onSelect={(unit) => handleSelectUnit(unit.id)}
-          onCancel={() => setPendingItem(null)}
-        />
-      )}
     </div>
   );
 }

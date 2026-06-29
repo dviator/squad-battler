@@ -61,6 +61,7 @@ export function BattleView() {
         deadUnitIds={replay.deadUnitIds}
         activeAttackerId={replay.activeAttackerId}
         hitUnitIds={replay.hitUnitIds}
+        unitTimerProgress={replay.unitTimerProgress}
       />
 
       {/* Event log */}

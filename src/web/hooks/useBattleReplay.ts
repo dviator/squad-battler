@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { BattleEvent, BattleState, Unit } from "@/core/types";
 import { BattleEventType } from "@/core/types";
+import { getPrimaryAttackCooldown } from "@/web/utils/characterCard";
 import { getSpeciesName } from "@/web/utils/species";
 
 interface ReplayState {
@@ -8,6 +9,8 @@ interface ReplayState {
   deadUnitIds: Set<string>;
   activeAttackerId: string | null;
   hitUnitIds: Set<string>;
+  /** Per-unit attack-timer progress 0-1: 0=just attacked, 1=ready to fire. */
+  unitTimerProgress: Map<string, number>;
   log: string[];
   isDone: boolean;
   isPlaying: boolean;
@@ -77,7 +80,31 @@ export function useBattleReplay(
   const [isPlaying, setIsPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
 
+  // Per-unit wall-clock timestamp of last attack — drives the live timer bar.
+  const lastAttackTimestampsRef = useRef<Map<string, number>>(
+    new Map(allUnits.map((u) => [u.id, Date.now()])),
+  );
+  // Triggers re-renders so the timer bars animate each frame.
+  const [, triggerRender] = useReducer((n: number) => n + 1, 0);
+  const animFrameRef = useRef<number | null>(null);
+
   const baseMs = Math.floor(600 / speed);
+
+  // Animation loop — drives smooth timer bar updates while the battle plays.
+  useEffect(() => {
+    if (isDone) {
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current);
+      return;
+    }
+    const frame = () => {
+      triggerRender();
+      animFrameRef.current = requestAnimationFrame(frame);
+    };
+    animFrameRef.current = requestAnimationFrame(frame);
+    return () => {
+      if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [isDone, triggerRender]);
 
   useEffect(() => {
     if (!isPlaying || isDone) return;
@@ -95,6 +122,7 @@ export function useBattleReplay(
       switch (event.type) {
         case BattleEventType.AttackExecuted: {
           setActiveAttackerId(event.attackerId);
+          lastAttackTimestampsRef.current.set(event.attackerId, Date.now());
           const name = getUnitName(event.attackerId);
           setLog((l) => [...l, `${name} uses ${event.attackName}!`]);
           break;
@@ -175,11 +203,21 @@ export function useBattleReplay(
     setIsPlaying(false);
   }, [eventIndex, meaningful, unitHps, deadUnitIds]);
 
+  // Compute live timer progress each render (needs fresh Date.now()).
+  const now = Date.now();
+  const unitTimerProgress = new Map<string, number>();
+  for (const unit of allUnits) {
+    const lastTs = lastAttackTimestampsRef.current.get(unit.id) ?? now;
+    const cooldownMs = getPrimaryAttackCooldown(unit) * baseMs;
+    unitTimerProgress.set(unit.id, Math.min(1, (now - lastTs) / cooldownMs));
+  }
+
   return {
     unitHps,
     deadUnitIds,
     activeAttackerId,
     hitUnitIds,
+    unitTimerProgress,
     log,
     isDone,
     isPlaying,
