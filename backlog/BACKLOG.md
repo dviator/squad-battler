@@ -13,9 +13,6 @@ a dependency unblocks them.
 
 ## Actionable now
 
-- **ticket-007-shop-sequence-combat-first** (P1, S) — *in-progress* (background):
-  run opens on combat, shop is earned (no shop before fight 1). core `simulateRun`
-  + web `startNewGame`. → `/implement-ticket`
 - **ticket-008-persistent-squad-frame** (P1, M) — one shared `CharacterCard` +
   `SquadFrame` across battle + shop; attack-turn timer (live/idle). → `/implement-ticket`
 - **ticket-010-shop-screen-layout** (P2, M) — ShopView on the persistent frame;
@@ -48,6 +45,8 @@ _(none — design-001, design-002 are decomposed; design-003 is needs-input)_
 
 ## Shipped — in verification window
 
+- **ticket-007-shop-sequence-combat-first** (design-004) — run opens on combat;
+  shop is earned (no shop before fight 1), post-win only. Awaiting playtest.
 - **ticket-005-floor-structure-foundation** (design-003) — 10-floor data-driven
   campaign; FLOOR_CATALOG, World.floorNumber, getFloorProgress; UI shows "Floor X/10".
   Awaiting playtest.

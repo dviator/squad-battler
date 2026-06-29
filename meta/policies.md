@@ -13,6 +13,14 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   chain multiple tickets in one fire — it blows the usage budget.
 - Merge directly to main behind the `/eval` gate. No PRs. Fix-forward; revert only
   on hard-gate failure.
+- **Verification never gates development.** `/eval` (automated checks) is the *only*
+  thing that gates pushing to the repo. Never hold a shipped ticket for Dan's
+  playtest/verification or any human sign-off — his verification is for steering,
+  error-correction, and evolving game design, and runs *in parallel* with continued
+  work. Shipped ≠ approved. If shipped code ever lands the app in a bad state, harden
+  the push gates (add a check/test) and fix-forward — don't add a human approval
+  step. A concurrent writer moving `origin/main` is a routine rebase, not a reason to
+  hold. [[feedback-006-verification-never-gates]]
 - **Always commit AND `git push origin main`.** A change isn't shipped until it's
   pushed — an unpushed commit leaves the remote and every cloud routine (which
   clones from GitHub) stale. End every unit of work pushed. [[feedback-002-always-commit-and-push]]
@@ -56,3 +64,5 @@ wins for that ticket; update this file only for durable, repeatable guidance.
   locally) merged to main; never commit feature work directly to main.
 - [[feedback-005-action-before-economy]] — the run opens on combat, never a shop;
   the shop is earned. Keep the squad on screen in one persistent frame across phases.
+- [[feedback-006-verification-never-gates]] — `/eval` is the only push gate; never
+  hold shipped work for human verification. Harden gates instead of gating on review.

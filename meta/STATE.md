@@ -1,7 +1,7 @@
 ---
 updated: 2026-06-28
-in_flight: ticket-007-shop-sequence-combat-first # ticket/design id currently being worked, or null
-features_shipped: 5 # increments on each shipped ticket; doc-sync triggers every ~5
+in_flight: null # ticket/design id currently being worked, or null
+features_shipped: 6 # increments on each shipped ticket; doc-sync triggers every ~5
 last_doc_sync_at: 5 # features_shipped value at last doc-sync
 ---
 
@@ -21,6 +21,16 @@ S) + idea (single-starting-ability-progression, needs refinement).
 
 ## Tick log (most recent first, keep ~10)
 
+- 2026-06-28 · steering · Dan: verification NEVER gates development. His playtesting
+  is for steering/error-correction/game-design, not a checkpoint. Automated checks
+  (`/eval`) are the ONLY push gate; if a bad state slips through, harden the gates —
+  don't start holding work. Enshrined feedback-006 + policies. Don't hold ships
+  awaiting playtest.
+- 2026-06-28 · implement · ticket-007-shop-sequence-combat-first → shipped. Action
+  before economy: simulateRun shops after each win (not before combat #1); web
+  startNewGame opens on the fight (view "campaign"), not the shop; ShopView → post-
+  fight "Resupply". Test: no shop before combat #1. Rebased past doc-sync, eval green,
+  merged to main. features_shipped 5→6.
 - 2026-06-28 · design+steering · Dan reworked the level loop. Filed
   design-004-level-loop-and-squad-frame (action before economy: run opens on combat,
   shop is earned; combat+shop share one persistent squad frame). Decomposed →

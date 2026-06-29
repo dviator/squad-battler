@@ -1,13 +1,13 @@
 ---
 id: ticket-007-shop-sequence-combat-first
-status: in-progress
+status: shipped
 priority: 1
 size: S
 parent: design-004-level-loop-and-squad-frame
 depends_on: []
-feedback_refs: [feedback-005-action-before-economy]
+feedback_refs: [feedback-005-action-before-economy, feedback-006-verification-never-gates]
 created: 2026-06-27
-updated: 2026-06-27
+updated: 2026-06-28
 ---
 
 # Ticket: Shop sequence change — combat-first run loop
@@ -57,11 +57,11 @@ The decided slice of [[design-004-level-loop-and-squad-frame]]; enshrines
 [[feedback-005-action-before-economy]]. No creative input required — ordering and
 copy only.
 
-> **Eval passed 2026-06-27 (awaiting merge).** `simulateRun` reordered to combat-
-> first (shop after each win); web `startNewGame` lands on `view: "campaign"` (the
-> squad/node screen with the Fight button) with no pre-fight shop; ShopView copy
-> reframed as post-fight "Resupply". Added `runSimulator` test "opens on combat — no
-> shop runs before the first fight" (spy verified to intercept). `/eval`: typecheck
-> ✓ · 164 tests ✓ · balance hard gates ✓ · web:build ✓. On branch
-> `worktree-design-004-level-loop`; merge to main held pending reconciliation with
-> Dan's in-flight pipeline WIP (verify-queue) in the primary checkout.
+> **Shipped 2026-06-28.** `simulateRun` reordered to combat-first (shop after each
+> win); web `startNewGame` lands on `view: "campaign"` (the squad/node screen with
+> the Fight button) with no pre-fight shop; ShopView copy reframed as post-fight
+> "Resupply". Added `runSimulator` test "opens on combat — no shop runs before the
+> first fight" (spy verified to intercept). Rebased onto origin/main (past the
+> doc-sync commit), re-ran `/eval`: typecheck ✓ · 164 tests ✓ · balance hard gates
+> ✓ · web:build ✓. Merged to main — eval is the only push gate, verification never
+> bottlenecks development ([[feedback-006-verification-never-gates]]).
