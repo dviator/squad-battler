@@ -43,7 +43,8 @@ Never import shell into core. Never import core directly from tests without goin
 | New shop items | `src/data/` |
 | New mechanics | `src/core/` (new file or extend existing) |
 | New tests | `tests/*.test.ts` |
-| Ideas / designs / tickets | `backlog/` → see `meta/PIPELINE.md` |
+| Ideas / designs / tickets | GitHub Issues on Projects v2 board #1 → see `meta/TRACKER.md` |
+| Long-form design bodies | `docs/designs/*.md` (linked from their `type:design` issue) |
 
 ---
 
@@ -77,8 +78,11 @@ bun run dev           # Run main entry point
 
 ## Pipeline Behavior
 
-This repo runs an **autonomous development pipeline** operated through local files,
-git, skills, and scheduled cloud routines. Full details in `meta/PIPELINE.md`.
+This repo runs an **autonomous development pipeline** operated through GitHub
+Issues, git, skills, and scheduled cloud routines. Work items are issues on
+**Projects v2 board #1**; `meta/TRACKER.md` is the canonical reference for board
+coordinates, Stage ids, labels, and `gh` recipes. Full loop details in
+`meta/PIPELINE.md`.
 
 ### The loop
 
@@ -86,32 +90,38 @@ git, skills, and scheduled cloud routines. Full details in `meta/PIPELINE.md`.
 idea → design → ticket → code → ship → playtest-verify → archive
 ```
 
-Each stage is a skill. A scheduled heartbeat (`/dev-tick`) selects the single
-highest-value actionable item from the backlog and advances it **one stage per
-fire**, then stops — this bounds usage per run and keeps progress legible.
+Each stage is a skill. A scheduled heartbeat (`/dev-tick`) reads the board and
+advances the highest-value actionable item, looping implementation-first within a
+bounded session — keeping usage bounded and progress legible.
 
 | Stage skill | Does |
 |---|---|
-| `/dev-tick` | Heartbeat: reads memory, selects one unit, dispatches the right stage, writes memory back |
-| `/refine-idea` | idea → `ready` design (or `needs-input`) |
-| `/decompose-design` | `ready` design → atomic, session-sized `todo` tickets |
-| `/implement-ticket` | ticket → code+tests → `/eval` → clean commit → merge → `shipped` |
+| `/dev-tick` | Heartbeat: reads the board, selects work, dispatches the right stage, loops |
+| `/refine-idea` | `type:idea` issue → `Ready` design (issue + `docs/designs/*.md`), or `Needs-input` |
+| `/decompose-design` | `Ready` design issue → atomic, session-sized `type:ticket` issues |
+| `/implement-ticket` | ticket → code+tests → `/eval` → clean commit → merge → Stage `Shipped` |
 | `/eval` | verification gate: `typecheck` + `test` + `test:balance` |
-| `/capture-feedback` | feedback → curated corpus; playtest feedback verifies/reopens its ticket |
+| `/verify-queue` | walks `Shipped` tickets + their playtest criteria, applies verdicts |
+| `/capture-feedback` | feedback → policies corpus; playtest feedback verifies/forks its issue |
 
-### Corpus (where work and memory live)
+### Where work and memory live
 
-| Path | Role |
+Work items are **GitHub issues** typed by label (`type:idea` / `type:design` /
+`type:ticket`) with a `Stage` single-select on **board #1** (Idea → Designing →
+Needs-input → Ready → In-progress → Shipped → Verified, plus Blocked/Reverted;
+closed = Verified). `meta/TRACKER.md` is canonical. Queues are gh queries / board
+views, not files:
+
+| Queue | Now |
 |---|---|
-| `backlog/ideas/` | Lightweight scratchpad of unrefined thoughts (no status) |
-| `backlog/designs/` | Design docs (`draft`/`needs-input`/`ready`/`decomposed`) |
-| `backlog/tickets/` | Atomic tickets (`todo`/`in-progress`/`blocked`/`shipped`/`verified`/`reverted`) |
-| `backlog/archive/` | `verified` tickets + done designs, moved out of the active set |
-| `backlog/BACKLOG.md` | Generated prioritized index the heartbeat reads |
-| `meta/STATE.md` | Loop memory: in-flight unit, feature count, tick log |
-| `meta/INBOX.md` | Your review queue (`[SHIPPED]`/`[NEEDS-INPUT]`) |
-| `meta/policies.md` | Distilled steering lessons (always loaded) |
-| `meta/feedback/` | Curated feedback corpus, frontmatter-tagged |
+| Backlog (prioritized) | `gh issue list --state open` by `priority:` label / board view |
+| Verify queue | open `type:ticket` issues at Stage `Shipped` (`/verify-queue`) |
+| Needs-your-input | `gh issue list --label needs-input` |
+| In-flight / history | Stage `In-progress` + assignee; commit log + issue timelines |
+
+Long-form design bodies live in `docs/designs/*.md` (linked from their `type:design`
+issue). Feedback corpus (`meta/feedback/`) and steering lessons (`meta/policies.md`)
+stay markdown. `meta/STATE.md`, `INBOX.md`, `VERIFY.md`, `BACKLOG.md` are retired.
 
 Context retrieval: `scripts/meta-context.sh "<query>"` (qmd primary, grep/rg
 fallback). See `meta/qmd-setup.md`.
@@ -123,20 +133,22 @@ fallback). See `meta/qmd-setup.md`.
   integration gate for concurrent writers. No PRs in the hot path. Full recipe:
   "Branch & worktree workflow" in `meta/PIPELINE.md`.
 - One ticket = one clean commit with the structured message in `meta/PIPELINE.md`.
+  Commits reference their issue with `Refs #N` — **never** `Fixes/Closes #N` (no
+  auto-close at merge; shipped ≠ done).
 - Fix-forward. `/eval` before every push is the integration gate, so a hard
   failure shouldn't reach `main`; if one ever slips through, revert that commit
   manually. Your feedback steers, never approval-gates.
-- A ticket is **`shipped`, not done, at merge** — it stays live through a playtest
-  verification window, then becomes `verified` and archivable.
+- A ticket is **Stage `Shipped`, not done, at merge** — it stays live through a
+  playtest verification window, then becomes `Verified` and the issue closes.
 
 ### Notifications
-- Everything you need to review lands in `meta/INBOX.md`.
-- `PushNotification` fires only for `[NEEDS-INPUT]` (a blocked decision) — never
-  for routine ships.
+- Your review queue is `gh issue list --label needs-input`.
+- `PushNotification` fires only for a `needs-input` issue (a blocked decision) —
+  never for routine ships.
 
 ### Handling Ambiguity
-- **Never guess on game feel, balance, or design decisions.** Write the design as
-  `needs-input`, fill its Open Questions, post `[NEEDS-INPUT]` to `meta/INBOX.md`,
+- **Never guess on game feel, balance, or design decisions.** Write the design with
+  its Open Questions filled, add the `needs-input` label, set Stage `Needs-input`,
   and wait. (See Autonomy Boundaries below and `docs/DESIGN_FRAMEWORK.md`.)
 - Use placeholders (`TODO:` + explanation) only when technically necessary to
   unblock compilation.
@@ -151,7 +163,7 @@ fallback). See `meta/qmd-setup.md`.
 - Stat rebalancing when needed to hit simulation targets defined in `docs/DESIGN_FRAMEWORK.md`
 - Which tests to write
 
-**Claude asks the user (via `[NEEDS-INPUT]` in `meta/INBOX.md` + push):**
+**Claude asks the user (via a `needs-input` issue + push):**
 - New species concepts, attack patterns, thematic names
 - New mutation ideas
 - Game feel decisions ("does this feel too powerful?")
@@ -196,13 +208,14 @@ Created via the `/schedule` skill (cloud cron). See `meta/PIPELINE.md` for caden
 **Refactor session** (weekly):
 - Review recent commits for drift, duplication, shortcuts
 - Clean up without changing observable behavior; gate with `/eval`
-- Note summary in `meta/STATE.md`
+- Note summary in the merge commit message
 
-**Doc-sync session** (after every ~5 shipped features, surfaced by `/dev-tick`):
+**Doc-sync session** (after every ~5 shipped features, surfaced by `/dev-tick`'s
+derived cadence check — see `meta/TRACKER.md`):
 - Read current codebase
 - Update `docs/DESIGN_FRAMEWORK.md` + `docs/SYSTEMS.md` to reflect what shipped
-- Run the archive sweep: move `verified` items to `backlog/archive/`
-- Note summary in `meta/STATE.md`
+- Confirm `Verified` tickets are closed (the archive is the closed-issue set)
+- Note summary in the merge commit message
 
 ---
 

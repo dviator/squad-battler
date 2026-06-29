@@ -3,10 +3,12 @@
 How ideas become shipped, verified features with minimal human involvement. This
 is the operational spec; `CLAUDE.md` has the quick reference.
 
-This pipeline is single-user. All coordination is local files + git — no Discord
-in the hot path. The user's role is **steering** (feedback) and **deciding** the
-things only a human should (game feel, balance, new content). The user is never an
-approval gate on merges.
+This pipeline is single-user. Coordination is **GitHub Issues + Projects v2 board
+#1** plus git — no Discord in the hot path. `meta/TRACKER.md` is the canonical
+reference for board coordinates, Stage option ids, labels, queue→query mapping, and
+`gh` recipes; this file is the loop spec. The user's role is **steering** (feedback)
+and **deciding** the things only a human should (game feel, balance, new content).
+The user is never an approval gate on merges.
 
 It adapts PostHog's self-driving loop:
 *collect → cluster signals → check memory → do work → review/ship → evaluate →
@@ -17,31 +19,32 @@ write back to memory.*
 ## The loop
 
 ```
-backlog/ideas/      (unrefined thoughts — signals)
+type:idea issue            (unrefined thoughts — Stage Idea)
    │  /refine-idea          ← checks DESIGN_FRAMEWORK, pulls feedback via qmd
    ▼
-backlog/designs/    (ready design docs)
+type:design issue          (Stage Ready; long-form body in docs/designs/*.md)
    │  /decompose-design
    ▼
-backlog/tickets/    (atomic, session-sized work)
+type:ticket issues         (atomic, session-sized — Stage Ready)
    │  /implement-ticket     ← code + tests → /eval → clean commit → merge to main
    ▼
-shipped             (in playtest verification window — NOT done)
-   │  /capture-feedback     ← playtest feedback ties back to the ticket
+Stage Shipped              (in playtest verification window — NOT done)
+   │  /capture-feedback · /verify-queue   ← playtest feedback ties back to the issue
    ▼
-verified  ──────►  backlog/archive/   (swept during doc-sync)
+Stage Verified  ──────►  issue closed (reason: completed)
 ```
 
-The heartbeat `/dev-tick` runs the selection + dispatch, **one stage per fire**,
-so each scheduled run is bounded and fits the usage budget. Memory in
-`meta/STATE.md` lets a cold (cloud) session resume with full continuity.
+The heartbeat `/dev-tick` reads the board, selects work, and dispatches the right
+stage, looping implementation-first within a bounded session. The board (Stages +
+assignees), issue timelines, and the commit log are the durable state — a cold
+(cloud) session resumes by reading them; there is no `STATE.md`.
 
 ### Signals (what to work on)
 
-- The backlog itself (ideas, ready designs, todo tickets).
+- The board itself (open issues by `priority:`; actionable = Stage `Ready`).
 - Balance gaps: `bun run test:balance` soft targets out of range
   (`docs/DESIGN_FRAMEWORK.md`).
-- Curated feedback in `meta/feedback/` (steering + playtest).
+- Curated feedback in `meta/feedback/` (steering) + playtest comments on issues.
 
 ### Evaluation (how we know it worked)
 
@@ -54,32 +57,33 @@ so each scheduled run is bounded and fits the usage budget. Memory in
 
 ## Corpus reference
 
-| Path | Role |
+Work items are GitHub issues on board #1; long-form knowledge stays markdown. See
+`meta/TRACKER.md` for board coordinates, Stage ids, labels, and the queue→query map.
+
+| Where | Role |
 |---|---|
-| `backlog/ideas/*.md` | Lightweight scratchpad, no status. Graduates to a design or is discarded. |
-| `backlog/designs/*.md` | `draft` → `needs-input` → `ready` → `decomposed` |
-| `backlog/tickets/*.md` | `todo` → `in-progress` → `blocked`/`shipped` → `verified`/`reverted` |
-| `backlog/archive/YYYY-QN/` | Verified tickets + done designs |
-| `backlog/BACKLOG.md` | Generated prioritized index |
-| `meta/STATE.md` | Memory: in-flight, feature count, tick log |
-| `meta/INBOX.md` | Human review queue |
+| `type:idea` issue | Captured thought (Stage `Idea`); whole idea in the body. Refines to a design or closes not-planned. |
+| `type:design` issue | Thin tracker (Stage `Designing` → `Needs-input` → `Ready`); long-form body in `docs/designs/*.md`. |
+| `type:ticket` issue | Atomic work (Stage `Ready` → `In-progress` → `Blocked`/`Shipped` → `Verified`/`Reverted`). |
+| `docs/designs/*.md` | Retrieval-searchable design bodies, linked from their design issue. |
 | `meta/policies.md` | Always-loaded steering lessons |
-| `meta/feedback/*.md` | Curated feedback corpus |
+| `meta/feedback/*.md` | Curated steering-feedback corpus |
 | `meta/qmd-setup.md` | Retrieval setup |
 
-Templates: `backlog/designs/TEMPLATE.md`, `backlog/tickets/TEMPLATE.md`,
-`meta/feedback/TEMPLATE.md`.
+Queues are gh queries / board views (see `meta/TRACKER.md`), not files. `meta/STATE.md`,
+`INBOX.md`, `VERIFY.md`, `BACKLOG.md`, and the `backlog/` tree are retired.
+Templates: `meta/feedback/TEMPLATE.md` (issue bodies follow the shapes in the skills).
 
 ---
 
 ## Ticket lifecycle (why "done" ≠ "stop")
 
-A ticket does not close at merge. It becomes **`shipped`** — merged to main and
-open for playtest. Human playtest feedback is captured as
-`meta/feedback/*.md { kind: playtest, ticket: <id> }`, written into the ticket's
-`feedback_refs`. Positive feedback → **`verified`** (archivable). Negative feedback
-→ a follow-up ticket or reopen. History is never silently rewritten; the
-verification trail stays in the ticket.
+A ticket issue does not close at merge. It moves to Stage **`Shipped`** — merged to
+main and open for playtest. Human playtest feedback is recorded as a comment on the
+issue (the verification trail) via `/capture-feedback` or `/verify-queue`. Positive
+→ Stage **`Verified`** and `gh issue close -r completed`. Negative → a linked
+follow-up `type:ticket`/`type:idea` issue (`Refs #N`), original left `Shipped`.
+History is never silently rewritten; the trail stays on the issue timeline.
 
 ---
 
@@ -91,12 +95,15 @@ One ticket = one clean commit on `main`:
 feat(<area>): <ticket title>
 
 Why: <player/design rationale>
-Design: backlog/designs/<id>.md   Ticket: backlog/tickets/<id>.md
+Refs #<ticket-issue>   (design: #<design-issue> · docs/designs/<id>.md)
 Eval: typecheck ✓ test ✓ balance ✓ (<key sim numbers>)
 Feedback applied: <feedback ids or none>
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 ```
+
+Reference the issue with `Refs #N` (or `Part of #N`) — **never** `Fixes`/`Closes`,
+which auto-close the issue at merge; an issue closes only at Stage `Verified`.
 
 Work happens on a short-lived **feature branch** (see Branch & worktree workflow
 below), never directly on `main` — `main` only ever receives a finished,
@@ -116,9 +123,9 @@ properties intact.
 
 1. **Isolated checkout + branch off latest main.**
    - *Local session:* use a worktree so parallel sessions never share a checkout —
-     `git fetch origin && git worktree add -b <type>/<ticket-id> ../squad-battler-worktrees/<ticket-id> origin/main`, then `cd` into it.
+     `git fetch origin && git worktree add -b <type>/issue-<n>-<slug> ../squad-battler-worktrees/issue-<n>-<slug> origin/main`, then `cd` into it.
    - *Cloud routine:* the ephemeral clone is already an isolated checkout — just
-     branch: `git fetch origin && git checkout -b <type>/<ticket-id> origin/main`.
+     branch: `git fetch origin && git checkout -b <type>/issue-<n>-<slug> origin/main`.
 2. **Do all the work on the branch** — code + tests + bookkeeping — then run `/eval`.
 3. **One commit** on the branch (structured message above).
 4. **Integrate linearly:** `git fetch origin && git rebase origin/main` (re-run
@@ -128,8 +135,8 @@ properties intact.
    `git log origin/main..HEAD` is empty.
 5. **Clean up:** `git worktree remove <dir>` (local) and delete the merged branch.
 
-Branch naming: `<type>/<ticket-id>` where `<type>` matches the commit
-(`feat`/`fix`/`chore`/`docs`), e.g. `feat/ticket-005-floor-structure-foundation`.
+Branch naming: `<type>/issue-<n>-<slug>` where `<type>` matches the commit
+(`feat`/`fix`/`chore`/`docs`), e.g. `feat/issue-12-floor-structure-foundation`.
 
 `scripts/worktree-agent.sh` is a separate tool for *manually launching a parallel
 headless agent* in a worktree — not the in-session flow above.
@@ -151,9 +158,11 @@ budget — each fire is one bounded session by design.
 
 ## Notifications
 
-`meta/INBOX.md` is the single place to review. `[SHIPPED]` (review on your cadence,
-no push), `[NEEDS-INPUT]` (decision required — push). Clear an entry by deleting
-it; the ticket/design holds the durable record.
+Review queues are gh queries (see `meta/TRACKER.md`): shipped tickets awaiting
+playtest = open `type:ticket` at Stage `Shipped` (review on your cadence, no push,
+via `/verify-queue`); decisions required = `gh issue list --label needs-input`
+(push). Clear a needs-input flag by removing the label / advancing its Stage; the
+issue timeline holds the durable record.
 
 ---
 
@@ -161,6 +170,6 @@ it; the ticket/design holds the durable record.
 
 Humans provide creativity; Claude provides engineering. Claude decides
 implementation approach, structure, tests, and balance tuning toward
-`DESIGN_FRAMEWORK.md` targets. Claude asks (via `[NEEDS-INPUT]`) on new
+`DESIGN_FRAMEWORK.md` targets. Claude asks (via a `needs-input` issue + push) on new
 species/mutations/items, game-feel calls, and anything touching the open design
 questions in `DESIGN_FRAMEWORK.md`. See `CLAUDE.md` → Autonomy Boundaries.
