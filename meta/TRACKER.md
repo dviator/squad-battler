@@ -1,20 +1,8 @@
 # Tracker — GitHub Issues + Projects v2 (canonical pipeline reference)
 
-The pipeline's work items live in **GitHub Issues**, organized on a **Projects v2
-board**. This file is the single source of truth for *how to drive them* — every
-pipeline skill reads it. Long-form knowledge (design bodies, feedback corpus,
-policies) stays as markdown in the repo; see the split below.
-
-> **2026-06-30 — board rationalization.** All status/classifier data moved off
-> labels and the prose preamble into **Projects v2 fields** (`Type`, `Stage`,
-> `Priority`, `Size`, `Depends on`). The old `type:`/`priority:`/`size:`/`needs-input`
-> labels are retired, and the mandatory built-in `Status` field is **repurposed to
-> hold Stage** (its only role now — GitHub won't let you delete or rename it, so
-> rather than leave it as dead weight we replaced its options with the Stage values).
-> Each fact now has exactly one home: a field, a native sub-issue link, or the issue
-> body. See "Data model" below.
->
-> Migrated from the old file-based corpus on 2026-06-28 (issue #5, migration epic).
+Work items are **GitHub Issues** on **Projects v2 board #1**. This file is how to
+drive them. Long-form knowledge stays markdown: design bodies in `docs/designs/`,
+feedback in `meta/feedback/`, policies in `meta/policies.md`.
 
 ## Data model — one fact, one home
 
@@ -24,14 +12,16 @@ policies) stays as markdown in the repo; see the split below.
 | **Stage** | built-in **`Status`** field (JSON key `status`) | per-type, below |
 | **Priority** | `Priority` field | `1` (high) · `2` (normal) · `3` (low) |
 | **Size** | `Size` field | `S` · `M` · `L` (`L` = decompose first) |
-| **Parent** (design → its tickets) | **native sub-issues** | — |
+| **Parent** (design → its tickets) | native **sub-issues** | — |
 | **Dependencies** (ticket → ticket) | `Depends on` text field | e.g. `#17, #18` |
-| **Description** | issue **body** | no metadata preamble — body is *only* the content |
+| **Description** | issue **body** | content only — no metadata preamble |
 
-`Type` and `Stage` are **disjoint sub-pipelines**: an idea never reaches ticket
-stages. Each `Stage` value belongs to exactly one `Type`, except `Needs-input`,
-the one shared "blocked on Dan" state. Board views are type-scoped, so the two
-axes never collide in practice.
+Stage lives in GitHub's mandatory **`Status`** field (its options were set to the
+Stage values). It shows as "Status" in the UI and is the `status` key in JSON.
+Never add a second "Stage" field. Labels carry no pipeline meaning.
+
+`Type` and `Stage` are disjoint sub-pipelines — each Stage belongs to one Type,
+except `Needs-input` (shared "blocked on Dan" state). Views are type-scoped.
 
 ```
 Idea:    Backlog → Refining → Needs-input        (→ spawns a Design issue)
@@ -39,64 +29,43 @@ Design:  Drafting → Needs-input → Decomposed      (→ spawns Ticket issues)
 Ticket:  Ready → In-progress → Blocked → Shipped → Verified   (Reverted on hard-eval backout)
 ```
 
-- **Idea** — `Type=Idea` issue, body holds the whole idea. `Backlog` = available to
-  flesh out; `Refining` = being turned into a design.
-- **Design** — `Type=Design` issue is a *thin tracker*; the long-form body is a
-  markdown file in **`docs/designs/`**, linked from the issue's first line
-  (`**Design doc:** \`docs/designs/…\``). `Decomposed` = tickets created.
-- **Ticket** — `Type=Ticket` issue, body holds the whole ticket. `Shipped` = merged,
-  **awaiting playtest verification**; `Verified` = playtest-confirmed, issue closed.
-- **Feedback / policies** — stay markdown: `meta/feedback/`, `meta/policies.md`.
-
-> **Labels are retired** for pipeline meaning. The defunct `type:*`/`priority:*`/
-> `size:*`/`needs-input` label *definitions* still exist (deleted in the skill-migration
-> pass) but carry no status. Labels are free for ad-hoc tags only.
+- **Idea** — body holds the idea. `Backlog` = available to flesh out; `Refining` = being designed.
+- **Design** — thin tracker; long-form body is a `docs/designs/*.md` file linked from the
+  issue's first line (`**Design doc:** \`…\``). `Decomposed` = tickets created.
+- **Ticket** — body holds the ticket. `Shipped` = merged, awaiting playtest; `Verified` = closed.
 
 ## Board coordinates
 
 | Thing | Value |
 |---|---|
 | Repo | `dviator/squad-battler` |
-| Project | **Squad Battler Pipeline** — number `1` — https://github.com/users/dviator/projects/1 |
-| Project node id | `PVT_kwHOAGkbJ84Bb72k` |
-
-Field ids and single-select option ids:
+| Project node id | `PVT_kwHOAGkbJ84Bb72k` (board #1, https://github.com/users/dviator/projects/1) |
 
 | Field | Field id | Options (`name` → `optionId`) |
 |---|---|---|
 | `Type` | `PVTSSF_lAHOAGkbJ84Bb72kzhWyxAo` | Idea `82eedc5b` · Design `dbb9f149` · Ticket `a42145ab` |
-| `Stage` *(built-in `Status` field)* | `PVTSSF_lAHOAGkbJ84Bb72kzhWocFc` | Backlog `31e713bd` · Refining `5d98f4d0` · Drafting `a0fd1898` · Needs-input `df5c9074` · Decomposed `b278d8f2` · Ready `97875312` · In-progress `25425956` · Blocked `e93ff775` · Shipped `415d287c` · Verified `1f42d806` · Reverted `ff3d628c` |
+| `Stage` (built-in `Status`) | `PVTSSF_lAHOAGkbJ84Bb72kzhWocFc` | Backlog `31e713bd` · Refining `5d98f4d0` · Drafting `a0fd1898` · Needs-input `df5c9074` · Decomposed `b278d8f2` · Ready `97875312` · In-progress `25425956` · Blocked `e93ff775` · Shipped `415d287c` · Verified `1f42d806` · Reverted `ff3d628c` |
 | `Priority` | `PVTSSF_lAHOAGkbJ84Bb72kzhWyxC8` | 1 `a5cb227e` · 2 `3f426ea8` · 3 `23452f2e` |
 | `Size` | `PVTSSF_lAHOAGkbJ84Bb72kzhWyxD0` | S `1f6dd80b` · M `4dc4093f` · L `feb1fc5d` |
-| `Depends on` | `PVTF_lAHOAGkbJ84Bb72kzhWyxD4` | *(free text, e.g. `#17, #18`)* |
+| `Depends on` | `PVTF_lAHOAGkbJ84Bb72kzhWyxD4` | *(free text)* |
 
-**Stage = the built-in `Status` field.** GitHub forces every board to carry a
-`Status` field and won't let you delete or rename it, so it holds the Stage. It
-displays as **"Status"** in the Projects UI and surfaces as the `status` key in
-`item-list` JSON — but it *is* the Stage. Don't add a second "Stage" field.
+## Board views (Dan-facing)
 
-## Queues = board views (Dan-facing) / one read query (Claude-facing)
-
-Dan's board views (configure once in the Projects UI; native filter/sort, zero
-cost). In the UI the Stage axis is the field labelled **"Status"** (it holds the Stage):
+Configure once in the Projects UI. The Stage axis is the field labelled **"Status"**.
 
 | View | Filter | Sort | Dan's action |
 |---|---|---|---|
-| **Verification Queue** | `Type=Ticket` ∧ `Stage=Shipped` | `Priority` ↑ | drag card → `Verified` |
-| **Designs needing input** | `Type=Design` ∧ `Stage=Needs-input` | `Priority` ↑ | answer → Claude advances it |
-| **Ideas to flesh out** | `Type=Idea` ∧ `Stage=Backlog` | `Priority` ↑ | pick one to refine |
-| **Dev Pipeline** | `Type=Ticket` | group by `Stage`, `Priority` ↑ | watch / drag |
+| **Verification Queue** | `Type=Ticket` ∧ `Status=Shipped` | `Priority` ↑ | drag → `Verified` |
+| **Designs needing input** | `Type=Design` ∧ `Status=Needs-input` | `Priority` ↑ | answer → Claude advances |
+| **Ideas to flesh out** | `Type=Idea` ∧ `Status=Backlog` | `Priority` ↑ | pick one to refine |
+| **Dev Pipeline** | `Type=Ticket` | group by `Status`, `Priority` ↑ | watch / drag |
 
-Claude reads the **whole board in one query** and filters client-side (see below).
+## API recipes
 
-## API recipes — the API is cheap at this scale
+No server-side field filtering; `gh issue create` can't set fields inline. Read the
+whole board in one query and filter client-side; batch writes with aliased mutations.
 
-The Projects v2 API has **no server-side field filtering** and `gh issue create`
-**can't set fields inline** — but GraphQL batches, so it doesn't bite: read the
-whole board in **one query**; set many fields / advance many items in **one request**
-via aliased mutations.
-
-### Read the whole board (one query, filter with jq/python)
+### Read the whole board (one query)
 
 ```bash
 gh api graphql -f query='
@@ -106,27 +75,20 @@ gh api graphql -f query='
       ... on ProjectV2ItemFieldSingleSelectValue { name field{ ... on ProjectV2FieldCommon{ name } } }
       ... on ProjectV2ItemFieldTextValue        { text field{ ... on ProjectV2FieldCommon{ name } } }
     }}
-    content{ ... on Issue {
-      number title state
-      parent{ number }
-      subIssues(first:50){ totalCount nodes{ number state } }
-    }}
+    content{ ... on Issue { number title state parent{ number } subIssues(first:50){ nodes{ number state } } } }
 }}}}}'
 ```
 
-`gh project item-list 1 --owner dviator --format json` is the quick equivalent: it
-flattens each single-select field to a lowercased top-level key (`type`, `status`
-← this is the Stage, `priority`, `size`) plus `depends on`, alongside `content`
-and `labels`.
+`gh project item-list 1 --owner dviator --format json` is the quick equivalent: each
+single-select flattens to a lowercased key (`type`, `status` ← the Stage, `priority`,
+`size`) plus `depends on`, alongside `content` and `labels`.
 
-### Bash helpers (drop into a skill)
-
-macOS ships bash 3.2 — **no associative arrays**; use `case` maps.
+### Bash helpers (bash 3.2 — no associative arrays)
 
 ```bash
 OWNER=dviator; PROJ=1; PROJID=PVT_kwHOAGkbJ84Bb72k
 F_TYPE=PVTSSF_lAHOAGkbJ84Bb72kzhWyxAo
-F_STAGE=PVTSSF_lAHOAGkbJ84Bb72kzhWocFc   # the built-in Status field, repurposed to Stage
+F_STAGE=PVTSSF_lAHOAGkbJ84Bb72kzhWocFc   # built-in Status field
 F_PRIO=PVTSSF_lAHOAGkbJ84Bb72kzhWyxC8
 F_SIZE=PVTSSF_lAHOAGkbJ84Bb72kzhWyxD0
 F_DEPS=PVTF_lAHOAGkbJ84Bb72kzhWyxD4
@@ -145,64 +107,51 @@ item_id() { # item_id <issue#>  — item-add is idempotent (returns existing id)
     --url "https://github.com/$OWNER/squad-battler/issues/$1" --format json \
     | python3 -c "import sys,json;print(json.load(sys.stdin)['id'])"
 }
-
-set_select() { # set_select <itemId> <fieldId> <optionId>
+set_select() { # <itemId> <fieldId> <optionId>
   gh api graphql -f query="mutation{ updateProjectV2ItemFieldValue(input:{
     projectId:\"$PROJID\",itemId:\"$1\",fieldId:\"$2\",value:{singleSelectOptionId:\"$3\"}
   }){ projectV2Item{ id } } }" >/dev/null
 }
-set_text() {   # set_text <itemId> <fieldId> "<text>"
+set_text() { # <itemId> <fieldId> "<text>"
   gh api graphql -f query="mutation{ updateProjectV2ItemFieldValue(input:{
     projectId:\"$PROJID\",itemId:\"$1\",fieldId:\"$2\",value:{text:\"$3\"}
   }){ projectV2Item{ id } } }" >/dev/null
 }
-set_stage() { set_select "$(item_id "$1")" "$F_STAGE" "$(stage_id "$2")"; }  # set_stage <issue#> <Stage>
+set_stage() { set_select "$(item_id "$1")" "$F_STAGE" "$(stage_id "$2")"; }  # <issue#> <Stage>
 ```
 
 ### Operations
 
 | Operation | Recipe |
 |---|---|
-| Create a ticket | `gh issue create --title "…" --body-file f.md` → `it=$(item_id <n>)` → one batched mutation setting `Type=Ticket`, `Stage=Ready`, `Priority`, `Size` → `addSubIssue` under its design |
-| Set all fields at once | one `gh api graphql` mutation with aliased `updateProjectV2ItemFieldValue` calls (one alias per field) |
+| Create a ticket | `gh issue create --title "…" --body-file f.md` → `item_id <n>` → one batched mutation setting `Type=Ticket`/`Stage=Ready`/`Priority`/`Size` → `addSubIssue` under its design |
+| Set many fields/items at once | one `gh api graphql` mutation, one aliased `updateProjectV2ItemFieldValue` per field (keep ≤ ~25 per request) |
 | Move to in-progress | `set_stage <n> In-progress` (+ `gh issue edit <n> --add-assignee @me`) |
 | Mark shipped at merge | `set_stage <n> Shipped` + `gh issue comment <n> --body "shipped <sha>"` — do **not** close |
-| Block on a dep | `set_stage <n> Blocked`; record the blocker in the `Depends on` field |
-| Raise needs-input | `set_stage <n> Needs-input` (no label — the Stage *is* the flag) |
-| Verify | `set_stage <n> Verified` + `gh issue close <n> -r completed` |
+| Block on a dep | `set_stage <n> Blocked`; record the blocker in `Depends on` |
+| Raise needs-input | `set_stage <n> Needs-input` (the Stage is the flag — no label) |
+| Verify | `set_stage <n> Verified` + `gh issue close <n> -r completed` (field changes don't auto-close) |
 | Link ticket under design | `addSubIssue(input:{issueId:<designNodeId>, subIssueId:<ticketNodeId>})` (node ids via `gh issue view <n> --json id`) |
 
-Batched multi-field / multi-item example (one HTTP request):
+Batched multi-field example (one request):
 
 ```bash
 gh api graphql -f query='mutation {
   t: updateProjectV2ItemFieldValue(input:{projectId:"…",itemId:"…",fieldId:"…TYPE",  value:{singleSelectOptionId:"a42145ab"}}){projectV2Item{id}}
-  s: updateProjectV2ItemFieldValue(input:{projectId:"…",itemId:"…",fieldId:"…STAGE", value:{singleSelectOptionId:"002565ca"}}){projectV2Item{id}}
+  s: updateProjectV2ItemFieldValue(input:{projectId:"…",itemId:"…",fieldId:"…STAGE", value:{singleSelectOptionId:"97875312"}}){projectV2Item{id}}
   p: updateProjectV2ItemFieldValue(input:{projectId:"…",itemId:"…",fieldId:"…PRIO",  value:{singleSelectOptionId:"a5cb227e"}}){projectV2Item{id}}
 }'
 ```
 
-> Keep batches modest — a single request with ~60 aliased mutations dropped its
-> tail once; ≤ ~25 mutations per request applied cleanly. Split larger migrations.
-
-**Commit linkage:** reference the issue with `Refs #N` (or `Part of #N`) — **never
-`Fixes #N`/`Closes #N`**, which auto-close at merge. Shipped ≠ done; an issue closes
-only when it reaches `Verified`.
+**Commit linkage:** reference issues with `Refs #N` / `Part of #N` — **never** `Fixes/Closes #N`
+(auto-closes at merge; shipped ≠ done — an issue closes only at `Verified`).
 
 ## Gotchas
 
-- macOS ships bash 3.2 — **no associative arrays**; use the `case` maps above.
-- Run `gh` from inside the repo checkout, or pass `-R dviator/squad-battler` —
-  outside a git dir, `gh issue view/edit` fail with "not a git repository".
-- `gh project field-delete` only removes **custom** fields; the built-in `Status`
-  field can't be deleted *or renamed* — so we repurposed its options to be the Stage
-  values. It still displays as "Status" in the UI and is the `status` key in JSON.
-  Never create a second "Stage" field beside it.
-- Native **Issue Types** (`type:` server-side filter) are an **org-only** feature —
-  unavailable on this user-owned repo, which is why `Type` is a project field.
-- Field changes **don't close issues**: moving a ticket to `Verified` needs a
-  matching `gh issue close` (the verify step / a sync does this).
-- `gh project create --format json` is broken in gh 2.87.x — create projects via
-  `gh api graphql` `createProjectV2` if a new project is ever needed.
-- Cron/headless runs need a `GH_TOKEN` with `repo` + `project` scope in the
-  environment (no interactive login in the ephemeral clone).
+- Run `gh` from inside the checkout, or pass `-R dviator/squad-battler` (outside a git
+  dir, `gh issue view/edit` fail with "not a git repository").
+- The built-in `Status` field can't be deleted or renamed — it *is* the Stage. Don't
+  add a second Stage field.
+- SSH (port 22) may be blocked; push over HTTPS:
+  `git push "https://x-access-token:$(gh auth token)@github.com/dviator/squad-battler.git" HEAD:main`.
+- Cron/headless runs need a `GH_TOKEN` with `repo` + `project` scope.
