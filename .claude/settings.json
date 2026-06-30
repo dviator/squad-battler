@@ -4,6 +4,7 @@
       "Bash(bun:*)",
       "Bash(bunx:*)",
       "Bash(git:*)",
+      "Bash(gh:*)",
       "Bash(qmd:*)",
       "Bash(./scripts/meta-context.sh:*)",
       "Bash(./scripts/worktree-agent.sh:*)",
