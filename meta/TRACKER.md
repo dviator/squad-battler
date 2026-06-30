@@ -8,8 +8,11 @@ policies) stays as markdown in the repo; see the split below.
 > **2026-06-30 — board rationalization.** All status/classifier data moved off
 > labels and the prose preamble into **Projects v2 fields** (`Type`, `Stage`,
 > `Priority`, `Size`, `Depends on`). The old `type:`/`priority:`/`size:`/`needs-input`
-> labels and the default `Status` field are retired. Each fact now has exactly one
-> home: a field, a native sub-issue link, or the issue body. See "Data model" below.
+> labels are retired, and the mandatory built-in `Status` field is **repurposed to
+> hold Stage** (its only role now — GitHub won't let you delete or rename it, so
+> rather than leave it as dead weight we replaced its options with the Stage values).
+> Each fact now has exactly one home: a field, a native sub-issue link, or the issue
+> body. See "Data model" below.
 >
 > Migrated from the old file-based corpus on 2026-06-28 (issue #5, migration epic).
 
@@ -18,7 +21,7 @@ policies) stays as markdown in the repo; see the split below.
 | Axis | Home | Values |
 |---|---|---|
 | **Type** | `Type` field | `Idea` · `Design` · `Ticket` |
-| **Stage** | `Stage` field | per-type, below |
+| **Stage** | built-in **`Status`** field (JSON key `status`) | per-type, below |
 | **Priority** | `Priority` field | `1` (high) · `2` (normal) · `3` (low) |
 | **Size** | `Size` field | `S` · `M` · `L` (`L` = decompose first) |
 | **Parent** (design → its tickets) | **native sub-issues** | — |
@@ -62,17 +65,20 @@ Field ids and single-select option ids:
 | Field | Field id | Options (`name` → `optionId`) |
 |---|---|---|
 | `Type` | `PVTSSF_lAHOAGkbJ84Bb72kzhWyxAo` | Idea `82eedc5b` · Design `dbb9f149` · Ticket `a42145ab` |
-| `Stage` | `PVTSSF_lAHOAGkbJ84Bb72kzhWyxAE` | Backlog `1fa6cbfc` · Refining `1728a6f8` · Drafting `dedd1805` · Needs-input `9d47e97e` · Decomposed `2abd024c` · Ready `002565ca` · In-progress `741328c5` · Blocked `674d83ab` · Shipped `412615df` · Verified `5a11c81f` · Reverted `571905a0` |
+| `Stage` *(built-in `Status` field)* | `PVTSSF_lAHOAGkbJ84Bb72kzhWocFc` | Backlog `31e713bd` · Refining `5d98f4d0` · Drafting `a0fd1898` · Needs-input `df5c9074` · Decomposed `b278d8f2` · Ready `97875312` · In-progress `25425956` · Blocked `e93ff775` · Shipped `415d287c` · Verified `1f42d806` · Reverted `ff3d628c` |
 | `Priority` | `PVTSSF_lAHOAGkbJ84Bb72kzhWyxC8` | 1 `a5cb227e` · 2 `3f426ea8` · 3 `23452f2e` |
 | `Size` | `PVTSSF_lAHOAGkbJ84Bb72kzhWyxD0` | S `1f6dd80b` · M `4dc4093f` · L `feb1fc5d` |
 | `Depends on` | `PVTF_lAHOAGkbJ84Bb72kzhWyxD4` | *(free text, e.g. `#17, #18`)* |
 
-The built-in `Status` field (Todo/In Progress/Done) **cannot be deleted** (GitHub
-only deletes custom fields) — it is excluded from every view, so ignore it.
+**Stage = the built-in `Status` field.** GitHub forces every board to carry a
+`Status` field and won't let you delete or rename it, so it holds the Stage. It
+displays as **"Status"** in the Projects UI and surfaces as the `status` key in
+`item-list` JSON — but it *is* the Stage. Don't add a second "Stage" field.
 
 ## Queues = board views (Dan-facing) / one read query (Claude-facing)
 
-Dan's board views (configure once in the Projects UI; native filter/sort, zero cost):
+Dan's board views (configure once in the Projects UI; native filter/sort, zero
+cost). In the UI the Stage axis is the field labelled **"Status"** (it holds the Stage):
 
 | View | Filter | Sort | Dan's action |
 |---|---|---|---|
@@ -109,8 +115,9 @@ gh api graphql -f query='
 ```
 
 `gh project item-list 1 --owner dviator --format json` is the quick equivalent: it
-flattens each single-select field to a lowercased top-level key (`type`, `stage`,
-`priority`, `size`) plus `depends on`, alongside `content` and `labels`.
+flattens each single-select field to a lowercased top-level key (`type`, `status`
+← this is the Stage, `priority`, `size`) plus `depends on`, alongside `content`
+and `labels`.
 
 ### Bash helpers (drop into a skill)
 
@@ -119,17 +126,17 @@ macOS ships bash 3.2 — **no associative arrays**; use `case` maps.
 ```bash
 OWNER=dviator; PROJ=1; PROJID=PVT_kwHOAGkbJ84Bb72k
 F_TYPE=PVTSSF_lAHOAGkbJ84Bb72kzhWyxAo
-F_STAGE=PVTSSF_lAHOAGkbJ84Bb72kzhWyxAE
+F_STAGE=PVTSSF_lAHOAGkbJ84Bb72kzhWocFc   # the built-in Status field, repurposed to Stage
 F_PRIO=PVTSSF_lAHOAGkbJ84Bb72kzhWyxC8
 F_SIZE=PVTSSF_lAHOAGkbJ84Bb72kzhWyxD0
 F_DEPS=PVTF_lAHOAGkbJ84Bb72kzhWyxD4
 
 type_id()  { case "$1" in Idea) echo 82eedc5b;; Design) echo dbb9f149;; Ticket) echo a42145ab;; esac; }
 stage_id() { case "$1" in
-  Backlog) echo 1fa6cbfc;; Refining) echo 1728a6f8;; Drafting) echo dedd1805;;
-  Needs-input) echo 9d47e97e;; Decomposed) echo 2abd024c;; Ready) echo 002565ca;;
-  In-progress) echo 741328c5;; Blocked) echo 674d83ab;; Shipped) echo 412615df;;
-  Verified) echo 5a11c81f;; Reverted) echo 571905a0;; esac; }
+  Backlog) echo 31e713bd;; Refining) echo 5d98f4d0;; Drafting) echo a0fd1898;;
+  Needs-input) echo df5c9074;; Decomposed) echo b278d8f2;; Ready) echo 97875312;;
+  In-progress) echo 25425956;; Blocked) echo e93ff775;; Shipped) echo 415d287c;;
+  Verified) echo 1f42d806;; Reverted) echo ff3d628c;; esac; }
 prio_id()  { case "$1" in 1) echo a5cb227e;; 2) echo 3f426ea8;; 3) echo 23452f2e;; esac; }
 size_id()  { case "$1" in S) echo 1f6dd80b;; M) echo 4dc4093f;; L) echo feb1fc5d;; esac; }
 
@@ -188,7 +195,9 @@ only when it reaches `Verified`.
 - Run `gh` from inside the repo checkout, or pass `-R dviator/squad-battler` —
   outside a git dir, `gh issue view/edit` fail with "not a git repository".
 - `gh project field-delete` only removes **custom** fields; the built-in `Status`
-  field can't be deleted (exclude it from views instead).
+  field can't be deleted *or renamed* — so we repurposed its options to be the Stage
+  values. It still displays as "Status" in the UI and is the `status` key in JSON.
+  Never create a second "Stage" field beside it.
 - Native **Issue Types** (`type:` server-side filter) are an **org-only** feature —
   unavailable on this user-owned repo, which is why `Type` is a project field.
 - Field changes **don't close issues**: moving a ticket to `Verified` needs a
