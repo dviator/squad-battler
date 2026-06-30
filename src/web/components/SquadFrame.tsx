@@ -22,6 +22,8 @@ interface SquadFrameProps {
   // Idle/shop interaction
   selectedUnitId?: string | null;
   onUnitClick?: (unitId: string) => void;
+  /** Highlight all alive cards (e.g. when a pending item needs a target). */
+  highlightAll?: boolean;
 }
 
 export function SquadFrame({
@@ -35,6 +37,7 @@ export function SquadFrame({
   unitTimerProgress,
   selectedUnitId,
   onUnitClick,
+  highlightAll = false,
 }: SquadFrameProps) {
   const inCombat = unitHps !== undefined;
   const isHorizontal = orientation === "horizontal";
@@ -78,7 +81,7 @@ export function SquadFrame({
               isAttacking={isAttacking}
               isHit={isHit}
               timerProgress={timerProgress}
-              isSelected={selectedUnitId === unit.id}
+              isSelected={selectedUnitId === unit.id || (highlightAll && !isDead)}
               onClick={onUnitClick ? () => onUnitClick(unit.id) : undefined}
               compact={isHorizontal}
               className={isHorizontal ? "flex-1 min-w-0" : ""}
