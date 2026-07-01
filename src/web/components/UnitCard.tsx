@@ -182,7 +182,19 @@ export function UnitCard({
   return (
     <div
       className={`rounded-xl border p-3 bg-panel transition-all ${border} ${cursor} ${className}`}
-      onClick={onClick}
+      {...(onClick
+        ? {
+            onClick,
+            onKeyDown: (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            },
+            role: "button" as const,
+            tabIndex: 0,
+          }
+        : {})}
     >
       <SpecimenCard
         unit={unit}

@@ -1,5 +1,5 @@
 import type { EquipmentItem, ShopItem, Unit } from "./types";
-import { EquipmentEffect, ItemCategory } from "./types";
+import { ConsumableEffect, EquipmentEffect, ItemCategory } from "./types";
 
 // Combat state for equipment effects (resets each combat)
 export interface CombatEffectState {
@@ -56,9 +56,9 @@ export function applyCooldownReductions(unit: Unit, allItems: ShopItem[]): Unit 
 
   for (const item of equipment) {
     // Check for Haste Serum or similar items
-    const effect = (item as any).effect;
-    if (effect?.type === "reduce_cooldowns") {
-      cooldownReduction += effect.amount || 0;
+    const effect = item.effect as { type?: string; amount?: number };
+    if (effect?.type === ConsumableEffect.ReduceCooldowns) {
+      cooldownReduction += effect.amount ?? 0;
     }
   }
 

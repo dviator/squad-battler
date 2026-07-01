@@ -1,18 +1,29 @@
 import { useEffect, useRef } from "react";
+import type { BattleState, Unit } from "@/core/types";
+import type { Encounter } from "@/core/world";
 import { BattleArena } from "@/web/components/BattleArena";
 import { useBattleReplay } from "@/web/hooks/useBattleReplay";
 import { useGameStore } from "@/web/store/gameStore";
 
-export function BattleView() {
-  const { battleCtx, afterBattleWin, afterBattleLoss } = useGameStore();
+type BattleContentProps = {
+  battleState: BattleState;
+  initialPlayerUnits: Unit[];
+  initialEnemyUnits: Unit[];
+  encounter: Encounter;
+  afterBattleWin: () => void;
+  afterBattleLoss: () => void;
+};
+
+function BattleContent({
+  battleState,
+  initialPlayerUnits,
+  initialEnemyUnits,
+  encounter,
+  afterBattleWin,
+  afterBattleLoss,
+}: BattleContentProps) {
   const logRef = useRef<HTMLDivElement>(null);
-
-  if (!battleCtx) return null;
-
-  const { battleState, initialPlayerUnits, initialEnemyUnits, encounter } = battleCtx;
-
   const replay = useBattleReplay(battleState, initialPlayerUnits, initialEnemyUnits);
-
   const playerWon = battleState.winner === "player";
 
   // Auto-scroll log
@@ -20,7 +31,7 @@ export function BattleView() {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
-  }, [replay.log]);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col max-w-5xl mx-auto p-4">
@@ -72,24 +83,27 @@ export function BattleView() {
           className="flex-1 overflow-y-auto max-h-40 rounded-lg bg-paper border
             border-line p-3 font-mono text-xs text-muted space-y-0.5"
         >
-          {replay.log.map((line, i) => (
-            <div
-              key={i}
-              className={`animate-fade-in leading-relaxed ${
-                line.includes("Victory")
-                  ? "text-bio font-bold"
-                  : line.includes("Defeat")
-                    ? "text-danger font-bold"
-                    : line.includes("fallen")
-                      ? "text-danger"
-                      : line.startsWith("  ")
-                        ? "text-muted pl-2"
-                        : "text-ink"
-              }`}
-            >
-              {line}
-            </div>
-          ))}
+          {replay.log.map((line, i) => {
+            const logKey = `log-${i}`;
+            return (
+              <div
+                key={logKey}
+                className={`animate-fade-in leading-relaxed ${
+                  line.includes("Victory")
+                    ? "text-bio font-bold"
+                    : line.includes("Defeat")
+                      ? "text-danger font-bold"
+                      : line.includes("fallen")
+                        ? "text-danger"
+                        : line.startsWith("  ")
+                          ? "text-muted pl-2"
+                          : "text-ink"
+                }`}
+              >
+                {line}
+              </div>
+            );
+          })}
           {!replay.isDone && <div className="text-muted animate-pulse">▋</div>}
         </div>
       </div>
@@ -143,5 +157,20 @@ export function BattleView() {
         </div>
       )}
     </div>
+  );
+}
+
+export function BattleView() {
+  const { battleCtx, afterBattleWin, afterBattleLoss } = useGameStore();
+  if (!battleCtx) return null;
+  return (
+    <BattleContent
+      battleState={battleCtx.battleState}
+      initialPlayerUnits={battleCtx.initialPlayerUnits}
+      initialEnemyUnits={battleCtx.initialEnemyUnits}
+      encounter={battleCtx.encounter}
+      afterBattleWin={afterBattleWin}
+      afterBattleLoss={afterBattleLoss}
+    />
   );
 }

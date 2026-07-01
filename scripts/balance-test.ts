@@ -2,7 +2,7 @@
 
 import { simulateBattle } from "../src/core/battle";
 import { applyConsumableToUnit } from "../src/core/shop";
-import type { ConsumableItem } from "../src/core/types";
+import type { ConsumableItem, Unit } from "../src/core/types";
 import { ConsumableEffect, ItemCategory, Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
 import { GOOB, MEGA_GOOB } from "../src/data/enemies";
@@ -19,7 +19,7 @@ const hasteSerum: ConsumableItem = {
   effect: { type: ConsumableEffect.ReduceCooldowns, amount: 1, duration: "permanent" },
 };
 
-function runSimulation(playerUnits: any[], enemyUnits: any[]) {
+function runSimulation(playerUnits: Unit[], enemyUnits: Unit[]) {
   const results = {
     wins: 0,
     totalDamageTaken: 0,
@@ -41,7 +41,7 @@ function runSimulation(playerUnits: any[], enemyUnits: any[]) {
     }
 
     // Calculate damage taken
-    const damageTaken = players.reduce((sum, unit, idx) => {
+    const damageTaken = players.reduce((sum, _unit, idx) => {
       const startHp = playerUnits[idx].stats.maxHp;
       const endHp = battle.playerUnits[idx]?.stats.currentHp || 0;
       return sum + (startHp - endHp);
@@ -130,7 +130,7 @@ console.log(
   `    Damage Reduction: ${((1 - bossHaste.averageDamageTaken / bossBaseline.averageDamageTaken) * 100).toFixed(1)}%`,
 );
 
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("ANALYSIS:");
 if (haste3.averageDamageTaken < baseline.averageDamageTaken * 0.3) {
   console.log("⚠️  SEVERELY OVERPOWERED - Reduces damage by >70%");
@@ -141,4 +141,4 @@ if (haste3.averageDamageTaken < baseline.averageDamageTaken * 0.3) {
 } else {
   console.log("✅ BALANCED - Reasonable power level");
 }
-console.log("=".repeat(70) + "\n");
+console.log(`${"=".repeat(70)}\n`);

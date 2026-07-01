@@ -38,7 +38,7 @@ console.log(`Bear cooldownReduction: ${bear.cooldownReduction} ✨`);
 // Fight a battle to see effective cooldowns
 console.log("\n⚔️  Fighting battle...");
 const enemy1 = createUnit(GOOB, Position.Center);
-const battle = simulateBattle([bear], [enemy1], 50);
+const _battle = simulateBattle([bear], [enemy1], 50);
 
 console.log("\n📊 In battle, effective cooldowns were:");
 console.log("  (baseCooldown - cooldownReduction)");

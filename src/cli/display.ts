@@ -21,7 +21,7 @@ function createHpBar(current: number, max: number): string {
 
 // Display game state header
 export function displayGameState(state: GameState): void {
-  console.log("\n" + "=".repeat(70));
+  console.log(`\n${"=".repeat(70)}`);
   console.log(
     `💰 Gold: ${state.currency.gold} | 🧬 Materials: ${state.currency.materials} | 🔧 Scrap Tech: ${state.scrapTech}`,
   );
@@ -108,7 +108,7 @@ export function displayBattleSummary(
   enemyUnits: Unit[],
   victory: boolean,
 ): void {
-  console.log("\n" + "=".repeat(70));
+  console.log(`\n${"=".repeat(70)}`);
   console.log(victory ? "🎉 VICTORY!" : "💀 DEFEAT!");
   console.log("=".repeat(70));
 
@@ -132,7 +132,7 @@ export function clearScreen(): void {
 
 // Display header with title
 export function displayHeader(title: string): void {
-  console.log("\n" + "=".repeat(70));
+  console.log(`\n${"=".repeat(70)}`);
   console.log(title.toUpperCase().padStart(35 + title.length / 2));
   console.log("=".repeat(70));
 }

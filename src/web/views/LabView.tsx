@@ -226,12 +226,12 @@ export function LabView() {
           {roster.breeding.length > 0 && (
             <div>
               <div className="text-xs text-muted uppercase tracking-wider mb-2">In progress</div>
-              {roster.breeding.map((slot, i) => {
+              {roster.breeding.map((slot) => {
                 const complete = isBreedingComplete(slot);
                 const offspringSpecies = slot.offspringGenome?.speciesId;
                 return (
                   <div
-                    key={i}
+                    key={`${slot.parent1Id}-${slot.parent2Id}`}
                     className="flex items-center justify-between p-3 rounded-lg
                       bg-panel border border-line mb-2"
                   >
@@ -388,17 +388,20 @@ export function LabView() {
                   <div key={unit.id} className="flex flex-col gap-1">
                     <UnitCard unit={unit} compact />
                     <div className="flex gap-1">
-                      {roster.squad.map((_, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => swapSquadMember(idx, unit.id)}
-                          className="flex-1 text-xs py-1 rounded bg-panel-2 hover:bg-panel-2
-                            text-muted border border-line transition-all"
-                        >
-                          →{idx + 1}
-                        </button>
-                      ))}
+                      {roster.squad.map((_, idx) => {
+                        const slotKey = `squad-slot-${idx}`;
+                        return (
+                          <button
+                            key={slotKey}
+                            type="button"
+                            onClick={() => swapSquadMember(idx, unit.id)}
+                            className="flex-1 text-xs py-1 rounded bg-panel-2 hover:bg-panel-2
+                              text-muted border border-line transition-all"
+                          >
+                            →{idx + 1}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}

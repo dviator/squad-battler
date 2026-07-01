@@ -35,7 +35,7 @@ enemySquad.forEach((unit) => {
   console.log(`    Attacks: ${unit.attacks.map((a) => a.name).join(", ")}`);
 });
 
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("                      BATTLE START!");
 console.log("=".repeat(70));
 
@@ -44,6 +44,6 @@ const battleState = simulateBattle(playerSquad, enemySquad, 100);
 displayCombatLog(battleState);
 displayCombatSummary(battleState);
 
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log(battleState.winner === "player" ? "🎉 PLAYER VICTORY!" : "💀 ENEMY VICTORY!");
-console.log("=".repeat(70) + "\n");
+console.log(`${"=".repeat(70)}\n`);

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { createGameState } from "../src/core/gameState";
-import { addToStable, collectOffspring, isBreedingComplete, startBreeding } from "../src/core/lab";
+import { collectOffspring, isBreedingComplete, startBreeding } from "../src/core/lab";
 import { simulateRun } from "../src/core/runSimulator";
 import type { Unit } from "../src/core/types";
 import { GeneticGrade, Position } from "../src/core/types";
@@ -42,7 +42,7 @@ initialSquad.forEach((unit) => {
   );
 });
 
-console.log("\n" + "=".repeat(60) + "\n");
+console.log(`\n${"=".repeat(60)}\n`);
 
 // Simulate multiple runs with meta-progression
 const maxRuns = 10;
@@ -153,7 +153,7 @@ for (let runNumber = 1; runNumber <= maxRuns && !successfulRun; runNumber++) {
   console.log(`   👥 Roster size: ${roster.length} units\n`);
 }
 
-console.log("\n" + "=".repeat(60));
+console.log(`\n${"=".repeat(60)}`);
 console.log("\n📈 META-PROGRESSION SUMMARY:");
 console.log(`   Total runs: ${Math.min(maxRuns, successfulRun ? maxRuns : maxRuns)}`);
 console.log(`   Success: ${successfulRun ? "YES" : "Not yet"}`);

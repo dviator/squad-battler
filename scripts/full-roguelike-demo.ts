@@ -1,17 +1,11 @@
 #!/usr/bin/env bun
 
 import { createGameState } from "../src/core/gameState";
-import {
-  addToStable,
-  collectOffspring,
-  isBreedingComplete,
-  recruitUnit,
-  startBreeding,
-} from "../src/core/lab";
+import { collectOffspring, isBreedingComplete, recruitUnit, startBreeding } from "../src/core/lab";
 import { simulateRun } from "../src/core/runSimulator";
 import { applyGeneticModToUnit, SHOP_ITEMS } from "../src/core/shop";
-import type { Unit } from "../src/core/types";
-import { GeneticGrade, ItemCategory, Position } from "../src/core/types";
+import type { GeneticModItem, Unit } from "../src/core/types";
+import { GeneticGrade, Position } from "../src/core/types";
 import { canBreed, createUnit } from "../src/core/unit";
 import { createGoobCampaign } from "../src/core/world";
 import { GOOB, MEGA_GOOB } from "../src/data/enemies";
@@ -52,7 +46,7 @@ initialSquad.forEach((unit, i) => {
   );
 });
 
-console.log("\n" + "=".repeat(70) + "\n");
+console.log(`\n${"=".repeat(70)}\n`);
 
 // Simulate multiple runs with full meta-progression
 const maxRuns = 15;
@@ -138,7 +132,11 @@ for (let runNumber = 1; runNumber <= maxRuns && !successfulRun; runNumber++) {
       if (worstHpUnit) {
         const oldGrade = worstHpUnit.geneticPotential.maxHp;
         const speciesData = PLAYER_SPECIES.find((s) => s.id === worstHpUnit.speciesId)!;
-        const upgraded = applyGeneticModToUnit(worstHpUnit, geneBoost as any, speciesData);
+        const upgraded = applyGeneticModToUnit(
+          worstHpUnit,
+          geneBoost as GeneticModItem,
+          speciesData,
+        );
 
         const index = roster.findIndex((u) => u.id === worstHpUnit.id);
         roster[index] = upgraded;
@@ -198,7 +196,7 @@ for (let runNumber = 1; runNumber <= maxRuns && !successfulRun; runNumber++) {
   console.log(`   🏥 All units healed | Roster: ${roster.length} units\n`);
 }
 
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("\n📈 FINAL STATS:");
 console.log(`   Runs: ${successfulRun ? maxRuns : "Did not escape"}`);
 console.log(`   Success: ${successfulRun ? "YES" : "NO"}`);

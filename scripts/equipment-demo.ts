@@ -1,11 +1,10 @@
 #!/usr/bin/env bun
 
 import { createBattleState, simulateBattle } from "../src/core/battle";
-import { SHOP_ITEMS } from "../src/core/shop";
 import { Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
 import { GOOB } from "../src/data/enemies";
-import { BEAR, EAGLE, TIGER } from "../src/data/species";
+import { BEAR } from "../src/data/species";
 
 console.log("=== EQUIPMENT EFFECTS DEMO ===\n");
 
@@ -42,7 +41,7 @@ console.log(
 );
 
 // Test 2: Mind Reader (dodge one attack per combat)
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("TEST 2: MIND READER - Dodge one attack per combat");
 console.log("=".repeat(70));
 
@@ -74,7 +73,7 @@ console.log(
 );
 
 // Test 3: Speed Boots (initiative boost)
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("TEST 3: SPEED BOOTS - +3 Speed in combat");
 console.log("=".repeat(70));
 
@@ -95,7 +94,7 @@ console.log(`Bear speed after equipment: ${boostedBear?.stats.speed} speed`);
 console.log(`\n✅ Speed increased by ${(boostedBear?.stats.speed ?? 0) - 5} (should be +3)`);
 
 // Test 4: Spike Armor (retaliation damage)
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("TEST 4: SPIKE ARMOR - Deal 10 damage back when hit");
 console.log("=".repeat(70));
 
@@ -129,7 +128,7 @@ const retaliationCount = goobDamageEvents.filter(
 console.log(`\n✅ Retaliation triggered ${retaliationCount} times (10 damage each)`);
 
 // Test 5: Team Shield Generator (damage reduction)
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("TEST 5: TEAM SHIELD - 20% damage reduction for whole squad");
 console.log("=".repeat(70));
 
@@ -159,7 +158,7 @@ if (bear1Damage[0] && bear1Damage[0].type === "damage") {
   );
 }
 
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("✅ ALL EQUIPMENT EFFECTS WORKING!");
 console.log("=".repeat(70));
 console.log("\nEquipment Effects Demonstrated:");

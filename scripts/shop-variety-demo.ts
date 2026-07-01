@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { generateShop, ItemRarity } from "../src/core/shop";
+import { generateShop } from "../src/core/shop";
 import { ItemCategory } from "../src/core/types";
 
 console.log("=== SHOP VARIETY DEMO ===\n");

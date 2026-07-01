@@ -104,7 +104,7 @@ export function useBattleReplay(
     return () => {
       if (animFrameRef.current !== null) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [isDone, triggerRender]);
+  }, [isDone]);
 
   useEffect(() => {
     if (!isPlaying || isDone) return;

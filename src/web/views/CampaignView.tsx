@@ -123,8 +123,8 @@ export function CampaignView() {
       {gameState.roster.breeding.length > 0 && (
         <div className="mb-4 p-3 rounded-lg bg-panel border border-line">
           <div className="text-xs text-muted mb-1">Breeding:</div>
-          {gameState.roster.breeding.map((slot, i) => (
-            <span key={i} className="text-xs text-gene">
+          {gameState.roster.breeding.map((slot) => (
+            <span key={`${slot.parent1Id}-${slot.parent2Id}`} className="text-xs text-gene">
               {slot.daysRemaining <= 0
                 ? "🥚 Ready to collect!"
                 : `${slot.daysRemaining.toFixed(1)}d remaining`}

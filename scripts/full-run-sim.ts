@@ -250,7 +250,7 @@ function simulateRun(
     ];
 
     let gold = 10;
-    let miniBossDefeated = false;
+    let _miniBossDefeated = false;
 
     // ── Upfront investments (before enc 1) ──
     switch (strategy) {
@@ -364,7 +364,7 @@ function simulateRun(
       squad = battle.playerUnits;
       gold += enc.goldReward;
 
-      if (enc.id === 6) miniBossDefeated = true;
+      if (enc.id === 6) _miniBossDefeated = true;
       if (enc.id === 6 && battle.winner === "player") result.defeatedMiniBoss++;
       if (enc.id === 10 && battle.winner === "player") result.defeatedBoss++;
     }
@@ -411,7 +411,7 @@ const TARGETS = {
 };
 
 function pct(n: number): string {
-  return ((n / SIMULATIONS) * 100).toFixed(1) + "%";
+  return `${((n / SIMULATIONS) * 100).toFixed(1)}%`;
 }
 
 function inRange(n: number, min: number, max: number): string {
@@ -447,7 +447,7 @@ for (const { strategy, result } of results) {
 
 // ─── Overall analysis ─────────────────────────────────────────────────────────
 
-console.log("\n" + "=".repeat(70));
+console.log(`\n${"=".repeat(70)}`);
 console.log("ANALYSIS (no_items baseline):");
 
 const noItems = results.find((r) => r.strategy === "No Items")!.result;
@@ -462,4 +462,4 @@ const whale = results.find((r) => r.strategy === "Whale (All Items)")!.result;
 console.log(`\nWhale (best-case) boss defeat rate: ${pct(whale.defeatedBoss)}`);
 console.log(`  This represents the ceiling for experienced players with good items.`);
 
-console.log("\n" + "=".repeat(70) + "\n");
+console.log(`\n${"=".repeat(70)}\n`);

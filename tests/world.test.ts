@@ -211,7 +211,7 @@ describe("Campaign", () => {
     const firstLevel = campaign.worlds[0]!.levels[0]!;
     const encounterCount = firstLevel!.encounters.length;
 
-    let result;
+    let result: ReturnType<typeof advanceEncounter> | undefined;
     for (let i = 0; i < encounterCount; i++) {
       result = advanceEncounter(campaign);
       campaign = result.campaign;
@@ -228,7 +228,7 @@ describe("Campaign", () => {
     const world = campaign.worlds[0]!;
 
     // Complete all encounters in all levels
-    let result;
+    let result: ReturnType<typeof advanceEncounter> | undefined;
     for (const level of world.levels) {
       for (let i = 0; i < level.encounters.length; i++) {
         result = advanceEncounter(campaign);
@@ -265,7 +265,7 @@ describe("Campaign", () => {
     const firstLevel = campaign.worlds[0]!.levels[0]!;
     const encounterCount = firstLevel!.encounters.length;
 
-    let result;
+    let result: ReturnType<typeof advanceEncounter> | undefined;
     for (let i = 0; i < encounterCount; i++) {
       result = advanceEncounter(campaign);
       campaign = result.campaign;
@@ -361,7 +361,7 @@ describe("Goob Campaign (10-floor structure)", () => {
     const goobLevel = campaign.worlds[0]!.levels[0]!;
     const encounterCount = goobLevel.encounters.length;
 
-    let lastResult;
+    let lastResult: ReturnType<typeof advanceEncounter> | undefined;
     for (let i = 0; i < encounterCount; i++) {
       lastResult = advanceEncounter(campaign);
       campaign = lastResult.campaign;

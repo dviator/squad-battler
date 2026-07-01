@@ -30,5 +30,8 @@
         "useIterableCallbackReturn": "off"
       }
     }
+  },
+  "files": {
+    "includes": ["**", "!src/web/index.css"]
   }
 }

@@ -98,10 +98,24 @@ export function CharacterCard({
   const artHeight = compact ? "h-12" : "h-20";
   const glyphSize = compact ? "text-xl" : "text-5xl";
 
+  const isInteractive = Boolean(onClick && !isDead);
+
   return (
     <div
       className={`rounded-xl border p-2 bg-panel transition-all duration-200 ${borderClass} ${interactiveClass} ${className}`}
-      onClick={onClick}
+      {...(isInteractive
+        ? {
+            onClick,
+            onKeyDown: (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();
+              }
+            },
+            role: "button" as const,
+            tabIndex: 0,
+          }
+        : {})}
     >
       {/* Header: specimen tag + grade */}
       <div className="flex items-center justify-between mb-1">

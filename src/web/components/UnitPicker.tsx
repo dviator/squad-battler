@@ -16,13 +16,21 @@ export function UnitPicker({
   onCancel,
 }: UnitPickerProps) {
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop
     <div
       className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
       onClick={onCancel}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onCancel();
+      }}
+      role="presentation"
     >
       <div
         className="bg-panel border border-line rounded-2xl p-4 w-full max-w-sm shadow-2xl"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <div className="text-sm font-semibold text-ink mb-3">{title}</div>
         <div className="flex flex-col gap-2">
