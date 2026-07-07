@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { BattleEvent, BattleState, Unit } from "@/core/types";
 import { BattleEventType } from "@/core/types";
+import { formatAttackLine } from "@/web/utils/battleLog";
 import { getPrimaryAttackCooldown } from "@/web/utils/characterCard";
 import { getSpeciesName } from "@/web/utils/species";
 
@@ -124,7 +125,8 @@ export function useBattleReplay(
           setActiveAttackerId(event.attackerId);
           lastAttackTimestampsRef.current.set(event.attackerId, Date.now());
           const name = getUnitName(event.attackerId);
-          setLog((l) => [...l, `${name} uses ${event.attackName}!`]);
+          const targetNames = event.targetIds.map(getUnitName);
+          setLog((l) => [...l, formatAttackLine(name, event.attackName, targetNames)]);
           break;
         }
         case BattleEventType.Damage: {
