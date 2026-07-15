@@ -43,7 +43,7 @@ each fight (it doubles as the squad screen). Nodes are linear for now with light
 randomization; the shop after the last pre-boss fight is the boss prep. This
 front-loads the fight and makes item choices informed (you've seen your units
 perform) and constrained (spend only what you earned). See
-`backlog/designs/design-004-level-loop-and-squad-frame.md` + `meta/policies.md`.
+`docs/designs/design-004-level-loop-and-squad-frame.md` + `meta/policies.md`.
 
 Combat and shop share **one persistent squad frame** — the character cards stay on
 screen across both phases.
@@ -56,10 +56,12 @@ consumables. Items from shop are run-scoped (expire at run end).
 ## Existing Systems
 
 ### Web UI ✅ Implemented
-- Clinical Bright Lab design system: semantic color tokens (`paper`, `panel`, `ink`, `accent`, `bio`, `danger`) across all 5 views
-- `SpecimenCard` component: species-tinted art panel, `SPEC-###` tag, grade badge, HP bar — used in roster, picker, and battle
-- Battle arena: left↔right face-off (squad vs enemies), responsive (stacks on narrow screens), directional attack animations
-- Floor progress: "Floor X / 10" displayed in CampaignView
+- **Clinical Bright Lab design system** — semantic color tokens (`paper`, `panel`, `ink`, `accent`, `bio`, `danger`) across all 5 views; mobile-first at ≥360px, responsive up to desktop
+- **`CharacterCard` component** — portrait (species-tinted art panel, species emoji glyph), HP bar, attack-turn timer bar (depleting 0→1, color shifts bio/accent/warning), `SPEC-###` tag, grade badge, attack name slot; used as the single source of truth per unit across combat and shop; supports compact mode for horizontal strips
+- **`SquadFrame` component** — persistent squad strip that stays on screen across combat and shop phases; no redundant per-phase views
+- **Battle arena** — left↔right face-off (squad vs enemies), responsive (stacks on narrow screens), directional lunge animations on attack/hit
+- **Battle log** — each attack line ends with `→ TargetName` (single target) or `→ A, B` (AoE), so the player can follow the fight without guessing who was hit
+- **Floor progress** — "Floor X / 10" displayed in CampaignView
 
 ### Combat ✅ Implemented
 - Tick-based auto-battle: each attack has an independent cooldown timer
@@ -100,6 +102,7 @@ Grades F → S determine stat ranges at unit creation. Higher grade = higher pos
 ### Shop / Economy ⚠️ Partial
 - Three item tiers: Consumable (single use), Equipment (run-scoped), GeneticMod (permanent genome)
 - Resources: Gold (per encounter) and Genetics Points / DNA (per run)
+- **Shop layout** — rebuilt around `SquadFrame`; tap a squad card to pre-select the target unit, then tap an item to apply directly; `highlightAll` pulses all alive cards when item needs a target selection; status line gives context-sensitive instruction
 - Permanent items not yet implemented
 
 ### Meta Progression ❌ Not yet implemented

@@ -128,11 +128,13 @@ How all major systems in Squad Battler interconnect. Each system has its own det
 ---
 
 ### 6. Web UI
-**What it does:** Renders the full game experience in the browser.
+**What it does:** Renders the full game experience in the browser. Mobile-first at ≥360px; responsive up to desktop.
 
-- **Clinical Bright Lab design system** — semantic color tokens; all 5 views (menu, campaign, battle, shop, lab) use light palette
-- **SpecimenCard** — unified species-tinted art panel (placeholder glyph, art-ready), `SPEC-###` tag, grade badge, HP/SPD/ATK
+- **Clinical Bright Lab design system** — semantic color tokens (`paper`/`panel`/`ink`/`accent`/`bio`/`danger`); all 5 views (menu, campaign, battle, shop, lab) share the palette
+- **`CharacterCard`** — the single source of truth per unit: portrait (species-tinted art panel + emoji glyph, art-ready), HP bar, attack-turn timer bar, `SPEC-###` tag, grade badge, attack name; compact mode for horizontal strips; drives both combat state (live timer) and idle/shop state (cooldown preview label)
+- **`SquadFrame`** — persistent squad strip kept on screen across combat and shop so units never disappear between phases; `highlightAll` prop pulses all alive cards when an item needs a target selection
 - **Battle arena** — left↔right face-off (squad vs enemies), responsive, directional lunge animations on attack/hit
+- **Battle log** — every attack line ends with `→ TargetName` or `→ A, B` (AoE), making targeting legible without separate UI treatment
 - **Floor progress** — "Floor X / 10" in CampaignView header
 
 **Feeds into:** Player-facing all systems
@@ -176,6 +178,7 @@ Shop items are run-scoped — they don't carry over. This means later encounters
 | Lab Hub | ⚠️ Partial (healing only) | High |
 | Unlock System | ❌ Not implemented | Medium |
 | Equipment effects (combat) | ❌ Not implemented | Medium |
-| Web UI (design system) | ✅ Implemented (Clinical Bright Lab tokens) | — |
-| Web UI (unit display) | ✅ Implemented (SpecimenCard across all views) | — |
-| Web UI (battle layout) | ✅ Implemented (left↔right face-off, animations) | — |
+| Web UI (design system) | ✅ Implemented (Clinical Bright Lab tokens, mobile-first) | — |
+| Web UI (unit display) | ✅ Implemented (CharacterCard + SquadFrame persistent across phases) | — |
+| Web UI (battle layout) | ✅ Implemented (left↔right face-off, animations, battle log with targets) | — |
+| Web UI (shop layout) | ✅ Implemented (rebuilt around SquadFrame; tap-to-select buying flow) | — |
