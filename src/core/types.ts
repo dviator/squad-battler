@@ -103,6 +103,8 @@ export const SpeciesSchema = z.object({
   name: z.string(),
   baseStats: StatsSchema.omit({ currentHp: true }),
   attacks: z.array(AttackSchema),
+  // Pool for the level-unlock system (#15): attacks unlocked as the unit levels up, not given at birth.
+  additionalAttacks: z.array(AttackSchema).optional(),
   description: z.string().optional(),
 });
 

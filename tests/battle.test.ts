@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { createBattleState, simulateBattle, tickBattle } from "../src/core/battle";
 import { BattleEventType, Position } from "../src/core/types";
 import { createUnit } from "../src/core/unit";
+import { MEGA_GOOB } from "../src/data/enemies";
 import { BEAR, EAGLE, TIGER } from "../src/data/species";
 
 describe("Battle System", () => {
@@ -29,6 +30,9 @@ describe("Battle System", () => {
   test("units attack on cooldown intervals", () => {
     const tiger = createUnit(TIGER, Position.Center);
     const bear = createUnit(BEAR, Position.Center);
+    // High HP so bear doesn't die early — we're testing cooldown cadence over 10 ticks
+    bear.stats.maxHp = 9999;
+    bear.stats.currentHp = 9999;
 
     let state = createBattleState([tiger], [bear]);
 
@@ -44,25 +48,25 @@ describe("Battle System", () => {
   });
 
   test("AOE attack hits multiple targets", () => {
-    const bear = createUnit(BEAR, Position.Center);
-    const enemies = [
-      createUnit(TIGER, Position.Left),
-      createUnit(TIGER, Position.Center),
-      createUnit(TIGER, Position.Right),
+    // MEGA_GOOB has Tidal Wave (AoE, CD6). Use Bears (CD3, lower DPS) so the boss
+    // survives to tick 6 — Tigers kill it exactly at tick 6 before its AoE resolves.
+    const miniBoss = createUnit(MEGA_GOOB, Position.Center);
+    const squad = [
+      createUnit(BEAR, Position.Left),
+      createUnit(BEAR, Position.Center),
+      createUnit(BEAR, Position.Right),
     ];
 
-    const result = simulateBattle([bear], enemies);
+    const result = simulateBattle([miniBoss], squad);
 
-    const bearAttacks = result.events.filter(
-      (e) => e.type === BattleEventType.AttackExecuted && e.attackerId === bear.id,
+    const aoeAttacks = result.events.filter(
+      (e) =>
+        e.type === BattleEventType.AttackExecuted &&
+        e.attackerId === miniBoss.id &&
+        e.targetIds.length > 1,
     );
 
-    if (bearAttacks.length > 0) {
-      const firstAttack = bearAttacks[0];
-      if (firstAttack && firstAttack.type === BattleEventType.AttackExecuted) {
-        expect(firstAttack.targetIds.length).toBeGreaterThan(1);
-      }
-    }
+    expect(aoeAttacks.length).toBeGreaterThan(0);
   });
 
   test("eagle targets lowest HP enemy", () => {

@@ -15,9 +15,11 @@ export const BEAR: Species = {
       name: "Crushing Maul",
       baseCooldown: 3,
       targetType: TargetType.OppositeEnemy,
-      damageMultiplier: 1.5,
+      damageMultiplier: 3.5,
       isAoe: false,
     },
+  ],
+  additionalAttacks: [
     {
       id: "bear_roar",
       name: "Terrifying Roar",
@@ -52,9 +54,11 @@ export const EAGLE: Species = {
       name: "Dive Bomb",
       baseCooldown: 2,
       targetType: TargetType.OppositeEnemy,
-      damageMultiplier: 1.3,
+      damageMultiplier: 3.5,
       isAoe: false,
     },
+  ],
+  additionalAttacks: [
     {
       id: "eagle_talon",
       name: "Talon Slash",
@@ -89,9 +93,11 @@ export const TIGER: Species = {
       name: "Pounce",
       baseCooldown: 2,
       targetType: TargetType.OppositeEnemy,
-      damageMultiplier: 1.2,
+      damageMultiplier: 3.5,
       isAoe: false,
     },
+  ],
+  additionalAttacks: [
     {
       id: "tiger_bite",
       name: "Savage Bite",
