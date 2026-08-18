@@ -1,8 +1,10 @@
 import { simulateBattle } from "../core/battle";
+import { GreedyPolicy, simulateCardBattle } from "../core/combatPolicy";
 import { breed, createGenome } from "../core/genetics";
 import { logBattle, logSquadStatus } from "../core/logger";
 import { Position } from "../core/types";
 import { createUnit } from "../core/unit";
+import { ALL_DECKS } from "../data/cards";
 import { BEAR, EAGLE, SPECIES_BY_ID, TIGER } from "../data/species";
 
 interface SimulationResult {
@@ -139,14 +141,84 @@ export function demonstrateRoguelikeRun() {
   }
 }
 
+const CARD_SQUAD_HP = 100;
+const CARD_MATCHUPS = [
+  ["bear", "eagle"],
+  ["bear", "tiger"],
+  ["eagle", "tiger"],
+  ["tiger", "bear"],
+  ["eagle", "bear"],
+  ["tiger", "eagle"],
+] as const;
+
+export function runCardTournament(battles: number = 100): SimulationResult {
+  let playerWins = 0;
+  let enemyWins = 0;
+  let totalTurns = 0;
+
+  for (let i = 0; i < battles; i++) {
+    const matchup = CARD_MATCHUPS[i % CARD_MATCHUPS.length]!;
+    const playerDeck = ALL_DECKS[matchup[0]]!;
+    const enemyDeck = ALL_DECKS[matchup[1]]!;
+
+    const result = simulateCardBattle(
+      playerDeck,
+      enemyDeck,
+      CARD_SQUAD_HP,
+      CARD_SQUAD_HP,
+      GreedyPolicy,
+    );
+
+    if (result.winner === "player") playerWins++;
+    else if (result.winner === "enemy") enemyWins++;
+
+    totalTurns += result.turnNumber;
+  }
+
+  return {
+    totalBattles: battles,
+    playerWins,
+    enemyWins,
+    avgTicksPerBattle: totalTurns / battles,
+    winRate: playerWins / battles,
+  };
+}
+
 demonstrateBattle();
 demonstrateGeneticLineage();
 demonstrateRoguelikeRun();
 
-console.log("\n\n=== TOURNAMENT SIMULATION ===\n");
+console.log("\n\n=== TOURNAMENT SIMULATION (tick engine) ===\n");
 const tournamentResult = runTournament(1000);
 console.log("Results after 1000 battles:");
 console.log(`  Player Wins: ${tournamentResult.playerWins}`);
 console.log(`  Enemy Wins: ${tournamentResult.enemyWins}`);
 console.log(`  Win Rate: ${(tournamentResult.winRate * 100).toFixed(1)}%`);
 console.log(`  Avg Ticks/Battle: ${tournamentResult.avgTicksPerBattle.toFixed(1)}`);
+
+console.log("\n\n=== CARD COMBAT TOURNAMENT (GreedyPolicy) ===\n");
+console.log("Matchups: bear/eagle/tiger vs bear/eagle/tiger (round-robin, 120 battles)");
+const cardResult = runCardTournament(120);
+console.log(`Results after ${cardResult.totalBattles} card battles:`);
+console.log(`  Player Wins: ${cardResult.playerWins}`);
+console.log(`  Enemy Wins: ${cardResult.enemyWins}`);
+console.log(`  Win Rate: ${(cardResult.winRate * 100).toFixed(1)}%`);
+console.log(`  Avg Turns/Battle: ${cardResult.avgTicksPerBattle.toFixed(1)}`);
+const speciesKeys = Object.keys(ALL_DECKS);
+console.log("\n  Per-matchup results:");
+for (const player of speciesKeys) {
+  for (const enemy of speciesKeys) {
+    if (player === enemy) continue;
+    const r = simulateCardBattle(
+      ALL_DECKS[player]!,
+      ALL_DECKS[enemy]!,
+      CARD_SQUAD_HP,
+      CARD_SQUAD_HP,
+      GreedyPolicy,
+    );
+    console.log(
+      `    ${player} vs ${enemy}: ${r.winner} wins in ${r.turnNumber} turns` +
+        ` (player HP ${r.playerSquadHp} / enemy HP ${r.enemySquadHp})`,
+    );
+  }
+}
