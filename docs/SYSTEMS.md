@@ -66,15 +66,22 @@ How all major systems in Squad Battler interconnect. Each system has its own det
 ### 2. Combat
 **What it does:** Resolves encounters between player squad and enemy groups.
 
-- **Auto-battle:** Units attack automatically on cooldown timers
-- **Positioning:** 3 positions (Left/Center/Right) affect targeting
-- **Attack variety:** Each species has 3 unique attacks with different target types
-- **Damage system:** attackPower × damageMultiplier vs flat HP
-- Battles end when one side is fully defeated
+**Tick auto-battle** (current web runtime):
+- Units fire on independent cooldown timers; 3 positions affect targeting
+- Each player species has 1 starting attack; `additionalAttacks[]` pools 2 more for future level-up system
+- Enemy species keep all attacks active at all times
+- Damage: `attackPower × damageMultiplier`; battles end when one side reaches 0 HP
+
+**Card combat engine** (core complete; UI pending design-007 Q1–Q6):
+- Draw 3 cards per turn; choose top face (attack) or bottom face (defend/move/utility) per card
+- Shared squad life total — no per-unit board HP
+- Enemy intents telegraphed before player picks faces
+- Directional targeting via existing `TargetType`; greedy cards (strong top, risky bottom)
+- `GreedyPolicy` resolves headlessly for sim/balance; `simulateCardBattle` wired into `test:sim`
+- `cardCombatSession.ts` phase machine + `useCardCombat` hook ready; wires into the player-facing UI once design-007 UX questions are answered
 
 **Feeds into:** HP state after battle, gold earned, run progression
-**Fed by:** Squad genetics, run-scoped items, equipment
-**Detailed in:** `docs/systems/combat.md`
+**Fed by:** Squad genetics, run-scoped items, equipment, card decks
 
 ---
 
@@ -165,9 +172,11 @@ Shop items are run-scoped — they don't carry over. This means later encounters
 
 | System | Status | Priority |
 |--------|--------|----------|
-| Combat (core) | ✅ Implemented | — |
+| Combat (tick auto-battle) | ✅ Implemented | — |
 | Combat (positioning) | ✅ Implemented | — |
-| Combat (attack variety) | ✅ Implemented | — |
+| Combat (attack variety — single starting attack + additionalAttacks pool) | ✅ Implemented | — |
+| Combat (card engine: draw/choose/resolve, shared HP, intents, policy) | ✅ Implemented (core) | — |
+| Combat (card combat UI) | ❌ Not implemented (blocked on design-007 UX decisions) | High |
 | Economy (shop/gold) | ✅ Implemented | — |
 | Economy (three-tier items) | ⚠️ Partial (run+combat, missing permanent) | High |
 | Genetics (potential grades) | ✅ Implemented | — |

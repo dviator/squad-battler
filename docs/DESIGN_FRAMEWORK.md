@@ -63,20 +63,36 @@ consumables. Items from shop are run-scoped (expire at run end).
 - **Battle log** — each attack line ends with `→ TargetName` (single target) or `→ A, B` (AoE), so the player can follow the fight without guessing who was hit
 - **Floor progress** — "Floor X / 10" displayed in CampaignView
 
-### Combat ✅ Implemented
-- Tick-based auto-battle: each attack has an independent cooldown timer
+### Combat — Tick Auto-battle ✅ Implemented (web)
+- Tick-based auto-battle: each attack fires on an independent cooldown timer
 - 3 positions: Left / Center / Right — affect targeting
 - Speed determines execution order on tie ticks
 - Damage: `attackPower × damageMultiplier`
 
-### Species ✅ Implemented (3 species)
-| Species | HP | Speed | Attack | Role |
-|---|---|---|---|---|
-| Bear | 180 | 8 | 20 | Tanky AOE |
-| Eagle | 130 | 15 | 25 | Fast finisher |
-| Tiger | 160 | 12 | 30 | Balanced DPS |
+### Combat — Card Combat Engine ✅ Implemented (core; UI pending design-007)
+The card combat model (`src/core/cards.ts`, `src/core/cardCombat.ts`, `src/core/combatPolicy.ts`):
+- **Draw 3 cards per turn**; per card choose **top** (attack) or **bottom** (defend/move/utility)
+- **Shared squad life total** — no per-unit board HP, no in-combat death
+- **Enemy intents telegraphed** before the player picks faces
+- **Directional attacks** via existing `TargetType` enum
+- **Greedy cards** — strong top, risky/backfiring bottom (emergent from face values)
+- `GreedyPolicy` deterministic AI resolves headlessly; `simulateCardBattle` wired into `bun run test:sim`
+- `cardCombatSession.ts` — pure phase state machine (`draw` → `choose` → `complete`)
+- `useCardCombat` hook — thin React wrapper; no UX assumptions
+- **Placeholder decks** — 4 cards each for bear/eagle/tiger (`src/data/cards.ts`)
+- Player-facing UI **blocked on design-007** (needs-input: Q1–Q6 UX decisions)
 
-Additional species are designed by humans and unlocked via mini-boss defeats.
+### Species ✅ Implemented (3 species)
+| Species | HP | Speed | Attack | Starting Attack | Role |
+|---|---|---|---|---|---|
+| Bear | 180 | 8 | 20 | Crushing Maul (×3.5, opposite) | Tanky AOE |
+| Eagle | 130 | 15 | 25 | Dive Bomb (×3.5, opposite) | Fast finisher |
+| Tiger | 160 | 12 | 30 | Pounce (×3.5, opposite) | Balanced DPS |
+
+Player units start with **1 attack** (`attacks[]`). Each species has 2 additional attacks
+in `additionalAttacks[]` — the pool for the future level-unlock system. Enemy species
+keep all attacks in `attacks[]` (they don't level). Additional species are designed by
+humans and unlocked via mini-boss defeats.
 
 ### Mutations ✅ Implemented (8 mutations)
 | Mutation | Effect |
@@ -152,7 +168,7 @@ Use simulation tests (`bun run test:sim`) to validate against these targets afte
 
 The following are explicitly excluded regardless of how good the idea sounds:
 
-- **Real-time player input during combat** — combat must stay fully simulatable for automated testing and balance validation
+- **Reflex-based real-time player input during combat** — combat must stay fully simulatable for automated testing and balance validation. Turn-based interactive input (card combat) is in scope; reflex-driven, non-simulatable mechanics are not
 - **Multiplayer** (PvP, co-op, async)
 - **Microtransactions or monetization mechanics**
 - **Off-theme content** — must fit the corporate lab / genetic experimentation setting
