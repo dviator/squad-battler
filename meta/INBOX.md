@@ -6,7 +6,7 @@ GitHub issue; the pipeline resumes on the next heartbeat.
 
 ---
 
-## [NEEDS-INPUT] 2026-09-22 — Pipeline still stalled on Card Combat UI (#30)
+## [NEEDS-INPUT] 2026-09-23 — Pipeline still stalled on Card Combat UI (#30)
 
 **Pipeline state:** All card-combat engineering is shipped on main. Doc-sync
 covering the card combat engine and single-starting-ability work is on main.
