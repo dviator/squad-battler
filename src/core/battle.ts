@@ -11,7 +11,13 @@ import {
 } from "./combatEffects";
 import { SHOP_ITEMS } from "./shop";
 import { resolveTargets } from "./targeting";
-import { type BattleEvent, BattleEventType, type BattleState, type Unit } from "./types";
+import {
+  type BattleEvent,
+  BattleEventType,
+  type BattleState,
+  TargetType,
+  type Unit,
+} from "./types";
 import { getAttackById, isAlive, takeDamage } from "./unit";
 
 export function createBattleState(playerUnits: Unit[], enemyUnits: Unit[]): BattleState {
@@ -31,6 +37,7 @@ export function createBattleState(playerUnits: Unit[], enemyUnits: Unit[]): Batt
     isComplete: false,
     winner: null,
     combatEffectStates,
+    lastPlayerTargetId: null,
   };
 }
 
@@ -106,8 +113,18 @@ interface PendingAttack {
 function processReadyAttacks(state: BattleState): BattleState {
   const pendingAttacks: PendingAttack[] = [];
 
-  const collectReadyAttacks = (unit: Unit, isPlayer: boolean) => {
+  const collectReadyAttacks = (unit: Unit, isPlayer: boolean, allAllies: Unit[]) => {
     if (!isAlive(unit)) return;
+
+    let speed = unit.stats.speed;
+    // Lone Wolf: +50% speed when last surviving player unit
+    if (
+      isPlayer &&
+      unit.mutations.includes("lone_wolf") &&
+      allAllies.filter(isAlive).length === 1
+    ) {
+      speed = Math.floor(speed * 1.5);
+    }
 
     unit.attackTimers.forEach((timer) => {
       if (timer.currentCooldown === 0) {
@@ -115,14 +132,14 @@ function processReadyAttacks(state: BattleState): BattleState {
           unitId: unit.id,
           isPlayer,
           attackId: timer.attackId,
-          speed: unit.stats.speed,
+          speed,
         });
       }
     });
   };
 
-  state.playerUnits.forEach((u) => collectReadyAttacks(u, true));
-  state.enemyUnits.forEach((u) => collectReadyAttacks(u, false));
+  state.playerUnits.forEach((u) => collectReadyAttacks(u, true, state.playerUnits));
+  state.enemyUnits.forEach((u) => collectReadyAttacks(u, false, state.enemyUnits));
 
   pendingAttacks.sort((a, b) => b.speed - a.speed);
 
@@ -151,7 +168,13 @@ function executeAttack(
 
   const allies = attackerUnits;
   const enemies = defenderUnits;
-  let targets = resolveTargets(attacker, allies, enemies, attack.targetType);
+  let targets = resolveTargets(
+    attacker,
+    allies,
+    enemies,
+    attack.targetType,
+    isPlayerAttacker ? state.lastPlayerTargetId : undefined,
+  );
 
   // Check for attack redirection (Enemy Confuser)
   if (shouldRedirectAttack(attacker, SHOP_ITEMS) && enemies.filter(isAlive).length > 1) {
@@ -217,7 +240,28 @@ function executeAttack(
     }
 
     // Calculate damage with reduction (Team Shield Generator)
-    const baseDamage = attacker.stats.attackPower * attack.damageMultiplier;
+    let attackPower = attacker.stats.attackPower;
+    // Lone Wolf: +50% attack power when last surviving player unit
+    if (
+      isPlayerAttacker &&
+      attacker.mutations.includes("lone_wolf") &&
+      attackerUnits.filter(isAlive).length === 1
+    ) {
+      attackPower = Math.floor(attackPower * 1.5);
+    }
+
+    let damageMultiplier = attack.damageMultiplier;
+    // Swarm focus-fire bonus: +50% damage when hitting the last player target
+    if (
+      isPlayerAttacker &&
+      attack.targetType === TargetType.LastPlayerTarget &&
+      state.lastPlayerTargetId &&
+      target.id === state.lastPlayerTargetId
+    ) {
+      damageMultiplier *= 1.5;
+    }
+
+    const baseDamage = attackPower * damageMultiplier;
     const defenderSquad = isPlayerAttacker ? newEnemyUnits : newPlayerUnits;
     const reducedDamage = applyDamageReduction(
       Math.floor(baseDamage),
@@ -289,12 +333,18 @@ function executeAttack(
     };
   };
 
+  // Track the last player target for Swarm mechanics
+  const lastPlayerTargetId = isPlayerAttacker
+    ? (targets[0]?.id ?? state.lastPlayerTargetId)
+    : state.lastPlayerTargetId;
+
   return {
     ...state,
     playerUnits: newPlayerUnits.map(resetTimer),
     enemyUnits: newEnemyUnits.map(resetTimer),
     events,
     combatEffectStates: effectStates,
+    lastPlayerTargetId,
   };
 }
 

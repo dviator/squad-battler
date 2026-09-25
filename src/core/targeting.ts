@@ -6,6 +6,7 @@ export function resolveTargets(
   allies: Unit[],
   enemies: Unit[],
   targetType: TargetType,
+  lastPlayerTargetId?: string | null,
 ): Unit[] {
   const livingEnemies = enemies.filter(isAlive);
   const livingAllies = allies.filter(isAlive);
@@ -71,6 +72,16 @@ export function resolveTargets(
       // Fallback to opposite position
       const oppositeEnemy = livingEnemies.find((e) => e.position === attacker.position);
       return oppositeEnemy ? [oppositeEnemy] : [livingEnemies[0]!];
+    }
+
+    case TargetType.LastPlayerTarget: {
+      // Chase the last unit a player attacked; fall back to OppositeEnemy
+      if (lastPlayerTargetId) {
+        const lastTarget = livingEnemies.find((e) => e.id === lastPlayerTargetId);
+        if (lastTarget) return [lastTarget];
+      }
+      const fallback = livingEnemies.find((e) => e.position === attacker.position);
+      return fallback ? [fallback] : [livingEnemies[0]!];
     }
 
     default:

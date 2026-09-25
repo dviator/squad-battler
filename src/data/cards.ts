@@ -94,8 +94,40 @@ export const TIGER_DECK: Deck = [
   },
 ];
 
+export const WOLF_DECK: Deck = [
+  {
+    id: "wolf_card_swarm",
+    name: "Swarm & Guard",
+    top: { damageMultiplier: 1.2, targetType: TargetType.LastPlayerTarget },
+    bottom: { type: "defend", value: 4 },
+    speciesId: "wolf",
+  },
+  {
+    id: "wolf_card_bite",
+    name: "Pack Bite",
+    top: { damageMultiplier: 1.6, targetType: TargetType.OppositeEnemy },
+    bottom: { type: "utility", value: 6 },
+    speciesId: "wolf",
+  },
+  {
+    id: "wolf_card_hunt",
+    name: "Hunt & Shift",
+    top: { damageMultiplier: 1.4, targetType: TargetType.LastPlayerTarget },
+    bottom: { type: "move", value: 1 },
+    speciesId: "wolf",
+  },
+  {
+    id: "wolf_card_greedy",
+    name: "Lone Charge",
+    top: { damageMultiplier: 2.8, targetType: TargetType.OppositeEnemy },
+    bottom: { type: "utility", value: 1 },
+    speciesId: "wolf",
+  },
+];
+
 export const ALL_DECKS: Record<string, Deck> = {
   bear: BEAR_DECK,
   eagle: EAGLE_DECK,
   tiger: TIGER_DECK,
+  wolf: WOLF_DECK,
 };
