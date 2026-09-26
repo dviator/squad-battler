@@ -6,11 +6,11 @@ GitHub issue; the pipeline resumes on the next heartbeat.
 
 ---
 
-## [NEEDS-INPUT] 2026-09-24 — Pipeline still stalled on Card Combat UI (#30)
+## [NEEDS-INPUT] 2026-09-26 — Board fully dry; Card Combat UI (#30) is the only unblocking move
 
-**Pipeline state:** All card-combat engineering is shipped on main. Doc-sync
-covering the card combat engine and single-starting-ability work is on main.
-Nothing new is actionable; the board has no Ready tickets.
+**Pipeline state:** All card-combat engineering, single-starting-ability, and
+Wolf species (#32, shipped 2026-09-25) are on main. No Ready tickets remain;
+the board is empty of actionable work.
 
 | Issue | What | Stage |
 |---|---|---|
@@ -18,19 +18,15 @@ Nothing new is actionable; the board has no Ready tickets.
 | #28 | Card combat turn resolver | Shipped ✓ |
 | #29 | Deterministic AI policy + sim wiring | Shipped ✓ |
 | #31 | `useCardCombat` hook + session phase machine | Shipped ✓ |
+| #32 | Wolf species (LastPlayerTarget + Lone Wolf mutation) | Shipped ✓ |
 
-The session layer is ready. **The UI is the only missing piece**, blocked
-on your answers to the UX questions in **#30 (design-007: Card Combat UI)**.
+The engine and session layer are complete. **The UI is the only missing piece**,
+blocked on your answers to the UX questions in **#30 (design-007: Card Combat UI)**.
 
 **Please answer Q1–Q6 in #30** so the UI ticket can be implemented:
 <https://github.com/dviator/squad-battler/issues/30>
 
 ### Also waiting (lower urgency)
-
-- **#21** — Wolf species: two unpipelined branches (`feat/wolf-species`,
-  `feature/wolf-character`) need your pick of which implementation to land and
-  any stat/ability tweaks before it merges.
-  <https://github.com/dviator/squad-battler/issues/21>
 
 - **#22** — Battle legibility design (visual treatment for initiative, targeting
   icons, fight pacing): three design questions before tickets can be created.
