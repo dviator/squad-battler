@@ -6,7 +6,7 @@ GitHub issue; the pipeline resumes on the next heartbeat.
 
 ---
 
-## [NEEDS-INPUT] 2026-09-28 — Board fully dry; Card Combat UI (#30) is the only unblocking move
+## [NEEDS-INPUT] 2026-09-29 — Board fully dry; Card Combat UI (#30) is the only unblocking move
 
 **Pipeline state:** All card-combat engineering, single-starting-ability, and
 Wolf species (#32, shipped 2026-09-25) are on main. No Ready tickets remain;
