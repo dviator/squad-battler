@@ -6,9 +6,9 @@ GitHub issue; the pipeline resumes on the next heartbeat.
 
 ---
 
-## [NEEDS-INPUT] 2026-10-09 — Board still dry (11th week); Card Combat UI (#30) is the only unblocking move
+## [NEEDS-INPUT] 2026-10-10 — Board still dry (12th week); Card Combat UI (#30) is the only unblocking move
 
-**Pipeline state (checked 2026-10-09):** All card-combat engineering,
+**Pipeline state (checked 2026-10-10):** All card-combat engineering,
 single-starting-ability, and Wolf species (#32) are on main. Board has been
 empty of actionable work since 2026-09-25. No comments on #30 — Q1–Q6 unanswered.
 
