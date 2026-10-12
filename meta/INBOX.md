@@ -6,12 +6,9 @@ GitHub issue; the pipeline resumes on the next heartbeat.
 
 ---
 
-## [NEEDS-INPUT] 2026-10-11 — Board still dry (day 17); push notification sent
+## [NEEDS-INPUT] 2026-10-12 — Board still dry (day 18); no new comments on #30
 
-**Pipeline state (checked 2026-10-11):** All card-combat engineering,
-single-starting-ability, and Wolf species (#32) are on main. Board has been
-empty of actionable work since 2026-09-25. No comments on #30 — Q1–Q6 unanswered.
-Push notification sent to Dan (mobile + email) about the 16-day blockage.
+**Pipeline state (checked 2026-10-12):** Same as day 17. No new comments on #30 — Q1–Q6 still unanswered. Push notification was sent yesterday (2026-10-11).
 
 | Issue | What | Stage |
 |---|---|---|
