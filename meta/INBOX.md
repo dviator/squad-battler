@@ -6,6 +6,12 @@ GitHub issue; the pipeline resumes on the next heartbeat.
 
 ---
 
+## [NEEDS-INPUT] 2026-10-15 — Board still dry (day 21); no new comments on #30
+
+**Pipeline state (checked 2026-10-15):** Same as day 20. No new comments on #30 — Q1–Q6 still unanswered. Push notification sent today.
+
+---
+
 ## [NEEDS-INPUT] 2026-10-14 — Board still dry (day 20); no new comments on #30
 
 **Pipeline state (checked 2026-10-14):** Same as day 19. No new comments on #30 — Q1–Q6 still unanswered. Last push notification was 2026-10-13.
